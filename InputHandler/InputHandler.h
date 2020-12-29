@@ -16,7 +16,7 @@ struct KeyFrames {
 
 class InputHandler {
 public:
-    enum class States {
+    enum States {
         JUST_PRESSED,
         JUST_RELEASED,
         STILL_PRESSED,

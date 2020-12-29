@@ -4,27 +4,38 @@
 
 #include "Game.h"
 #include "../InputHandler/InputHandler.h"
+#include "../ResourceManager/ResourceManager.h"
 
 #include <iostream>
 
 Game::Game() :
     window{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone" },
-    view{ sf::FloatRect(0, 0, WIDTH, HEIGHT) },
-    texture{},
-    sprite{}
+    view{ sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
+    world{},
+    fpsText{}
 {
-    window.setFramerateLimit(60);
-
-    texture.loadFromFile("../Resources/Spritesheets/block_sprites.png", sf::IntRect(96, 0, 96, 96));
-    sprite.setTexture(texture);
-    sprite.move(200.0f, 300.0f);
+    window.setFramerateLimit(144);
+    fpsText.setFont(*ResourceManager::getFont());
+    fpsText.setFillColor(sf::Color::Red);
 }
 
 void Game::start() {
     sf::Clock timer;
+    float fpsTimer = 0;
+    float fps = 0;
     while (window.isOpen()) {
+        float delta = timer.restart().asMilliseconds();
+        fpsTimer += delta;
+        if (fpsTimer > 1000) {
+            fpsText.setString("fps: " + std::to_string(fps));
+            fpsTimer = 0;
+            fps = 0;
+        }
+        else {
+            fps += 1;
+        }
         handleEvents();
-        update(timer.restart());
+        update(delta);
         render();
     }
 }
@@ -43,19 +54,43 @@ void Game::handleEvents() {
     InputHandler::updateStates();
 }
 
-void Game::update(sf::Time delta) {
-//    if (InputHandler::getMouseButtonState(sf::Mouse::Left) == InputHandler::States::JUST_PRESSED) {
-//        view.setSize(view.getSize().x * 1.1f, view.getSize().y * 1.1f);
-//    }
-//    if (InputHandler::getMouseButtonState(sf::Mouse::Right) == InputHandler::States::JUST_PRESSED) {
-//        view.setSize(view.getSize().x / 1.1f, view.getSize().y / 1.1f);
-//    }
+void Game::update(float delta) {
+    view.setCenter(player);
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
+        InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED) {
+        player.x -= 1.0f * delta;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
+        InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED) {
+        player.x += 1.0f * delta;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
+        InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED) {
+        player.y -= 1.0f * delta;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::JUST_PRESSED ||
+        InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED) {
+        player.y += 1.0f * delta;
+    }
+    if (InputHandler::getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
+        window.setView(view);
+        sf::Vector2f globalCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        sf::Vector2i pos = mapGlobalCoordsToGame(globalCoords);
+        world.destroyBlock(pos);
+        window.setView(window.getDefaultView());
+    }
 }
 
 void Game::render() {
     window.clear(sf::Color::White);
     window.setView(view);
-    window.draw(sprite);
+    window.draw(world);
     window.setView(window.getDefaultView());
+    window.draw(fpsText);
     window.display();
+}
+
+sf::Vector2i Game::mapGlobalCoordsToGame(sf::Vector2f& globalCoords) {
+    sf::Vector2i gameCoords{ static_cast<int>(floor(globalCoords.x / BLOCK_SIZE)), -1 * static_cast<int>(std::floor(globalCoords.y / BLOCK_SIZE)) };
+    return gameCoords;
 }

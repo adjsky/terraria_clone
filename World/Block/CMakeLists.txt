@@ -1,0 +1,1 @@
+add_library(block Block.cpp BlockTypes.h BlockInfo.h)

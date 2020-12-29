@@ -7,22 +7,25 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "../constants.h"
+#include "../Util/constants.h"
+#include "../World/World.h"
 
 class Game {
 private:
     sf::RenderWindow window;
-
     sf::View view;
-
-    sf::Texture texture;
-    sf::Sprite sprite;
+    sf::Vector2f player;
+    World world;
+    sf::Text fpsText;
 public:
     explicit Game();
     void start();
-    void update(sf::Time delta);
+    void update(float delta);
     void handleEvents();
     void render();
+
+private:
+    sf::Vector2i mapGlobalCoordsToGame(sf::Vector2f& globalCoords);
 };
 
 
