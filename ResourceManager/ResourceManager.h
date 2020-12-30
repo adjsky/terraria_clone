@@ -14,11 +14,17 @@
 
 class ResourceManager {
 public:
+    enum Textures {
+        BLOCK,
+        PLAYER,
+        TEXTURES_COUNT
+    };
+
     static void initialize();
-    static std::unique_ptr<sf::Texture>& getBlockTexture();
+    static std::unique_ptr<sf::Texture>& getTexture(ResourceManager::Textures texture);
     static std::unique_ptr<sf::Font>& getFont();
 private:
-    static std::unique_ptr<sf::Texture> blocksSpriteSheet;
+    static std::array<std::unique_ptr<sf::Texture>, TEXTURES_COUNT> textures;
     static std::unique_ptr<sf::Font> font;
 };
 
