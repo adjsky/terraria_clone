@@ -118,6 +118,15 @@ void Game::updatePlayer(float delta) {
             player.move(player.horizontalSpeed, 0);
         }
     }
+
+    while (checkRightSideCollision(player)) {
+        player.move(-0.1f, 0.0f);
+    }
+
+    while (checkLeftSideCollision(player)) {
+        player.move(0.1f, 0.0f);
+    }
+
     player.horizontalSpeed = 0;
 }
 
