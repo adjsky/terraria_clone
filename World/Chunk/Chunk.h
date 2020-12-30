@@ -17,11 +17,10 @@ public:
     explicit Chunk() = default;
     explicit Chunk(sf::Vector2i pos);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void destroyBlock(sf::Vector2i pos);
-    void destroyBlock(int x, int y);
+    std::shared_ptr<Block> getBlock(int x, int y);
 private:
     sf::Vector2i position;
-    std::array<std::array<Block, CHUNK_WIDTH>, CHUNK_HEIGHT> blocks;
+    std::array<std::array<std::shared_ptr<Block>, CHUNK_WIDTH>, CHUNK_HEIGHT> blocks;
 };
 
 

@@ -12,5 +12,5 @@ add_subdirectory(Util)
 
 add_executable(terraria_clone main.cpp Util/constants.h)
 target_link_libraries(terraria_clone sfml-window sfml-system sfml-graphics
-                      game input-handler resource-manager chunk block
-                      player world utility)
+                      world game input-handler resource-manager chunk block
+                      player  utility)

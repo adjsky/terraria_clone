@@ -5,18 +5,21 @@
 #include "Game.h"
 #include "../InputHandler/InputHandler.h"
 #include "../ResourceManager/ResourceManager.h"
+#include "../World/World.h"
+#include "../Physics/Collisions.h"
 
 #include <iostream>
 
 Game::Game() :
     window{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone" },
     view{ sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
-    world{},
-    fpsText{}
+    fpsText{},
+    player{ *ResourceManager::getTexture(ResourceManager::PLAYER), sf::IntRect(126, 12, 90, 124)  }
 {
     window.setFramerateLimit(144);
     fpsText.setFont(*ResourceManager::getFont());
     fpsText.setFillColor(sf::Color::Red);
+    player.move(0.0f, -256.0f * BLOCK_SIZE);
 }
 
 void Game::start() {
@@ -47,6 +50,7 @@ void Game::handleEvents() {
             window.close();
         }
         if (e.type == sf::Event::Resized) {
+            // change game view ratio
             float ratio = static_cast<float>(window.getSize().x) / static_cast<float>(window.getSize().y);
             view.setSize(VIEW_WIDTH * ratio, VIEW_HEIGHT);
         }
@@ -55,42 +59,85 @@ void Game::handleEvents() {
 }
 
 void Game::update(float delta) {
-    view.setCenter(player);
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED) {
-        player.x -= 1.0f * delta;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED) {
-        player.x += 1.0f * delta;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED) {
-        player.y -= 1.0f * delta;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED) {
-        player.y += 1.0f * delta;
-    }
-    if (InputHandler::getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
-        window.setView(view);
-        sf::Vector2f globalCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-        sf::Vector2i pos = mapGlobalCoordsToGame(globalCoords);
-        world.destroyBlock(pos);
-        window.setView(window.getDefaultView());
-    }
+    updatePlayer(delta);
+    handleClick();
+    updateCamera();
 }
 
 void Game::render() {
     window.clear(sf::Color::White);
+
     window.setView(view);
-    window.draw(world);
+    World::draw(window);
+    window.draw(player);
+
     window.setView(window.getDefaultView());
     window.draw(fpsText);
+
     window.display();
 }
 
-sf::Vector2i Game::mapGlobalCoordsToGame(sf::Vector2f& globalCoords) {
-    sf::Vector2i gameCoords{ static_cast<int>(floor(globalCoords.x / BLOCK_SIZE)), -1 * static_cast<int>(std::floor(globalCoords.y / BLOCK_SIZE)) };
-    return gameCoords;
+void Game::updatePlayer(float delta) {
+    // vertical
+    if (checkBottomCollision(player)) {
+        player.isOnGround = true;
+    }
+    else {
+        player.isOnGround = false;
+    }
+
+    if (!player.isOnGround) {
+        player.verticalSpeed += G * delta / 1250.0f;
+    } else {
+        player.verticalSpeed = 0;
+    }
+
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED) {
+        if (player.isOnGround) {
+            std::cout << player.verticalSpeed << '\n';
+            player.verticalSpeed = -6.0f;
+            player.isOnGround = false;
+            std::cout << player.verticalSpeed << '\n';
+        }
+    }
+
+    player.move(0, player.verticalSpeed);
+
+    // horizontal
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
+        InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED) {
+        player.horizontalSpeed = -0.6f * delta;
+        if (!checkLeftSideCollision(player)) {
+            player.move(player.horizontalSpeed, 0);
+        }
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
+        InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED) {
+        player.horizontalSpeed = 0.6f * delta;
+        if (!checkRightSideCollision(player)) {
+            player.move(player.horizontalSpeed, 0);
+        }
+    }
+    player.horizontalSpeed = 0;
+}
+
+void Game::handleClick() {
+    if (InputHandler::getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
+        window.setView(view);
+        sf::Vector2f globalCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        sf::Vector2i pos = mapGlobalCoordsToGame(globalCoords);
+        World::destroyBlock(pos);
+        window.setView(window.getDefaultView());
+    }
+    if (InputHandler::getMouseButtonState(sf::Mouse::Right) == InputHandler::JUST_PRESSED) {
+        window.setView(view);
+        sf::Vector2f globalCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        sf::Vector2i pos = mapGlobalCoordsToGame(globalCoords);
+        World::placeBlock(pos);
+        window.setView(window.getDefaultView());
+    }
+}
+
+void Game::updateCamera() {
+    view.setCenter(player.getPosition());
 }

@@ -8,24 +8,23 @@
 #include <SFML/Graphics.hpp>
 
 #include "../Util/constants.h"
-#include "../World/World.h"
+#include "../Entities/Player/Player.h"
 
 class Game {
 private:
     sf::RenderWindow window;
     sf::View view;
-    sf::Vector2f player;
-    World world;
+    Player player;
     sf::Text fpsText;
 public:
     explicit Game();
     void start();
     void update(float delta);
+    void updatePlayer(float delta);
+    void handleClick();
+    void updateCamera();
     void handleEvents();
     void render();
-
-private:
-    sf::Vector2i mapGlobalCoordsToGame(sf::Vector2f& globalCoords);
 };
 
 

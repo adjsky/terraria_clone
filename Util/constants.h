@@ -12,5 +12,6 @@ constexpr int VIEW_WIDTH = 720;
 constexpr int BLOCK_SIZE = 32;
 constexpr int CHUNK_WIDTH = 16;
 constexpr int CHUNK_HEIGHT = 255;
+constexpr float G = 10.0f;
 
 #endif //TERRARIA_CLONE_CONSTANTS_H
