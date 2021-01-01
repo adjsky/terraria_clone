@@ -6,16 +6,17 @@
 #define TERRARIA_CLONE_GAME_H
 
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 #include "../Util/constants.h"
-#include "../Entities/Player/Player.h"
+#include "../Entities/Player/AnimatedPlayer/AnimatedPlayer.h"
 
 class Game {
 private:
-    sf::RenderWindow window;
-    sf::View view;
-    Player player;
-    sf::Text fpsText;
+    sf::RenderWindow window_;
+    sf::View view_;
+    AnimatedPlayer player_;
+    sf::Text fpsText_;
 public:
     explicit Game();
     void start();

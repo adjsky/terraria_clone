@@ -5,22 +5,14 @@
 #include "Player.h"
 #include "../../Util/utility.h"
 #include "../../World/World.h"
-#include "../../Util/constants.h"
 
-Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle) :
-    player { texture, rectangle },
+Player::Player(const std::unique_ptr<sf::Texture>& texture) :
+    player_ { *texture },
     isOnGround{ },
     verticalSpeed{ },
     horizontalSpeed{ },
-    scale {static_cast<float>(BLOCK_SIZE) / rectangle.width - 0.1f, static_cast<float>(BLOCK_SIZE) / rectangle.height * 2 - 0.02f }
+    scale_ { sf::Vector2f{ 1.0f, 1.0f } }
 {
-    player.setOrigin(rectangle.width / 2.0f, rectangle.height / 2.0f);
-    player.setScale(scale);
-    hitBox.setSize(sf::Vector2f(rectangle.width * scale.x, rectangle.height * scale.y));
-    hitBox.setOutlineThickness(1.0f);
-    hitBox.setOutlineColor(sf::Color::Blue);
-    hitBox.setFillColor(sf::Color::Transparent);
-    hitBox.setOrigin(hitBox.getSize().x / 2.0f, hitBox.getSize().y / 2.0f);
 }
 
 void Player::move(sf::Vector2f offset) {
@@ -28,19 +20,67 @@ void Player::move(sf::Vector2f offset) {
 }
 
 void Player::move(float x, float y) {
-    hitBox.move(x, y);
-    player.move(x, y);
+    hitBox_.move(x, y);
+    player_.move(x, y);
 }
 
 void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    target.draw(hitBox);
-    target.draw(player);
+    target.draw(hitBox_);
+    target.draw(player_);
 }
 
 sf::Vector2f Player::getPosition() const {
-    return player.getPosition();
+    return player_.getPosition();
 }
 
 sf::FloatRect Player::getHitBox() const {
-    return hitBox.getGlobalBounds();
+    return hitBox_.getGlobalBounds();
 }
+
+void Player::setScale(const sf::Vector2f& scale) {
+    scale_ = scale;
+    player_.setScale(scale_);
+}
+
+sf::Vector2f Player::getScale() {
+    return scale_;
+}
+
+void Player::constructHitBox() {
+    hitBox_.setOutlineThickness(1.0f);
+    hitBox_.setOutlineColor(sf::Color::Blue);
+    hitBox_.setFillColor(sf::Color::Transparent);
+    hitBox_.setSize(sf::Vector2f(player_.getTextureRect().width * scale_.x - 5.0f, player_.getTextureRect().height * scale_.y));
+    hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
+}
+
+void Player::updateHitBox() {
+    hitBox_.setSize(sf::Vector2f(player_.getTextureRect().width * scale_.x - 5.0f, player_.getTextureRect().height * scale_.y));
+    hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
+}
+
+void Player::setTextureRect(const sf::IntRect &rec) {
+    player_.setTextureRect(rec);
+    player_.setOrigin(rec.width / 2.0f, rec.height / 2.0f);
+    setScale(sf::Vector2f(static_cast<float>(BLOCK_SIZE) / rec.width - 0.1f,
+                                  static_cast<float>(BLOCK_SIZE) / rec.height * 2 - 0.02f));
+    updateHitBox();
+}
+
+sf::Vector2f Player::getPosition() {
+    return sf::Vector2f(player_.getPosition());
+}
+
+float Player::getWidth() {
+    return player_.getTextureRect().width;
+}
+
+float Player::getHeight() {
+    return player_.getTextureRect().height;
+}
+
+sf::FloatRect Player::getGlobalBounds() {
+    return player_.getGlobalBounds();
+}
+
+

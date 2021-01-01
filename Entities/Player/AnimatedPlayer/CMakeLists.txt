@@ -1,0 +1,1 @@
+add_library(animated_player AnimatedPlayer.cpp)
