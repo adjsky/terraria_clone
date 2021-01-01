@@ -5,11 +5,12 @@
 #ifndef TERRARIA_CLONE_COLLISIONS_H
 #define TERRARIA_CLONE_COLLISIONS_H
 
+#include <array>
+#include <iostream>
+
 #include "../Entities/Player/Player.h"
 #include "../World/World.h"
 #include "../Util/utility.h"
-
-#include <iostream>
 
 bool checkBottomCollision(const Player& player) {
     sf::FloatRect hitbox = player.getHitBox();
@@ -29,37 +30,58 @@ bool checkBottomCollision(const Player& player) {
     }
     return false;
 }
+
 bool checkRightSideCollision(const Player& player) {
     sf::FloatRect hitbox = player.getHitBox();
-    sf::Vector2f topRightPos { hitbox.left + hitbox.width, hitbox.top};
-    sf::Vector2f bottomRightPos { hitbox.left + hitbox.width, hitbox.top + hitbox.height - 1.0f};
-    auto topRightBlock = World::getBlock(mapGlobalCoordsToGame(topRightPos));
-    if (topRightBlock) {
-        if (topRightBlock->visible) {
-            return true;
-        }
-    }
-    auto bottomRightBlock = World::getBlock(mapGlobalCoordsToGame(bottomRightPos));
-    if (bottomRightBlock) {
-        if (bottomRightBlock->visible) {
-            return true;
+    std::array<sf::Vector2f, 3> positions;
+    positions[0] = sf::Vector2f(hitbox.left + hitbox.width, hitbox.top + hitbox.height - 0.1f);
+    positions[1] = sf::Vector2f(hitbox.left + hitbox.width, hitbox.top + 0.1f);
+    positions[2] = sf::Vector2f(hitbox.left + hitbox.width, hitbox.top + hitbox.height / 2.0f);
+    for (auto& pos : positions) {
+        auto block = World::getBlock(mapGlobalCoordsToGame(pos));
+        if (block) {
+            if (block->visible) {
+                if (hitbox.intersects(block->sprite.getGlobalBounds())) {
+                    return true;
+                }
+            }
         }
     }
     return false;
 }
+
 bool checkLeftSideCollision(Player& player) {
     sf::FloatRect hitbox = player.getHitBox();
-    sf::Vector2f topLeftPos { hitbox.left, hitbox.top};
-    sf::Vector2f bottomLeftPos { hitbox.left, hitbox.top + hitbox.height - 1.0f};
-    auto topLeftBlock = World::getBlock(mapGlobalCoordsToGame(topLeftPos));
-    if (topLeftBlock) {
-        if (topLeftBlock->visible) {
+    std::array<sf::Vector2f, 3> positions;
+    positions[0] = sf::Vector2f(hitbox.left, hitbox.top + hitbox.height - 0.1f);
+    positions[1] = sf::Vector2f(hitbox.left, hitbox.top + 0.1f);
+    positions[2] = sf::Vector2f(hitbox.left, hitbox.top + hitbox.height / 2.0f);
+    for (auto& pos : positions) {
+        auto block = World::getBlock(mapGlobalCoordsToGame(pos));
+        if (block) {
+            if (block->visible) {
+                if (hitbox.intersects(block->sprite.getGlobalBounds())) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool checkTopCollision(Player& player) {
+    sf::FloatRect hitbox = player.getHitBox();
+    sf::Vector2f bottomLeftPos { hitbox.left, hitbox.top + player.verticalSpeed};
+    auto leftTopBlock = World::getBlock(mapGlobalCoordsToGame(bottomLeftPos));
+    if (leftTopBlock) {
+        if (leftTopBlock->visible) {
             return true;
         }
     }
-    auto bottomLeftBlock = World::getBlock(mapGlobalCoordsToGame(bottomLeftPos));
-    if (bottomLeftBlock) {
-        if (bottomLeftBlock->visible) {
+    sf::Vector2f TopRightPos { hitbox.left + hitbox.width, hitbox.top + player.verticalSpeed};
+    auto rightTopBlock = World::getBlock(mapGlobalCoordsToGame(TopRightPos));
+    if (rightTopBlock) {
+        if (rightTopBlock->visible) {
             return true;
         }
     }
