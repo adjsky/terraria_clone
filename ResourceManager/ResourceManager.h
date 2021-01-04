@@ -21,8 +21,8 @@ public:
     };
 
     static void initialize();
-    static std::unique_ptr<sf::Texture>& getTexture(ResourceManager::Textures texture);
-    static std::unique_ptr<sf::Font>& getFont();
+    static const std::unique_ptr<sf::Texture>& getTexture(ResourceManager::Textures texture);
+    static const std::unique_ptr<sf::Font>& getFont();
 private:
     static std::array<std::unique_ptr<sf::Texture>, TEXTURES_COUNT> textures;
     static std::unique_ptr<sf::Font> font;

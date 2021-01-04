@@ -22,10 +22,10 @@ void ResourceManager::initialize() {
     }
 }
 
-std::unique_ptr<sf::Texture>& ResourceManager::getTexture(ResourceManager::Textures texture) {
+const std::unique_ptr<sf::Texture>& ResourceManager::getTexture(ResourceManager::Textures texture) {
     return textures[texture];
 }
 
-std::unique_ptr<sf::Font> &ResourceManager::getFont() {
+const std::unique_ptr<sf::Font> &ResourceManager::getFont() {
     return font;
 }
