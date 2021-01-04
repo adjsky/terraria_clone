@@ -12,77 +12,57 @@
 #include "../World/World.h"
 #include "../Util/utility.h"
 
-bool checkBottomCollision(const Player& player) {
+bool checkFootBlocks(Player& player) {
     sf::FloatRect hitbox = player.getHitBox();
-    sf::Vector2f bottomLeftPos { hitbox.left, hitbox.top + hitbox.height + player.verticalSpeed};
-    auto leftBottomBlock = World::getBlock(mapGlobalCoordsToGame(bottomLeftPos));
-    if (leftBottomBlock) {
-        if (leftBottomBlock->visible) {
-            return true;
-        }
-    }
-    sf::Vector2f bottomRightPos { hitbox.left + hitbox.width, hitbox.top + hitbox.height + player.verticalSpeed};
-    auto rightBottomBlock = World::getBlock(mapGlobalCoordsToGame(bottomRightPos));
-    if (rightBottomBlock) {
-        if (rightBottomBlock->visible) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool checkRightSideCollision(const Player& player) {
-    sf::FloatRect hitbox = player.getHitBox();
-    std::array<sf::Vector2f, 3> positions;
-    positions[0] = sf::Vector2f(hitbox.left + hitbox.width, hitbox.top + hitbox.height - 0.1f);
-    positions[1] = sf::Vector2f(hitbox.left + hitbox.width, hitbox.top + 0.1f);
-    positions[2] = sf::Vector2f(hitbox.left + hitbox.width, hitbox.top + hitbox.height / 2.0f);
-    for (auto& pos : positions) {
-        auto block = World::getBlock(mapGlobalCoordsToGame(pos));
+    for (int x = hitbox.left; x < hitbox.left + hitbox.width; x++) {
+        auto block = World::getBlock(mapGlobalCoordsToGame(x, hitbox.top + hitbox.height + 0.1f));
         if (block) {
             if (block->visible) {
-                if (hitbox.intersects(block->sprite.getGlobalBounds())) {
-                    return true;
-                }
+                return true;
             }
         }
     }
     return false;
 }
 
-bool checkLeftSideCollision(Player& player) {
+bool checkPossibleVerticalCollision(Player& player) {
     sf::FloatRect hitbox = player.getHitBox();
-    std::array<sf::Vector2f, 3> positions;
-    positions[0] = sf::Vector2f(hitbox.left, hitbox.top + hitbox.height - 0.1f);
-    positions[1] = sf::Vector2f(hitbox.left, hitbox.top + 0.1f);
-    positions[2] = sf::Vector2f(hitbox.left, hitbox.top + hitbox.height / 2.0f);
-    for (auto& pos : positions) {
-        auto block = World::getBlock(mapGlobalCoordsToGame(pos));
+    for (int x = hitbox.left; x < hitbox.left + hitbox.width; x++) {
+        auto block = World::getBlock(mapGlobalCoordsToGame(x, hitbox.top + hitbox.height + player.verticalSpeed));
         if (block) {
             if (block->visible) {
-                if (hitbox.intersects(block->sprite.getGlobalBounds())) {
-                    return true;
-                }
+                player.verticalSpeed = 0;
+                player.setPosition(player.getPosition().x, block->sprite.getPosition().y - hitbox.height / 2.0f - 0.1f);
+                return true;
+            }
+        }
+        block = World::getBlock(mapGlobalCoordsToGame(x, hitbox.top + player.verticalSpeed));
+        if (block) {
+            if (block->visible) {
+                player.verticalSpeed = 0;
+                return true;
             }
         }
     }
     return false;
 }
 
-bool checkTopCollision(Player& player) {
+bool checkPossibleHorizontalCollision(Player& player) {
     sf::FloatRect hitbox = player.getHitBox();
-    sf::Vector2f bottomLeftPos { hitbox.left, hitbox.top + player.verticalSpeed};
-    auto leftTopBlock = World::getBlock(mapGlobalCoordsToGame(bottomLeftPos));
-    if (leftTopBlock) {
-        if (leftTopBlock->visible) {
-            return true;
+    for (int y = hitbox.top; y < hitbox.top + hitbox.height; y++) {
+        auto block = World::getBlock(mapGlobalCoordsToGame(hitbox.left + player.horizontalSpeed, y));
+        if (block) {
+            if (block->visible) {
+                player.setPosition(block->sprite.getPosition().x + BLOCK_SIZE + hitbox.width / 2.0f + 0.1f, player.getPosition().y);
+                return true;
+            }
         }
-    }
-    sf::Vector2f TopRightPos { hitbox.left + hitbox.width, hitbox.top + player.verticalSpeed};
-    auto rightTopBlock = World::getBlock(mapGlobalCoordsToGame(TopRightPos));
-    if (rightTopBlock) {
-        if (rightTopBlock->visible) {
-            return true;
+        block = World::getBlock(mapGlobalCoordsToGame(hitbox.left + hitbox.width + player.horizontalSpeed, y));
+        if (block) {
+            if (block->visible) {
+                player.setPosition(block->sprite.getPosition().x - hitbox.width / 2.0f - 0.1f, player.getPosition().y);
+                return true;
+            }
         }
     }
     return false;

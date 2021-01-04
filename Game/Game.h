@@ -13,6 +13,7 @@
 
 class Game {
 private:
+    float fixedDelta;
     sf::RenderWindow window_;
     sf::View view_;
     AnimatedPlayer player_;
@@ -20,10 +21,8 @@ private:
 public:
     explicit Game();
     void start();
-    void update(float delta);
-    void updatePlayer(float delta);
-    void handleClick();
-    void updateCamera();
+    void update();
+    void fixedUpdate();
     void handleEvents();
     void render();
 };

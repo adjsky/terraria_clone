@@ -6,6 +6,7 @@
 #define TERRARIA_CLONE_PLAYER_H
 
 #include <memory>
+#include <array>
 
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Drawable.hpp"
@@ -27,12 +28,17 @@ public:
     void constructHitBox();
     void updateHitBox();
     sf::Vector2f getPosition();
-    float getWidth();
-    float getHeight();
+    void setPosition(float x, float y);
     void setTextureRect(const sf::IntRect& rec);
     sf::FloatRect getGlobalBounds();
 
 public:
+    enum MoveDirection {
+        RIGHT,
+        LEFT,
+        JUMP,
+        DIRECTION_COUNT
+    };
     bool isOnGround;
     float verticalSpeed;
     float horizontalSpeed;

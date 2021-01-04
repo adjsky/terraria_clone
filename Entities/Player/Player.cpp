@@ -71,16 +71,13 @@ sf::Vector2f Player::getPosition() {
     return sf::Vector2f(player_.getPosition());
 }
 
-float Player::getWidth() {
-    return player_.getTextureRect().width;
-}
-
-float Player::getHeight() {
-    return player_.getTextureRect().height;
-}
-
 sf::FloatRect Player::getGlobalBounds() {
     return player_.getGlobalBounds();
+}
+
+void Player::setPosition(float x, float y) {
+    hitBox_.setPosition(x, y);
+    player_.setPosition(x, y);
 }
 
 
