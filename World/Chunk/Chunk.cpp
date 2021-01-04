@@ -21,11 +21,15 @@ Chunk::Chunk(sf::Vector2i pos) : position{ pos } {
     }
 }
 
-void Chunk::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+void Chunk::draw(sf::RenderWindow& window) const {
+    const sf::View& view = window.getView();
+    sf::FloatRect viewBox { view.getCenter() - view.getSize() / 2.0f, view.getSize() };
     for (const auto& arr : blocks) {
         for (const auto& block : arr) {
             if (block->visible) {
-                target.draw(block->sprite);
+                if (viewBox.intersects(block->sprite.getGlobalBounds())){
+                    window.draw(block->sprite);
+                }
             }
         }
     }

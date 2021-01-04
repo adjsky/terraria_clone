@@ -22,7 +22,7 @@ void World::initialize() {
 
 void World::draw(sf::RenderWindow& window)  {
     for (const auto& pair : chunks) {
-        window.draw(pair.second);
+        pair.second.draw(window);
     }
 }
 

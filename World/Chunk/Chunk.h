@@ -12,11 +12,11 @@
 #include "../Block/Block.h"
 #include "../../Util/constants.h"
 
-class Chunk : public sf::Drawable {
+class Chunk {
 public:
     explicit Chunk() = default;
     explicit Chunk(sf::Vector2i pos);
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void draw(sf::RenderWindow& window) const;
     std::shared_ptr<Block> getBlock(int x, int y);
 private:
     sf::Vector2i position;
