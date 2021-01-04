@@ -22,9 +22,10 @@ public:
 
 public:
     explicit AnimatedPlayer(const std::unique_ptr<sf::Texture>& texture);
-    void setPeriod(float period);
-    void setAnimation(Animations animation);
-    void addAnimationFrame(Animations animation, sf::IntRect rect);
+    void setPeriod(float seconds);
+    void setAnimation(Animations type);
+    void addAnimationFrame(Animations type, sf::IntRect rect);
+    void setDirection(MoveDirection direction);
     void update(float delta);
 
 private:
@@ -32,6 +33,7 @@ private:
     float period_;
     int animationCount_;
     Animations currentAnimation_;
+    MoveDirection moveDirection;
 
     std::array<std::vector<sf::IntRect>, ANIMATIONS_COUNT> textureRectangles_;
 };
