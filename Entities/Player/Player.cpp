@@ -3,15 +3,17 @@
 //
 
 #include "Player.h"
+#include "../../Physics/Collisions.h"
 #include "../../Util/utility.h"
 #include "../../World/World.h"
+
+#include <iostream>
 
 Player::Player(const std::unique_ptr<sf::Texture>& texture) :
     player_ { *texture },
     isOnGround{ },
     verticalSpeed{ },
-    horizontalSpeed{ },
-    scale_ { sf::Vector2f{ 1.0f, 1.0f } }
+    horizontalSpeed{ }
 {
 }
 
@@ -33,38 +35,22 @@ sf::Vector2f Player::getPosition() const {
     return player_.getPosition();
 }
 
-sf::FloatRect Player::getHitBox() const {
+sf::FloatRect Player::getHitboxBounds() const {
     return hitBox_.getGlobalBounds();
-}
-
-void Player::setScale(const sf::Vector2f& scale) {
-    scale_ = scale;
-    player_.setScale(scale_);
-}
-
-sf::Vector2f Player::getScale() {
-    return scale_;
 }
 
 void Player::constructHitBox() {
     hitBox_.setOutlineThickness(1.0f);
     hitBox_.setOutlineColor(sf::Color::Blue);
     hitBox_.setFillColor(sf::Color::Transparent);
-    hitBox_.setSize(sf::Vector2f(player_.getTextureRect().width * scale_.x - 5.0f, player_.getTextureRect().height * scale_.y));
-    hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
-}
-
-void Player::updateHitBox() {
-    hitBox_.setSize(sf::Vector2f(player_.getTextureRect().width * scale_.x - 5.0f, player_.getTextureRect().height * scale_.y));
+    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - 8.0f, BLOCK_SIZE * 2.0f - 5.0f));
     hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
 }
 
 void Player::setTextureRect(const sf::IntRect &rec) {
     player_.setTextureRect(rec);
     player_.setOrigin(rec.width / 2.0f, rec.height / 2.0f);
-    setScale(sf::Vector2f(static_cast<float>(BLOCK_SIZE) / rec.width - 0.1f,
-                                  static_cast<float>(BLOCK_SIZE) / rec.height * 2 - 0.02f));
-    updateHitBox();
+    player_.setScale(sf::Vector2f((float)BLOCK_SIZE / rec.width,(float)BLOCK_SIZE / rec.height * 2));
 }
 
 sf::Vector2f Player::getPosition() {
@@ -78,6 +64,123 @@ sf::FloatRect Player::getGlobalBounds() {
 void Player::setPosition(float x, float y) {
     hitBox_.setPosition(x, y);
     player_.setPosition(x, y);
+}
+
+float Player::getDistanceToGround() const {
+    sf::FloatRect hitbox = getHitboxBounds();
+    float minHeight = std::numeric_limits<float>::max();
+    int startX = mapGlobalCoordsToGame(hitbox.left, 0).x;
+    int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
+    sf::Vector2i playerCoords = mapGlobalCoordsToGame(getPosition().x, hitbox.top + hitbox.height);
+    for (int x = startX; x < endX + 1; x++) {
+        std::shared_ptr<Block> block;
+        for (int y = 0; y < playerCoords.y; y++) {
+            block = World::getBlock(x, playerCoords.y - y);
+            if (block) {
+                if (block->visible) {
+                    float height =  -((hitbox.top + hitbox.height) - block->sprite.getPosition().y);
+                    if (height < minHeight) {
+                        minHeight = height;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    return minHeight;
+}
+
+void Player::moveWithCollide() {
+    if (horizontalSpeed != 0) {
+        sf::FloatRect hitbox = getHitboxBounds();
+        // move hitbox horizontally
+        hitbox.left += horizontalSpeed;
+
+        // left bottom
+        sf::Vector2i startPos = mapGlobalCoordsToGame(hitbox.left, hitbox.top + hitbox.height);
+        // top right
+        sf::Vector2i endPos = mapGlobalCoordsToGame(hitbox.left + hitbox.width, hitbox.top);
+
+        // right block
+        if (horizontalSpeed > 0) {
+            float diff = std::numeric_limits<float>::max();
+            for (int y = startPos.y; y < endPos.y + 1; y++) {
+                auto block = World::getBlock(endPos.x, y);
+                if (block) {
+                    if (block->visible) {
+                        if (hitbox.intersects(block->sprite.getGlobalBounds())) {
+                            diff = block->sprite.getGlobalBounds().left - (getHitboxBounds().left + getHitboxBounds().width) ;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (diff < horizontalSpeed) {
+                move(diff - 0.01f, 0); // subtract 0.01 to prevent stuck in a block
+            }
+            else {
+                move(horizontalSpeed, 0);
+            }
+        }
+
+        // left block
+        if (horizontalSpeed < 0) {
+            float diff = std::numeric_limits<float>::max();
+            for (int y = startPos.y; y < endPos.y + 1; y++) {
+                auto block = World::getBlock(startPos.x, y);
+                if (block) {
+                    if (block->visible) {
+                        if (hitbox.intersects(block->sprite.getGlobalBounds())) {
+                            diff = (block->sprite.getGlobalBounds().left + block->sprite.getGlobalBounds().width) - getHitboxBounds().left;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (diff > horizontalSpeed && diff != std::numeric_limits<float>::max()) {
+                move(diff + 0.01f, 0); // add 0.01 to prevent stuck in a block
+            }
+            else {
+                move(horizontalSpeed, 0);
+            }
+        }
+    }
+
+    // block above
+    if (verticalSpeed < 0) {
+        sf::FloatRect hitbox = getHitboxBounds();
+        // move hitbox vertically
+        hitbox.top += verticalSpeed;
+
+        // left bottom
+        sf::Vector2i startPos = mapGlobalCoordsToGame(hitbox.left, hitbox.top + hitbox.height);
+        // top right
+        sf::Vector2i endPos = mapGlobalCoordsToGame(hitbox.left + hitbox.width, hitbox.top);
+
+        for (int x = startPos.x; x < endPos.x + 1; x++) {
+            auto block = World::getBlock(x, endPos.y);
+            if (block) {
+                if (block->visible) {
+                    if (hitbox.intersects(block->sprite.getGlobalBounds())) {
+                        verticalSpeed = 0;
+                    }
+                    break;
+                }
+            }
+        }
+        move(0, verticalSpeed);
+    }
+
+    // block under
+    if (verticalSpeed > 0) {
+        float diff = getDistanceToGround();
+        if (diff < verticalSpeed) {
+            move(0, diff - 0.01f); // subtract 0.01 to prevent stuck in a block
+            verticalSpeed = 0;
+        } else {
+            move(0, verticalSpeed);
+        }
+    }
 }
 
 

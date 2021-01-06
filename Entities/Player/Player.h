@@ -18,15 +18,14 @@ public:
 
     void move(sf::Vector2f offset);
     void move(float x, float y);
+    void moveWithCollide();
+    float getDistanceToGround() const;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
     sf::Vector2f getPosition() const;
-    sf::FloatRect getHitBox() const;
-    void setScale(const sf::Vector2f& scale);
-    sf::Vector2f getScale();
+    sf::FloatRect getHitboxBounds() const;
     void constructHitBox();
-    void updateHitBox();
     sf::Vector2f getPosition();
     void setPosition(float x, float y);
     void setTextureRect(const sf::IntRect& rec);
@@ -46,7 +45,6 @@ public:
 protected:
     sf::RectangleShape hitBox_;
     sf::Sprite player_;
-    sf::Vector2f scale_;
 };
 
 
