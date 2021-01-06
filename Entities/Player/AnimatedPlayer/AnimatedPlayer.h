@@ -13,8 +13,7 @@
 class AnimatedPlayer : public Player {
 public:
     enum Animations {
-        LEFT = 0,
-        RIGHT,
+        MOVING = 0,
         JUMP,
         STAND,
         ANIMATIONS_COUNT
@@ -25,7 +24,7 @@ public:
     void setPeriod(float seconds);
     void setAnimation(Animations type);
     void addAnimationFrame(Animations type, sf::IntRect rect);
-    void setDirection(MoveDirection direction);
+    void setAnimationDirection(MoveDirection direction);
     void update(float delta);
 
 private:
@@ -33,7 +32,6 @@ private:
     float period_;
     int animationCount_;
     Animations currentAnimation_;
-    MoveDirection moveDirection;
 
     std::array<std::vector<sf::IntRect>, ANIMATIONS_COUNT> textureRectangles_;
 };

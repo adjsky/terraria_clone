@@ -4,13 +4,10 @@
 
 #include "AnimatedPlayer.h"
 
-#include <iostream>
-
 AnimatedPlayer::AnimatedPlayer(const std::unique_ptr<sf::Texture>& texture) :
     Player{ texture },
     period_{},
-    currentAnimation_{ },
-    moveDirection{ MoveDirection::RIGHT },
+    currentAnimation_{ STAND },
     textureRectangles_{ },
     animationCount_{ },
     timeElapsed_{ }
@@ -22,7 +19,10 @@ void AnimatedPlayer::setPeriod(float seconds) {
 }
 
 void AnimatedPlayer::setAnimation(AnimatedPlayer::Animations type) {
-    currentAnimation_ = type;
+    if (currentAnimation_ != type) {
+        animationCount_ = 0;
+        currentAnimation_ = type;
+    }
 }
 
 void AnimatedPlayer::addAnimationFrame(AnimatedPlayer::Animations type, sf::IntRect rect) {
@@ -30,26 +30,21 @@ void AnimatedPlayer::addAnimationFrame(AnimatedPlayer::Animations type, sf::IntR
 }
 
 void AnimatedPlayer::update(float delta) {
-    if (currentAnimation_ == Animations::STAND) {
-        if (moveDirection == MoveDirection::RIGHT) {
-            setTextureRect(textureRectangles_[currentAnimation_][0]);
-        }
-        if (moveDirection == MoveDirection::LEFT) {
-            setTextureRect(textureRectangles_[currentAnimation_][1]);
-        }
-    }
-    else {
-        timeElapsed_ += delta;
-        if (timeElapsed_ > period_) {
-            setTextureRect(textureRectangles_[currentAnimation_][animationCount_]);
-            animationCount_ += 1;
-            if (animationCount_ == textureRectangles_[currentAnimation_].size())
-                animationCount_ = 0;
-            timeElapsed_ = 0;
-        }
+    timeElapsed_ += delta;
+    if (timeElapsed_ > period_) {
+        setTextureRect(textureRectangles_[currentAnimation_][animationCount_]);
+        animationCount_ += 1;
+        if (animationCount_ >= textureRectangles_[currentAnimation_].size())
+            animationCount_ = 0;
+        timeElapsed_ = 0;
     }
 }
 
-void AnimatedPlayer::setDirection(Player::MoveDirection direction) {
-    moveDirection = direction;
+void AnimatedPlayer::setAnimationDirection(Player::MoveDirection direction) {
+//    if (direction == LEFT) {
+//        player_.setScale(-1, 1);
+//    }
+//    if (direction == RIGHT){
+//        player_.setScale(1, 1);
+//    }
 }
