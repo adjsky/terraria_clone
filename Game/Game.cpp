@@ -34,11 +34,11 @@ Game::Game() :
     player_.constructHitBox();
 
     player_.move(0.0f, -61.0f * BLOCK_SIZE);
-    //player_.move(0.0f, getDistanceToGround(player_) - 100.0f);
 
-    player_.addAnimationFrame(AnimatedPlayer::STAND, sf::IntRect(28, 14, 74, 106));
-    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(28, 14, 74, 106));
+    player_.addAnimationFrame(AnimatedPlayer::STAND, sf::IntRect(28, 14, PLAYER_WIDTH, PLAYER_HEIGHT));
+    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(28, 14, PLAYER_WIDTH, PLAYER_HEIGHT));
     player_.setTextureRect(sf::IntRect(28, 14, 74, 106));
+    player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH,(float)BLOCK_SIZE / PLAYER_HEIGHT * 2);
 }
 
 void Game::start() {
@@ -94,6 +94,7 @@ void Game::update() {
         World::destroyBlock(pos);
         window_.setView(window_.getDefaultView());
     }
+
     if (InputHandler::getMouseButtonState(sf::Mouse::Right) == InputHandler::JUST_PRESSED) {
         window_.setView(view_);
         sf::Vector2f globalCoords = window_.mapPixelToCoords(sf::Mouse::getPosition(window_));
@@ -101,15 +102,19 @@ void Game::update() {
         World::placeBlock(pos);
         window_.setView(window_.getDefaultView());
     }
+
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::X) == InputHandler::JUST_PRESSED) {
         noclip_ = !noclip_;
         player_.verticalSpeed = 0;
+    }
+
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tilde) == InputHandler::JUST_PRESSED) {
+        player_.drawHitbox(!player_.hitboxIsDrawn());
     }
 }
 
 void Game::fixedUpdate() {
     if (!noclip_) {
-        //std::cout << player_.getDistanceToGround() << '\n';
         if (player_.getDistanceToGround() < 0.5f) {
             player_.isOnGround = true;
         }
@@ -120,6 +125,7 @@ void Game::fixedUpdate() {
             player_.verticalSpeed += 0.05f;
         }
     }
+
     bool moved = false;
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED ||
         InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED) {
@@ -164,16 +170,21 @@ void Game::fixedUpdate() {
             player_.move(0.0f, 5.0f);
         }
     }
+
     if (!moved) {
         player_.setAnimation(AnimatedPlayer::STAND);
     }
+
     if (!noclip_) {
         player_.moveWithCollide();
     }
+
     player_.update(fixedDelta);
+
     if (!noclip_) {
         player_.horizontalSpeed = 0;
     }
+
     view_.setCenter(player_.getPosition());
 }
 

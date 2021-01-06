@@ -11,9 +11,10 @@
 
 Player::Player(const std::unique_ptr<sf::Texture>& texture) :
     player_ { *texture },
-    isOnGround{ },
-    verticalSpeed{ },
-    horizontalSpeed{ }
+    isOnGround{ false },
+    verticalSpeed{ 0 },
+    horizontalSpeed{ 0 },
+    drawHitbox_ { false }
 {
 }
 
@@ -24,70 +25,6 @@ void Player::move(sf::Vector2f offset) {
 void Player::move(float x, float y) {
     hitBox_.move(x, y);
     player_.move(x, y);
-}
-
-void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    target.draw(hitBox_);
-    target.draw(player_);
-}
-
-sf::Vector2f Player::getPosition() const {
-    return player_.getPosition();
-}
-
-sf::FloatRect Player::getHitboxBounds() const {
-    return hitBox_.getGlobalBounds();
-}
-
-void Player::constructHitBox() {
-    hitBox_.setOutlineThickness(1.0f);
-    hitBox_.setOutlineColor(sf::Color::Blue);
-    hitBox_.setFillColor(sf::Color::Transparent);
-    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - 8.0f, BLOCK_SIZE * 2.0f - 5.0f));
-    hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
-}
-
-void Player::setTextureRect(const sf::IntRect &rec) {
-    player_.setTextureRect(rec);
-    player_.setOrigin(rec.width / 2.0f, rec.height / 2.0f);
-    player_.setScale(sf::Vector2f((float)BLOCK_SIZE / rec.width,(float)BLOCK_SIZE / rec.height * 2));
-}
-
-sf::Vector2f Player::getPosition() {
-    return sf::Vector2f(player_.getPosition());
-}
-
-sf::FloatRect Player::getGlobalBounds() {
-    return player_.getGlobalBounds();
-}
-
-void Player::setPosition(float x, float y) {
-    hitBox_.setPosition(x, y);
-    player_.setPosition(x, y);
-}
-
-float Player::getDistanceToGround() const {
-    sf::FloatRect hitbox = getHitboxBounds();
-    float minHeight = std::numeric_limits<float>::max();
-    int startX = mapGlobalCoordsToGame(hitbox.left, 0).x;
-    int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
-    sf::Vector2i playerCoords = mapGlobalCoordsToGame(getPosition().x, hitbox.top + hitbox.height);
-    for (int x = startX; x < endX + 1; x++) {
-        std::shared_ptr<Block> block;
-        for (int y = 0; y < playerCoords.y; y++) {
-            block = World::getBlock(x, playerCoords.y - y);
-            if (block) {
-                if (block->visible) {
-                    float height =  -((hitbox.top + hitbox.height) - block->sprite.getPosition().y);
-                    if (height < minHeight) {
-                        minHeight = height;
-                    }
-                    break;
-                }
-            }
-        }
-    }
-    return minHeight;
 }
 
 void Player::moveWithCollide() {
@@ -182,5 +119,80 @@ void Player::moveWithCollide() {
         }
     }
 }
+
+float Player::getDistanceToGround() const {
+    sf::FloatRect hitbox = getHitboxBounds();
+    float minHeight = std::numeric_limits<float>::max();
+    int startX = mapGlobalCoordsToGame(hitbox.left, 0).x;
+    int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
+    sf::Vector2i playerCoords = mapGlobalCoordsToGame(getPosition().x, hitbox.top + hitbox.height);
+    for (int x = startX; x < endX + 1; x++) {
+        std::shared_ptr<Block> block;
+        for (int y = 0; y < playerCoords.y; y++) {
+            block = World::getBlock(x, playerCoords.y - y);
+            if (block) {
+                if (block->visible) {
+                    float height =  -((hitbox.top + hitbox.height) - block->sprite.getPosition().y);
+                    if (height < minHeight) {
+                        minHeight = height;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    return minHeight;
+}
+
+sf::Vector2f Player::getPosition() const {
+    return player_.getPosition();
+}
+
+sf::FloatRect Player::getHitboxBounds() const {
+    return hitBox_.getGlobalBounds();
+}
+
+void Player::constructHitBox() {
+    hitBox_.setOutlineThickness(1.0f);
+    hitBox_.setOutlineColor(sf::Color::Blue);
+    hitBox_.setFillColor(sf::Color::Transparent);
+    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - 8.0f, BLOCK_SIZE * 2.0f - 5.0f));
+    hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
+}
+
+sf::Vector2f Player::getPosition() {
+    return sf::Vector2f(player_.getPosition());
+}
+
+void Player::setPosition(float x, float y) {
+    hitBox_.setPosition(x, y);
+    player_.setPosition(x, y);
+}
+
+void Player::setTextureRect(const sf::IntRect &rec) {
+    player_.setTextureRect(rec);
+    player_.setOrigin(rec.width / 2.0f, rec.height / 2.0f);
+}
+
+void Player::setScale(float x, float y) {
+    player_.setScale(x, y);
+}
+
+void Player::drawHitbox(bool draw) {
+    drawHitbox_ = draw;
+}
+
+void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+    if (drawHitbox_) {
+        target.draw(hitBox_);
+    }
+    target.draw(player_);
+}
+
+bool Player::hitboxIsDrawn() {
+    return drawHitbox_;
+}
+
+
 
 
