@@ -18,6 +18,8 @@ private:
     sf::View view_;
     AnimatedPlayer player_;
     sf::Text fpsText_;
+    sf::Text positionText_;
+    bool noclip_;
 public:
     explicit Game();
     void start();
