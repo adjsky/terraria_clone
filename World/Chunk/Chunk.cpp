@@ -15,7 +15,7 @@ Chunk::Chunk(int startingPosition, FastNoiseLite& noise) :
         float noiseValue = noise.GetNoise((float)(x+startingPosition_), 0.0f);
         int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 70);
         for (int y = 0; y < CHUNK_HEIGHT; y++) {
-            blocks_[y][x] = std::make_shared<Block>();
+            blocks_[y][x] = std::make_unique<Block>();
             blocks_[y][x]->sprite.setTexture(ResourceManager::getTexture(ResourceManager::BLOCK));
             blocks_[y][x]->sprite.move((float)startingPosition_ * BLOCK_SIZE + (float)x * BLOCK_SIZE, (float)-y * BLOCK_SIZE);
             blocks_[y][x]->sprite.scale(BLOCK_SIZE / 96.0f, BLOCK_SIZE / 96.0f);
@@ -50,8 +50,8 @@ void Chunk::draw(sf::RenderWindow& window) const {
     }
 }
 
-std::shared_ptr<Block> Chunk::getBlock(int x, int y) {
-    return blocks_[y][x];
+Block* Chunk::getBlock(int x, int y) {
+    return blocks_[y][x].get();
 }
 
 

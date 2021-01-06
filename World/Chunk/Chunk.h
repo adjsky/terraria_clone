@@ -18,10 +18,10 @@ public:
     explicit Chunk() = default;
     explicit Chunk(int startingPosition, FastNoiseLite& noise);
     void draw(sf::RenderWindow& window) const;
-    std::shared_ptr<Block> getBlock(int x, int y);
+    Block* getBlock(int x, int y);
 private:
     int startingPosition_; // x position
-    std::array<std::array<std::shared_ptr<Block>, CHUNK_WIDTH>, CHUNK_HEIGHT> blocks_;
+    std::array<std::array<std::unique_ptr<Block>, CHUNK_WIDTH>, CHUNK_HEIGHT> blocks_;
 };
 
 

@@ -21,8 +21,8 @@ public:
     static void destroyBlock(int x, int y);
     static void placeBlock(sf::Vector2i pos);
     static void placeBlock(int x, int y);
-    static std::shared_ptr<Block> getBlock(sf::Vector2i pos);
-    static std::shared_ptr<Block> getBlock(int x, int y);
+    static Block* getBlock(sf::Vector2i pos);
+    static Block* getBlock(int x, int y);
 private:
     // pair of x starting coordinate and chunk itself
     static std::unordered_map<int, Chunk> chunks_;

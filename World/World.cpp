@@ -30,17 +30,17 @@ void World::destroyBlock(sf::Vector2i pos) {
 }
 
 void World::destroyBlock(int x, int y) {
-    std::shared_ptr<Block> block = getBlock(x, y);
+    Block* block = getBlock(x, y);
     if (block) {
         getBlock(x, y)->visible = false;
     }
 }
 
-std::shared_ptr<Block> World::getBlock(sf::Vector2i pos) {
+Block* World::getBlock(sf::Vector2i pos) {
     return getBlock(pos.x, pos.y);
 }
 
-std::shared_ptr<Block> World::getBlock(int x, int y) {
+Block* World::getBlock(int x, int y) {
     if (x >= 0 && y >= 0 && y < CHUNK_HEIGHT) {
         int chunkPosition = x / CHUNK_WIDTH;
         int blockPositionInChunkX = x % CHUNK_WIDTH;
@@ -62,7 +62,7 @@ void World::placeBlock(sf::Vector2i pos) {
 }
 
 void World::placeBlock(int x, int y) {
-    std::shared_ptr<Block> block = getBlock(x, y);
+    Block* block = getBlock(x, y);
     if (block) {
         if (!block->visible) {
             block->visible = true;

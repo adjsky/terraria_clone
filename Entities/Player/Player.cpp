@@ -3,7 +3,6 @@
 //
 
 #include "Player.h"
-#include "../../Physics/Collisions.h"
 #include "../../Util/utility.h"
 #include "../../World/World.h"
 
@@ -42,7 +41,7 @@ void Player::moveWithCollide() {
         if (horizontalSpeed > 0) {
             float diff = std::numeric_limits<float>::max();
             for (int y = startPos.y; y < endPos.y + 1; y++) {
-                auto block = World::getBlock(endPos.x, y);
+                Block* block = World::getBlock(endPos.x, y);
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -64,7 +63,7 @@ void Player::moveWithCollide() {
         if (horizontalSpeed < 0) {
             float diff = std::numeric_limits<float>::max();
             for (int y = startPos.y; y < endPos.y + 1; y++) {
-                auto block = World::getBlock(startPos.x, y);
+                Block* block = World::getBlock(startPos.x, y);
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -95,7 +94,7 @@ void Player::moveWithCollide() {
         sf::Vector2i endPos = mapGlobalCoordsToGame(hitbox.left + hitbox.width, hitbox.top);
 
         for (int x = startPos.x; x < endPos.x + 1; x++) {
-            auto block = World::getBlock(x, endPos.y);
+            Block* block = World::getBlock(x, endPos.y);
             if (block) {
                 if (block->visible) {
                     if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -127,7 +126,7 @@ float Player::getDistanceToGround() const {
     int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
     sf::Vector2i playerCoords = mapGlobalCoordsToGame(getPosition().x, hitbox.top + hitbox.height);
     for (int x = startX; x < endX + 1; x++) {
-        std::shared_ptr<Block> block;
+        Block* block;
         for (int y = 0; y < playerCoords.y; y++) {
             block = World::getBlock(x, playerCoords.y - y);
             if (block) {
