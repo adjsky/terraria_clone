@@ -9,8 +9,8 @@
 
 #include <iostream>
 
-Player::Player(const std::unique_ptr<sf::Texture>& texture) :
-    player_ { *texture },
+Player::Player(const sf::Texture& texture) :
+    player_ { texture },
     isOnGround{ false },
     verticalSpeed{ 0 },
     horizontalSpeed{ 0 },

@@ -20,12 +20,12 @@ Game::Game() :
 {
     window_.setFramerateLimit(144);
 
-    fpsText_.setFont(*ResourceManager::getFont());
+    fpsText_.setFont(ResourceManager::getFont());
     fpsText_.setFillColor(sf::Color::Red);
     fpsText_.setCharacterSize(15);
     fpsText_.setString("fps: 0");
 
-    positionText_.setFont(*ResourceManager::getFont());
+    positionText_.setFont(ResourceManager::getFont());
     positionText_.setFillColor(sf::Color::Red);
     positionText_.setCharacterSize(15);
     positionText_.move(0.0f, 16.0f);

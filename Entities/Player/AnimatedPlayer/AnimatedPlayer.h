@@ -20,7 +20,7 @@ public:
     };
 
 public:
-    explicit AnimatedPlayer(const std::unique_ptr<sf::Texture>& texture);
+    explicit AnimatedPlayer(const sf::Texture& texture);
     void setPeriod(float seconds);
     void setAnimation(Animations type);
     void addAnimationFrame(Animations type, sf::IntRect rect);

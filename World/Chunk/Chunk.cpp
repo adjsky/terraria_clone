@@ -16,7 +16,7 @@ Chunk::Chunk(int startingPosition, FastNoiseLite& noise) :
         int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 70);
         for (int y = 0; y < CHUNK_HEIGHT; y++) {
             blocks_[y][x] = std::make_shared<Block>();
-            blocks_[y][x]->sprite.setTexture(*ResourceManager::getTexture(ResourceManager::BLOCK));
+            blocks_[y][x]->sprite.setTexture(ResourceManager::getTexture(ResourceManager::BLOCK));
             blocks_[y][x]->sprite.move((float)startingPosition_ * BLOCK_SIZE + (float)x * BLOCK_SIZE, (float)-y * BLOCK_SIZE);
             blocks_[y][x]->sprite.scale(BLOCK_SIZE / 96.0f, BLOCK_SIZE / 96.0f);
             if (y > blockHeight) {

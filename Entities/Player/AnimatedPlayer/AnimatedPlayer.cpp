@@ -5,7 +5,7 @@
 #include "AnimatedPlayer.h"
 #include <iostream>
 
-AnimatedPlayer::AnimatedPlayer(const std::unique_ptr<sf::Texture>& texture) :
+AnimatedPlayer::AnimatedPlayer(const sf::Texture& texture) :
     Player{ texture },
     period_{},
     currentAnimation_{ STAND },

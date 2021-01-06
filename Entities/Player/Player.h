@@ -17,7 +17,7 @@ constexpr int PLAYER_HEIGHT = 106;
 
 class Player : public sf::Drawable {
 public:
-    explicit Player(const std::unique_ptr<sf::Texture>& texture);
+    explicit Player(const sf::Texture& texture);
 
     void move(sf::Vector2f offset);
     void move(float x, float y);
