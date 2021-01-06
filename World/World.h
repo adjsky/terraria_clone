@@ -10,6 +10,7 @@
 
 #include "Chunk/Chunk.h"
 #include "../Util/utility.h"
+#include "../Util/FastNoiseLite.h"
 
 class World {
 public:
@@ -24,7 +25,7 @@ public:
     static std::shared_ptr<Block> getBlock(int x, int y);
 private:
     // pair of x starting coordinate and chunk itself
-    static std::unordered_map<int, Chunk> chunks;
+    static std::unordered_map<int, Chunk> chunks_;
 };
 
 

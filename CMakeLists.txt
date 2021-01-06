@@ -10,7 +10,7 @@ add_subdirectory(World)
 add_subdirectory(Entities)
 add_subdirectory(Util)
 
-add_executable(terraria_clone main.cpp Util/constants.h)
+add_executable(terraria_clone main.cpp Util/constants.h Util/FastNoiseLite.h)
 target_link_libraries(terraria_clone sfml-window sfml-system sfml-graphics
                       resource-manager world game utility input-handler chunk block
                       player animated_player)

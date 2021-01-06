@@ -3,25 +3,24 @@
 //
 
 #include "World.h"
+#include "../ResourceManager/ResourceManager.h"
+#include <iostream>
 
-std::unordered_map<int, Chunk> World::chunks{  };
-
-//World::World() {
-//    for (int x = 0; x < 5; x++) {
-//        sf::Vector2i position = sf::Vector2i(x * CHUNK_WIDTH * BLOCK_SIZE, 0);
-//        chunks[x * CHUNK_WIDTH] = Chunk{ position };
-//    }
-//}
+std::unordered_map<int, Chunk> World::chunks_{  };
 
 void World::initialize() {
-    for (int x = 0; x < 5; x++) {
-        sf::Vector2i position = sf::Vector2i(x * CHUNK_WIDTH * BLOCK_SIZE, 0);
-        chunks[x * CHUNK_WIDTH] = Chunk{ position };
+    FastNoiseLite noise_;
+    noise_.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    noise_.SetSeed(1223311145);
+    noise_.SetFractalOctaves(5);
+    noise_.SetFrequency(0.003f);
+    for (int x = 0; x < 15; x++) {
+        chunks_[x * CHUNK_WIDTH] = Chunk{x * CHUNK_WIDTH, noise_ };
     }
 }
 
 void World::draw(sf::RenderWindow& window)  {
-    for (const auto& pair : chunks) {
+    for (const auto& pair : chunks_) {
         pair.second.draw(window);
     }
 }
@@ -46,8 +45,8 @@ std::shared_ptr<Block> World::getBlock(int x, int y) {
         int chunkPosition = x / CHUNK_WIDTH;
         int blockPositionInChunkX = x % CHUNK_WIDTH;
         int blockPositionInChunkY = y % CHUNK_HEIGHT;
-        if (chunkPosition < chunks.size()) {
-            return chunks.at(chunkPosition * CHUNK_WIDTH).getBlock(blockPositionInChunkX, blockPositionInChunkY);
+        if (chunkPosition < chunks_.size()) {
+            return chunks_.at(chunkPosition * CHUNK_WIDTH).getBlock(blockPositionInChunkX, blockPositionInChunkY);
         }
         else {
             return nullptr;
@@ -65,7 +64,11 @@ void World::placeBlock(sf::Vector2i pos) {
 void World::placeBlock(int x, int y) {
     std::shared_ptr<Block> block = getBlock(x, y);
     if (block) {
-        getBlock(x, y)->visible = true;
+        if (!block->visible) {
+            block->visible = true;
+            block->info.type = BlockType::GRASS;
+            block->sprite.setTextureRect(sf::IntRect(0, 0, 96, 96));
+        }
     }
 }
 

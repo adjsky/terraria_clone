@@ -11,16 +11,17 @@
 
 #include "../Block/Block.h"
 #include "../../Util/constants.h"
+#include "../../Util/FastNoiseLite.h"
 
 class Chunk {
 public:
     explicit Chunk() = default;
-    explicit Chunk(sf::Vector2i pos);
+    explicit Chunk(int startingPosition, FastNoiseLite& noise);
     void draw(sf::RenderWindow& window) const;
     std::shared_ptr<Block> getBlock(int x, int y);
 private:
-    sf::Vector2i position;
-    std::array<std::array<std::shared_ptr<Block>, CHUNK_WIDTH>, CHUNK_HEIGHT> blocks;
+    int startingPosition_; // x position
+    std::array<std::array<std::shared_ptr<Block>, CHUNK_WIDTH>, CHUNK_HEIGHT> blocks_;
 };
 
 
