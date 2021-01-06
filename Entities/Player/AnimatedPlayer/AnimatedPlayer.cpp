@@ -3,6 +3,7 @@
 //
 
 #include "AnimatedPlayer.h"
+#include <iostream>
 
 AnimatedPlayer::AnimatedPlayer(const std::unique_ptr<sf::Texture>& texture) :
     Player{ texture },
@@ -41,10 +42,15 @@ void AnimatedPlayer::update(float delta) {
 }
 
 void AnimatedPlayer::setAnimationDirection(Player::MoveDirection direction) {
-//    if (direction == LEFT) {
-//        player_.setScale(-1, 1);
-//    }
-//    if (direction == RIGHT){
-//        player_.setScale(1, 1);
-//    }
+    sf::Vector2f scale = player_.getScale();
+    if (direction == LEFT) {
+        if (scale.x > 0) {
+            player_.setScale(-scale.x, scale.y);
+        }
+    }
+    if (direction == RIGHT){
+        if (scale.x < 0) {
+            player_.setScale(-scale.x, scale.y);
+        }
+    }
 }
