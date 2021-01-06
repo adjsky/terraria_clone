@@ -9,6 +9,6 @@
 #include <cmath>
 
 sf::Vector2i mapGlobalCoordsToGame(float x, float y);
-sf::Vector2i mapGlobalCoordsToGame(const sf::Vector2f& globalCoords);
+sf::Vector2i mapGlobalCoordsToGame(sf::Vector2f globalCoords);
 
 #endif //TERRARIA_CLONE_UTILITY_H

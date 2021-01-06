@@ -10,6 +10,6 @@ sf::Vector2i mapGlobalCoordsToGame(float x, float y) {
     return gameCoords;
 }
 
-sf::Vector2i mapGlobalCoordsToGame(const sf::Vector2f& globalCoords) {
+sf::Vector2i mapGlobalCoordsToGame(sf::Vector2f globalCoords) {
     return mapGlobalCoordsToGame(globalCoords.x, globalCoords.y);
 }
