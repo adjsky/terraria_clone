@@ -26,6 +26,8 @@ public:
     void addAnimationFrame(Animations type, sf::IntRect rect);
     void setAnimationDirection(MoveDirection direction);
     void update(float delta);
+private:
+    void updateTexture();
 
 private:
     float timeElapsed_;

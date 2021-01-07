@@ -35,10 +35,17 @@ Game::Game() :
 
     player_.move(0.0f, -61.0f * BLOCK_SIZE);
 
-    player_.addAnimationFrame(AnimatedPlayer::STAND, sf::IntRect(28, 14, PLAYER_WIDTH, PLAYER_HEIGHT));
-    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(28, 14, PLAYER_WIDTH, PLAYER_HEIGHT));
-    player_.setTextureRect(sf::IntRect(28, 14, 74, 106));
-    player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH,(float)BLOCK_SIZE / PLAYER_HEIGHT * 2);
+    player_.addAnimationFrame(AnimatedPlayer::STAND, sf::IntRect(9, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
+
+    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(65, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
+    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(119, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
+    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(172, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
+    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(226, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
+    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(280, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
+    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(335, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
+
+    player_.setAnimation(AnimatedPlayer::STAND);
+    player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH, (float)BLOCK_SIZE / PLAYER_HEIGHT * 2);
 }
 
 void Game::start() {
@@ -122,7 +129,7 @@ void Game::fixedUpdate() {
             player_.isOnGround = false;
         }
         if (!player_.isOnGround) {
-            player_.verticalSpeed += 0.05f;
+            player_.verticalSpeed += GAME_SPEED / 15.0;
         }
     }
 
@@ -130,17 +137,17 @@ void Game::fixedUpdate() {
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED ||
         InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED) {
         if (player_.isOnGround && !noclip_) {
-            player_.verticalSpeed = -2.0f;
+            player_.verticalSpeed = -GAME_SPEED * 2.0f;
             player_.isOnGround = false;
         }
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
         InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED) {
         if (noclip_) {
-            player_.move(-7.0f, 0.0f);
+            player_.move(-GAME_SPEED * 3.0f, 0.0f);
         }
         else {
-            player_.horizontalSpeed = -2.0f;
+            player_.horizontalSpeed = -GAME_SPEED;
         }
         player_.setAnimation(AnimatedPlayer::MOVING);
         player_.setAnimationDirection(Player::LEFT);
@@ -149,10 +156,10 @@ void Game::fixedUpdate() {
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
         InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED) {
         if (noclip_) {
-            player_.move(7.0f, 0.0f);
+            player_.move(GAME_SPEED * 3.0f, 0.0f);
         }
         else {
-            player_.horizontalSpeed = 2.0f;
+            player_.horizontalSpeed = GAME_SPEED;
         }
         player_.setAnimation(AnimatedPlayer::MOVING);
         player_.setAnimationDirection(Player::RIGHT);
@@ -161,13 +168,13 @@ void Game::fixedUpdate() {
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
         InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED) {
         if (noclip_) {
-            player_.move(0.0f, -5.0f);
+            player_.move(0.0f, -GAME_SPEED * 2.0f);
         }
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::JUST_PRESSED ||
         InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED) {
         if (noclip_) {
-            player_.move(0.0f, 5.0f);
+            player_.move(0.0f, GAME_SPEED * 2.0f);
         }
     }
 

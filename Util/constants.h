@@ -7,9 +7,9 @@
 
 constexpr int HEIGHT = 720;
 constexpr int WIDTH = 1280;
-constexpr int VIEW_HEIGHT = 500;
-constexpr int VIEW_WIDTH = 500;
-constexpr int BLOCK_SIZE = 16;
+constexpr int VIEW_HEIGHT = 1000;
+constexpr int VIEW_WIDTH = 1000;
+constexpr int BLOCK_SIZE = 64;
 constexpr int CHUNK_WIDTH = 16;
 constexpr int CHUNK_HEIGHT = 255;
 constexpr float G = 10.0f;

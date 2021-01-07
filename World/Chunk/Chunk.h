@@ -15,7 +15,7 @@
 
 class Chunk {
 public:
-    explicit Chunk() = default;
+    Chunk();
     explicit Chunk(int startingPosition, FastNoiseLite& noise);
     void draw(sf::RenderWindow& window) const;
     Block* getBlock(int x, int y);

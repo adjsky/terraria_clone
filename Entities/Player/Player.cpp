@@ -156,7 +156,7 @@ void Player::constructHitBox() {
     hitBox_.setOutlineThickness(1.0f);
     hitBox_.setOutlineColor(sf::Color::Blue);
     hitBox_.setFillColor(sf::Color::Transparent);
-    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - 8.0f, BLOCK_SIZE * 2.0f - 5.0f));
+    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - 35.0f, BLOCK_SIZE * 2.0f - 5.0f));
     hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
 }
 

@@ -12,8 +12,8 @@
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
 
-constexpr int PLAYER_WIDTH = 74;
-constexpr int PLAYER_HEIGHT = 106;
+constexpr int PLAYER_WIDTH = 45;
+constexpr int PLAYER_HEIGHT = 90;
 
 class Player : public sf::Drawable {
 public:

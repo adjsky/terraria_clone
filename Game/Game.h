@@ -11,6 +11,8 @@
 #include "../Util/constants.h"
 #include "../Entities/Player/AnimatedPlayer/AnimatedPlayer.h"
 
+constexpr int GAME_SPEED = BLOCK_SIZE / 16;
+
 class Game {
 private:
     float fixedDelta;
@@ -21,7 +23,7 @@ private:
     sf::Text positionText_;
     bool noclip_;
 public:
-    explicit Game();
+    Game();
     void start();
     void update();
     void fixedUpdate();

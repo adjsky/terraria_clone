@@ -10,7 +10,7 @@ AnimatedPlayer::AnimatedPlayer(const sf::Texture& texture) :
     timeElapsed_{ },
     period_{ },
     animationCount_{ },
-    currentAnimation_{ STAND },
+    currentAnimation_{ },
     textureRectangles_{ }
 {
 }
@@ -23,6 +23,7 @@ void AnimatedPlayer::setAnimation(AnimatedPlayer::Animations type) {
     if (currentAnimation_ != type) {
         animationCount_ = 0;
         currentAnimation_ = type;
+        updateTexture();
     }
 }
 
@@ -33,12 +34,10 @@ void AnimatedPlayer::addAnimationFrame(AnimatedPlayer::Animations type, sf::IntR
 void AnimatedPlayer::update(float delta) {
     timeElapsed_ += delta;
     if (timeElapsed_ > period_) {
-        setTextureRect(textureRectangles_[currentAnimation_][animationCount_]);
-        animationCount_ += 1;
-        if (animationCount_ >= textureRectangles_[currentAnimation_].size())
-            animationCount_ = 0;
+        updateTexture();
         timeElapsed_ = 0;
     }
+
 }
 
 void AnimatedPlayer::setAnimationDirection(Player::MoveDirection direction) {
@@ -53,4 +52,11 @@ void AnimatedPlayer::setAnimationDirection(Player::MoveDirection direction) {
             player_.setScale(-scale.x, scale.y);
         }
     }
+}
+
+void AnimatedPlayer::updateTexture() {
+    setTextureRect(textureRectangles_[currentAnimation_][animationCount_]);
+    animationCount_ += 1;
+    if (animationCount_ == textureRectangles_[currentAnimation_].size())
+        animationCount_ = 0;
 }

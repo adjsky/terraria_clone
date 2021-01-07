@@ -8,8 +8,13 @@
 
 #include <iostream>
 
+Chunk::Chunk() : startingPosition_{}, blocks_ {}
+{
+}
+
 Chunk::Chunk(int startingPosition, FastNoiseLite& noise) :
-    startingPosition_{ startingPosition }
+    startingPosition_{ startingPosition },
+    blocks_{ }
 {
     for (int x = 0; x < CHUNK_WIDTH; x++) {
         float noiseValue = noise.GetNoise((float)(x+startingPosition_), 0.0f);
@@ -31,7 +36,6 @@ Chunk::Chunk(int startingPosition, FastNoiseLite& noise) :
                 blocks_[y][x]->visible = true;
                 blocks_[y][x]->sprite.setTextureRect(sf::IntRect(blocks_[y][x]->info.type * 96, 0, 96, 96));
             }
-
         }
     }
 }
