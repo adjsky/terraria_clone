@@ -23,10 +23,10 @@ public:
     static void initialize();
     static const sf::Texture& getTexture(Textures texture);
     static const sf::Font& getFont();
+
 private:
     static std::array<std::unique_ptr<sf::Texture>, TEXTURES_COUNT> textures;
     static std::unique_ptr<sf::Font> font;
 };
-
 
 #endif //TERRARIA_CLONE_RESOURCEMANAGER_H

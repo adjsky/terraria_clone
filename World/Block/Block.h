@@ -6,6 +6,7 @@
 #define TERRARIA_CLONE_BLOCK_H
 
 #include <SFML/Graphics/Sprite.hpp>
+
 #include "BlockInfo.h"
 
 struct Block {
@@ -13,7 +14,5 @@ struct Block {
     BlockInfo info;
     bool visible;
 };
-
-
 
 #endif //TERRARIA_CLONE_BLOCK_H

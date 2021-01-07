@@ -14,14 +14,6 @@
 constexpr int GAME_SPEED = BLOCK_SIZE / 16;
 
 class Game {
-private:
-    float fixedDelta;
-    sf::RenderWindow window_;
-    sf::View view_;
-    AnimatedPlayer player_;
-    sf::Text fpsText_;
-    sf::Text positionText_;
-    bool noclip_;
 public:
     Game();
     void start();
@@ -29,7 +21,15 @@ public:
     void fixedUpdate();
     void handleEvents();
     void render();
-};
 
+private:
+    float fixedDelta_;
+    sf::RenderWindow window_;
+    sf::View view_;
+    AnimatedPlayer player_;
+    sf::Text fpsText_;
+    sf::Text positionText_;
+    bool noclip_;
+};
 
 #endif //TERRARIA_CLONE_GAME_H

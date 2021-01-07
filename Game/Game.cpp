@@ -10,13 +10,13 @@
 #include "../World/World.h"
 
 Game::Game() :
-        fixedDelta{ 1 / 60.0f },
-        window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone" },
-        view_{sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
-        player_{ ResourceManager::getTexture(ResourceManager::PLAYER)  },
-        fpsText_{ },
-        positionText_{ },
-        noclip_{ }
+    fixedDelta_{ 1 / 60.0f },
+    window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone" },
+    view_{sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
+    player_{ ResourceManager::getTexture(ResourceManager::PLAYER) },
+    fpsText_{ },
+    positionText_{ },
+    noclip_{ }
 {
     window_.setFramerateLimit(144);
 
@@ -63,23 +63,23 @@ void Game::start() {
             fps++;
         }
 
-        sf::Vector2i playerPos = mapGlobalCoordsToGame(player_.getPosition().x, player_.getHitboxBounds().top);
+        sf::Vector2i playerPos = mapGlobalCoordsToGame(player_.getPosition().x, player_.getHitBoxBounds().top);
         positionText_.setString("x: " + std::to_string(playerPos.x) + " y: " + std::to_string(playerPos.y));
 
         handleEvents();
         float frameTime = timer.restart().asSeconds();
         accumulator += frameTime;
         update();
-        while (accumulator >= fixedDelta) {
+        while (accumulator >= fixedDelta_) {
             fixedUpdate();
-            accumulator -= fixedDelta;
+            accumulator -= fixedDelta_;
         }
         render();
     }
 }
 
 void Game::handleEvents() {
-    sf::Event e;
+    sf::Event e{};
     while (window_.pollEvent(e)) {
         if (e.type == sf::Event::Closed) {
             window_.close();
@@ -116,7 +116,7 @@ void Game::update() {
     }
 
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tilde) == InputHandler::JUST_PRESSED) {
-        player_.drawHitbox = !player_.drawHitbox;
+        player_.drawHitBox = !player_.drawHitBox;
     }
 }
 
@@ -150,7 +150,7 @@ void Game::fixedUpdate() {
             player_.horizontalSpeed = -GAME_SPEED;
         }
         player_.setAnimation(AnimatedPlayer::MOVING);
-        player_.setAnimationDirection(Player::LEFT);
+        player_.setAnimationDirection(AnimatedPlayer::LEFT);
         moved = true;
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
@@ -162,7 +162,7 @@ void Game::fixedUpdate() {
             player_.horizontalSpeed = GAME_SPEED;
         }
         player_.setAnimation(AnimatedPlayer::MOVING);
-        player_.setAnimationDirection(Player::RIGHT);
+        player_.setAnimationDirection(AnimatedPlayer::RIGHT);
         moved = true;
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
@@ -186,7 +186,7 @@ void Game::fixedUpdate() {
         player_.moveWithCollide();
     }
 
-    player_.update(fixedDelta);
+    player_.update(fixedDelta_);
 
     if (!noclip_) {
         player_.horizontalSpeed = 0;
@@ -208,5 +208,3 @@ void Game::render() {
 
     window_.display();
 }
-
-

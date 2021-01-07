@@ -14,9 +14,14 @@ class AnimatedPlayer : public Player {
 public:
     enum Animations {
         MOVING = 0,
-        JUMP,
         STAND,
         ANIMATIONS_COUNT
+    };
+
+    enum MoveDirection {
+        RIGHT,
+        LEFT,
+        DIRECTION_COUNT
     };
 
 public:
@@ -26,6 +31,7 @@ public:
     void addAnimationFrame(Animations type, sf::IntRect rect);
     void setAnimationDirection(MoveDirection direction);
     void update(float delta);
+
 private:
     void updateTexture();
 
@@ -34,9 +40,7 @@ private:
     float period_;
     int animationCount_;
     Animations currentAnimation_;
-
     std::array<std::vector<sf::IntRect>, ANIMATIONS_COUNT> textureRectangles_;
 };
-
 
 #endif //TERRARIA_CLONE_ANIMATEDPLAYER_H

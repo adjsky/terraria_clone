@@ -9,6 +9,9 @@
 #include <SFML/Window/Mouse.hpp>
 #include <array>
 
+// @TODO
+// Объедить клавиатуру и мышь
+
 struct KeyFrames {
     bool lastFrame;
     bool currentFrame;
@@ -34,6 +37,5 @@ private:
     static std::array<KeyFrames, sf::Keyboard::KeyCount> keyboardKeys;
     static std::array<KeyFrames, sf::Mouse::ButtonCount> mouseButtons;
 };
-
 
 #endif //TERRARIA_CLONE_INPUTHANDLER_H

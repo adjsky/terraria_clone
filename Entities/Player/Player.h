@@ -18,14 +18,13 @@ constexpr int PLAYER_HEIGHT = 90;
 class Player : public sf::Drawable {
 public:
     explicit Player(const sf::Texture& texture);
-
-    void move(sf::Vector2f offset);
+    
     void move(float x, float y);
     void moveWithCollide();
     float getDistanceToGround() const;
 
     sf::Vector2f getPosition() const;
-    sf::FloatRect getHitboxBounds() const;
+    sf::FloatRect getHitBoxBounds() const;
     void constructHitBox();
     sf::Vector2f getPosition();
     void setPosition(float x, float y);
@@ -35,21 +34,14 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
-    enum MoveDirection {
-        RIGHT,
-        LEFT,
-        JUMP,
-        DIRECTION_COUNT
-    };
     bool isOnGround;
     float verticalSpeed;
     float horizontalSpeed;
-    bool drawHitbox;
+    bool drawHitBox;
 
 protected:
     sf::RectangleShape hitBox_;
     sf::Sprite player_;
 };
-
 
 #endif //TERRARIA_CLONE_PLAYER_H

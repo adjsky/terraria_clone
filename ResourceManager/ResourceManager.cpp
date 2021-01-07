@@ -7,10 +7,11 @@
 #include "ResourceManager.h"
 
 std::array<std::unique_ptr<sf::Texture>, ResourceManager::TEXTURES_COUNT> ResourceManager::textures{ };
-std::unique_ptr<sf::Font> ResourceManager::font{ std::make_unique<sf::Font>() };
+std::unique_ptr<sf::Font> ResourceManager::font{ };
 
 void ResourceManager::initialize() {
     std::generate(textures.begin(), textures.end(), []() { return std::make_unique<sf::Texture>(); });
+    font = std::make_unique<sf::Font>();
     if (!textures[BLOCK]->loadFromFile("../Resources/Spritesheets/block_sprites.png")) {
         throw std::runtime_error("Couldn't load block sprites");
     }

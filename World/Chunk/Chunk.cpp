@@ -8,14 +8,12 @@
 
 #include <iostream>
 
-Chunk::Chunk() : startingPosition_{}, blocks_ {}
+Chunk::Chunk(int startingPosition) :
+    startingPosition_{ startingPosition }
 {
 }
 
-Chunk::Chunk(int startingPosition, FastNoiseLite& noise) :
-    startingPosition_{ startingPosition },
-    blocks_{ }
-{
+void Chunk::generate(FastNoiseLite& noise) {
     for (int x = 0; x < CHUNK_WIDTH; x++) {
         float noiseValue = noise.GetNoise((float)(x+startingPosition_), 0.0f);
         int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 70);
@@ -40,6 +38,10 @@ Chunk::Chunk(int startingPosition, FastNoiseLite& noise) :
     }
 }
 
+void Chunk::setPosition(int x) {
+    startingPosition_ = x;
+}
+
 void Chunk::draw(sf::RenderWindow& window) const {
     const sf::View& view = window.getView();
     sf::FloatRect viewBox { view.getCenter() - view.getSize() / 2.0f, view.getSize() };
@@ -57,6 +59,3 @@ void Chunk::draw(sf::RenderWindow& window) const {
 Block* Chunk::getBlock(int x, int y) {
     return blocks_[y][x].get();
 }
-
-
-

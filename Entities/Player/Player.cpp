@@ -6,20 +6,14 @@
 #include "../../Util/utility.h"
 #include "../../World/World.h"
 
-#include <iostream>
-
 Player::Player(const sf::Texture& texture) :
     isOnGround{ },
     verticalSpeed{ },
     horizontalSpeed{ },
-    drawHitbox{ },
+    drawHitBox{ },
     hitBox_{  },
     player_{ texture }
 {
-}
-
-void Player::move(sf::Vector2f offset) {
-    move(offset.x, offset.y);
 }
 
 void Player::move(float x, float y) {
@@ -29,7 +23,7 @@ void Player::move(float x, float y) {
 
 void Player::moveWithCollide() {
     if (horizontalSpeed != 0) {
-        sf::FloatRect hitbox = getHitboxBounds();
+        sf::FloatRect hitbox = getHitBoxBounds();
         // move hitbox horizontally
         hitbox.left += horizontalSpeed;
 
@@ -46,7 +40,7 @@ void Player::moveWithCollide() {
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
-                            diff = block->sprite.getGlobalBounds().left - (getHitboxBounds().left + getHitboxBounds().width) ;
+                            diff = block->sprite.getGlobalBounds().left - (getHitBoxBounds().left + getHitBoxBounds().width) ;
                             break;
                         }
                     }
@@ -68,7 +62,8 @@ void Player::moveWithCollide() {
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
-                            diff = (block->sprite.getGlobalBounds().left + block->sprite.getGlobalBounds().width) - getHitboxBounds().left;
+                            diff = (block->sprite.getGlobalBounds().left + block->sprite.getGlobalBounds().width) -
+                                    getHitBoxBounds().left;
                             break;
                         }
                     }
@@ -85,7 +80,7 @@ void Player::moveWithCollide() {
 
     // block above
     if (verticalSpeed < 0) {
-        sf::FloatRect hitbox = getHitboxBounds();
+        sf::FloatRect hitbox = getHitBoxBounds();
         // move hitbox vertically
         hitbox.top += verticalSpeed;
 
@@ -121,7 +116,7 @@ void Player::moveWithCollide() {
 }
 
 float Player::getDistanceToGround() const {
-    sf::FloatRect hitbox = getHitboxBounds();
+    sf::FloatRect hitbox = getHitBoxBounds();
     float minHeight = std::numeric_limits<float>::max();
     int startX = mapGlobalCoordsToGame(hitbox.left, 0).x;
     int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
@@ -148,7 +143,7 @@ sf::Vector2f Player::getPosition() const {
     return player_.getPosition();
 }
 
-sf::FloatRect Player::getHitboxBounds() const {
+sf::FloatRect Player::getHitBoxBounds() const {
     return hitBox_.getGlobalBounds();
 }
 
@@ -179,12 +174,8 @@ void Player::setScale(float x, float y) {
 }
 
 void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    if (drawHitbox) {
+    if (drawHitBox) {
         target.draw(hitBox_);
     }
     target.draw(player_);
 }
-
-
-
-

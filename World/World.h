@@ -14,7 +14,6 @@
 
 class World {
 public:
-    //explicit World();
     static void initialize();
     static void draw(sf::RenderWindow& window);
     static void destroyBlock(sf::Vector2i pos);
@@ -23,10 +22,10 @@ public:
     static void placeBlock(int x, int y);
     static Block* getBlock(sf::Vector2i pos);
     static Block* getBlock(int x, int y);
+
 private:
     // pair of x starting coordinate and chunk itself
     static std::unordered_map<int, Chunk> chunks_;
 };
-
 
 #endif //TERRARIA_CLONE_WORLD_H

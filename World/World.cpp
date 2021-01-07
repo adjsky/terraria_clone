@@ -4,9 +4,8 @@
 
 #include "World.h"
 #include "../ResourceManager/ResourceManager.h"
-#include <iostream>
 
-std::unordered_map<int, Chunk> World::chunks_{  };
+std::unordered_map<int, Chunk> World::chunks_{};
 
 void World::initialize() {
     FastNoiseLite noise_;
@@ -15,7 +14,8 @@ void World::initialize() {
     noise_.SetFractalOctaves(5);
     noise_.SetFrequency(0.003f);
     for (int x = 0; x < 15; x++) {
-        chunks_[x * CHUNK_WIDTH] = Chunk{x * CHUNK_WIDTH, noise_ };
+        chunks_[x * CHUNK_WIDTH].setPosition(x * CHUNK_WIDTH);
+        chunks_[x * CHUNK_WIDTH].generate(noise_);
     }
 }
 
@@ -33,6 +33,21 @@ void World::destroyBlock(int x, int y) {
     Block* block = getBlock(x, y);
     if (block) {
         getBlock(x, y)->visible = false;
+    }
+}
+
+void World::placeBlock(sf::Vector2i pos) {
+    placeBlock(pos.x, pos.y);
+}
+
+void World::placeBlock(int x, int y) {
+    Block* block = getBlock(x, y);
+    if (block) {
+        if (!block->visible) {
+            block->visible = true;
+            block->info.type = BlockType::GRASS;
+            block->sprite.setTextureRect(sf::IntRect(0, 0, 96, 96));
+        }
     }
 }
 
@@ -56,19 +71,3 @@ Block* World::getBlock(int x, int y) {
         return nullptr;
     }
 }
-
-void World::placeBlock(sf::Vector2i pos) {
-    placeBlock(pos.x, pos.y);
-}
-
-void World::placeBlock(int x, int y) {
-    Block* block = getBlock(x, y);
-    if (block) {
-        if (!block->visible) {
-            block->visible = true;
-            block->info.type = BlockType::GRASS;
-            block->sprite.setTextureRect(sf::IntRect(0, 0, 96, 96));
-        }
-    }
-}
-

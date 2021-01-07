@@ -3,7 +3,6 @@
 //
 
 #include "AnimatedPlayer.h"
-#include <iostream>
 
 AnimatedPlayer::AnimatedPlayer(const sf::Texture& texture) :
     Player{ texture },
@@ -31,16 +30,7 @@ void AnimatedPlayer::addAnimationFrame(AnimatedPlayer::Animations type, sf::IntR
     textureRectangles_[type].push_back(rect);
 }
 
-void AnimatedPlayer::update(float delta) {
-    timeElapsed_ += delta;
-    if (timeElapsed_ > period_) {
-        updateTexture();
-        timeElapsed_ = 0;
-    }
-
-}
-
-void AnimatedPlayer::setAnimationDirection(Player::MoveDirection direction) {
+void AnimatedPlayer::setAnimationDirection(AnimatedPlayer::MoveDirection direction) {
     sf::Vector2f scale = player_.getScale();
     if (direction == LEFT) {
         if (scale.x > 0) {
@@ -52,6 +42,15 @@ void AnimatedPlayer::setAnimationDirection(Player::MoveDirection direction) {
             player_.setScale(-scale.x, scale.y);
         }
     }
+}
+
+void AnimatedPlayer::update(float delta) {
+    timeElapsed_ += delta;
+    if (timeElapsed_ > period_) {
+        updateTexture();
+        timeElapsed_ = 0;
+    }
+
 }
 
 void AnimatedPlayer::updateTexture() {
