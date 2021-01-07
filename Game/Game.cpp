@@ -10,12 +10,12 @@
 #include "../World/World.h"
 
 Game::Game() :
+        fixedDelta{ 1 / 60.0f },
         window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone" },
         view_{sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
-        fpsText_{},
-        positionText_{},
         player_{ ResourceManager::getTexture(ResourceManager::PLAYER)  },
-        fixedDelta{ 1 / 60.0f },
+        fpsText_{ },
+        positionText_{ },
         noclip_{ }
 {
     window_.setFramerateLimit(144);
@@ -109,7 +109,7 @@ void Game::update() {
     }
 
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tilde) == InputHandler::JUST_PRESSED) {
-        player_.drawHitbox(!player_.hitboxIsDrawn());
+        player_.drawHitbox = !player_.drawHitbox;
     }
 }
 

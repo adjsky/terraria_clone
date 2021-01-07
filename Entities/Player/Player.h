@@ -31,8 +31,6 @@ public:
     void setPosition(float x, float y);
     void setTextureRect(const sf::IntRect& rec);
     void setScale(float x, float y);
-    void drawHitbox(bool draw);
-    bool hitboxIsDrawn();
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -46,13 +44,11 @@ public:
     bool isOnGround;
     float verticalSpeed;
     float horizontalSpeed;
+    bool drawHitbox;
 
 protected:
     sf::RectangleShape hitBox_;
     sf::Sprite player_;
-
-private:
-    bool drawHitbox_;
 };
 
 

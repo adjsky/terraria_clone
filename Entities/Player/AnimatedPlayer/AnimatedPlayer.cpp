@@ -7,11 +7,11 @@
 
 AnimatedPlayer::AnimatedPlayer(const sf::Texture& texture) :
     Player{ texture },
-    period_{},
-    currentAnimation_{ STAND },
-    textureRectangles_{ },
+    timeElapsed_{ },
+    period_{ },
     animationCount_{ },
-    timeElapsed_{ }
+    currentAnimation_{ STAND },
+    textureRectangles_{ }
 {
 }
 

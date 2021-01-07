@@ -9,11 +9,12 @@
 #include <iostream>
 
 Player::Player(const sf::Texture& texture) :
-    player_ { texture },
-    isOnGround{ false },
-    verticalSpeed{ 0 },
-    horizontalSpeed{ 0 },
-    drawHitbox_ { false }
+    isOnGround{ },
+    verticalSpeed{ },
+    horizontalSpeed{ },
+    drawHitbox{ },
+    hitBox_{  },
+    player_{ texture }
 {
 }
 
@@ -177,19 +178,11 @@ void Player::setScale(float x, float y) {
     player_.setScale(x, y);
 }
 
-void Player::drawHitbox(bool draw) {
-    drawHitbox_ = draw;
-}
-
 void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    if (drawHitbox_) {
+    if (drawHitbox) {
         target.draw(hitBox_);
     }
     target.draw(player_);
-}
-
-bool Player::hitboxIsDrawn() {
-    return drawHitbox_;
 }
 
 
