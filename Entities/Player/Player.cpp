@@ -1,24 +1,20 @@
 //
-// Created by adjsky on 12/28/20.
+// Created by kirill on 08.01.2021.
 //
 
 #include "Player.h"
 #include "../../Util/utility.h"
 #include "../../World/World.h"
 
-Player::Player(const sf::Texture& texture) :
+Player::Player() :
+    AnimatedSprite{},
     isOnGround{ },
     verticalSpeed{ },
     horizontalSpeed{ },
-    drawHitBox{ },
-    hitBox_{  },
-    player_{ texture }
+    hitBox_{ },
+    animations_{ }
 {
-}
 
-void Player::move(float x, float y) {
-    hitBox_.move(x, y);
-    player_.move(x, y);
 }
 
 void Player::moveWithCollide() {
@@ -63,7 +59,7 @@ void Player::moveWithCollide() {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
                             diff = (block->sprite.getGlobalBounds().left + block->sprite.getGlobalBounds().width) -
-                                    getHitBoxBounds().left;
+                                   getHitBoxBounds().left;
                             break;
                         }
                     }
@@ -139,10 +135,6 @@ float Player::getDistanceToGround() const {
     return minHeight;
 }
 
-sf::Vector2f Player::getPosition() const {
-    return player_.getPosition();
-}
-
 sf::FloatRect Player::getHitBoxBounds() const {
     return hitBox_.getGlobalBounds();
 }
@@ -155,27 +147,17 @@ void Player::constructHitBox() {
     hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
 }
 
-sf::Vector2f Player::getPosition() {
-    return sf::Vector2f(player_.getPosition());
+const sf::RectangleShape &Player::getHitBox() const{
+    return hitBox_;
 }
 
-void Player::setPosition(float x, float y) {
-    hitBox_.setPosition(x, y);
-    player_.setPosition(x, y);
+void Player::move(float x, float y) {
+    AnimatedSprite::move(x, y);
+    hitBox_.move(x, y);
 }
 
-void Player::setTextureRect(const sf::IntRect &rec) {
-    player_.setTextureRect(rec);
-    player_.setOrigin(rec.width / 2.0f, rec.height / 2.0f);
+Animation& Player::getAnimation(Player::AnimationTypes type) {
+    return animations_[type];
 }
 
-void Player::setScale(float x, float y) {
-    player_.setScale(x, y);
-}
 
-void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    if (drawHitBox) {
-        target.draw(hitBox_);
-    }
-    target.draw(player_);
-}

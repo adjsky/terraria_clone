@@ -1,47 +1,45 @@
 //
-// Created by adjsky on 12/28/20.
+// Created by kirill on 08.01.2021.
 //
 
 #ifndef TERRARIA_CLONE_PLAYER_H
 #define TERRARIA_CLONE_PLAYER_H
 
-#include <memory>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <array>
 
-#include "SFML/Graphics/Sprite.hpp"
-#include "SFML/Graphics/Drawable.hpp"
-#include "SFML/Graphics/RectangleShape.hpp"
+#include "../../Animations/AnimatedSprite.h"
 
 constexpr int PLAYER_WIDTH = 45;
 constexpr int PLAYER_HEIGHT = 90;
 
-class Player : public sf::Drawable {
+class Player : public AnimatedSprite {
 public:
-    explicit Player(const sf::Texture& texture);
-    
-    void move(float x, float y);
+    enum AnimationTypes {
+        MOVE,
+        STAND,
+        JUMP,
+        ANIMATIONS_COUNT
+    };
+public:
+    Player();
+
     void moveWithCollide();
     float getDistanceToGround() const;
-
-    sf::Vector2f getPosition() const;
     sf::FloatRect getHitBoxBounds() const;
     void constructHitBox();
-    sf::Vector2f getPosition();
-    void setPosition(float x, float y);
-    void setTextureRect(const sf::IntRect& rec);
-    void setScale(float x, float y);
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    const sf::RectangleShape& getHitBox() const;
+    void move(float x, float y);
+    Animation& getAnimation(AnimationTypes type);
 
 public:
     bool isOnGround;
     float verticalSpeed;
     float horizontalSpeed;
-    bool drawHitBox;
 
-protected:
+private:
     sf::RectangleShape hitBox_;
-    sf::Sprite player_;
+    std::array<Animation, ANIMATIONS_COUNT> animations_;
 };
 
 #endif //TERRARIA_CLONE_PLAYER_H
