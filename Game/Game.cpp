@@ -9,14 +9,20 @@
 #include "../ResourceManager/ResourceManager.h"
 #include "../World/World.h"
 
+// @TODO
+// 1) Система интерфейса
+// 2) Написать систему инвентаря
+// 4) Фабрика информации о блоке
+
 Game::Game() :
     fixedDelta_{ 1 / 60.0f },
     window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone" },
     view_{sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
-    player_{ ResourceManager::getTexture(ResourceManager::PLAYER) },
+    player_{ },
     fpsText_{ },
     positionText_{ },
-    noclip_{ }
+    noclip_{ },
+    drawHitBoxes_{ }
 {
     window_.setFramerateLimit(144);
 
@@ -30,21 +36,28 @@ Game::Game() :
     positionText_.setCharacterSize(15);
     positionText_.move(0.0f, 16.0f);
 
-    player_.setPeriod(0.2f);
+    player_.setTimeStep(0.2f);
     player_.constructHitBox();
 
+    Animation& moveAnimation = player_.getAnimation(Player::MOVE);
+    moveAnimation.setSpriteSheet(ResourceManager::getTexture(ResourceManager::PLAYER));
+    moveAnimation.addFrame(sf::IntRect{ 65, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
+
+    moveAnimation.addFrame(sf::IntRect{ 119, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
+    moveAnimation.addFrame(sf::IntRect{ 172, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
+    moveAnimation.addFrame(sf::IntRect{ 226, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
+    moveAnimation.addFrame(sf::IntRect{ 280, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
+
+    Animation& standAnimation = player_.getAnimation(Player::STAND);
+    standAnimation.setSpriteSheet(ResourceManager::getTexture(ResourceManager::PLAYER));
+    standAnimation.addFrame(sf::IntRect{ 9, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
+
+    Animation& jumpAnimation = player_.getAnimation(Player::JUMP);
+    jumpAnimation.setSpriteSheet(ResourceManager::getTexture(ResourceManager::PLAYER));
+    jumpAnimation.addFrame(sf::IntRect{ 383, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
+
     player_.move(0.0f, -61.0f * BLOCK_SIZE);
-
-    player_.addAnimationFrame(AnimatedPlayer::STAND, sf::IntRect(9, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
-
-    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(65, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
-    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(119, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
-    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(172, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
-    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(226, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
-    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(280, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
-    player_.addAnimationFrame(AnimatedPlayer::MOVING, sf::IntRect(335, 0, PLAYER_WIDTH, PLAYER_HEIGHT));
-
-    player_.setAnimation(AnimatedPlayer::STAND);
+    player_.setOrigin(PLAYER_WIDTH / 2.0f, PLAYER_HEIGHT / 2.0f);
     player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH, (float)BLOCK_SIZE / PLAYER_HEIGHT * 2);
 }
 
@@ -116,7 +129,7 @@ void Game::update() {
     }
 
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tilde) == InputHandler::JUST_PRESSED) {
-        player_.drawHitBox = !player_.drawHitBox;
+        drawHitBoxes_ = !drawHitBoxes_;
     }
 }
 
@@ -139,6 +152,8 @@ void Game::fixedUpdate() {
         if (player_.isOnGround && !noclip_) {
             player_.verticalSpeed = -GAME_SPEED * 2.0f;
             player_.isOnGround = false;
+            player_.setAnimation(player_.getAnimation(Player::JUMP));
+            moved = true;
         }
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
@@ -149,9 +164,11 @@ void Game::fixedUpdate() {
         else {
             player_.horizontalSpeed = -GAME_SPEED;
         }
-        player_.setAnimation(AnimatedPlayer::MOVING);
-        player_.setAnimationDirection(AnimatedPlayer::LEFT);
-        moved = true;
+        if (player_.isOnGround) {
+            player_.setAnimation(player_.getAnimation(Player::MOVE));
+            moved = true;
+        }
+        player_.changeDirection(Player::MoveDirections::LEFT);
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
         InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED) {
@@ -161,9 +178,11 @@ void Game::fixedUpdate() {
         else {
             player_.horizontalSpeed = GAME_SPEED;
         }
-        player_.setAnimation(AnimatedPlayer::MOVING);
-        player_.setAnimationDirection(AnimatedPlayer::RIGHT);
-        moved = true;
+        if (player_.isOnGround) {
+            player_.setAnimation(player_.getAnimation(Player::MOVE));
+            moved = true;
+        }
+        player_.changeDirection(Player::MoveDirections::RIGHT);
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
         InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED) {
@@ -178,8 +197,8 @@ void Game::fixedUpdate() {
         }
     }
 
-    if (!moved) {
-        player_.setAnimation(AnimatedPlayer::STAND);
+    if (!moved && player_.isOnGround) {
+        player_.setAnimation(player_.getAnimation(Player::STAND));
     }
 
     if (!noclip_) {
@@ -201,6 +220,9 @@ void Game::render() {
     window_.setView(view_);
     World::draw(window_);
     window_.draw(player_);
+    if (drawHitBoxes_) {
+        window_.draw(player_.getHitBox());
+    }
 
     window_.setView(window_.getDefaultView());
     window_.draw(fpsText_);
