@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "../Util/constants.h"
-#include "../Entities/Player/AnimatedPlayer/AnimatedPlayer.h"
+#include "../Entities/Player/Player.h"
 
 constexpr int GAME_SPEED = BLOCK_SIZE / 16;
 
@@ -26,10 +26,11 @@ private:
     float fixedDelta_;
     sf::RenderWindow window_;
     sf::View view_;
-    AnimatedPlayer player_;
+    Player player_;
     sf::Text fpsText_;
     sf::Text positionText_;
     bool noclip_;
+    bool drawHitBoxes_;
 };
 
 #endif //TERRARIA_CLONE_GAME_H
