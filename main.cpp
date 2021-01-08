@@ -5,7 +5,7 @@
 int main() {
     ResourceManager::initialize();
     World::initialize();
-    Game game;
+    Game game{};
     game.start();
     return 0;
 }

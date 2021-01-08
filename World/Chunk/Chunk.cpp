@@ -32,7 +32,7 @@ void Chunk::generate(FastNoiseLite& noise) {
                 else
                     blocks_[y][x]->info = BlockInfo{ BlockType::DIRT_PIXEL };
                 blocks_[y][x]->visible = true;
-                blocks_[y][x]->sprite.setTextureRect(sf::IntRect(blocks_[y][x]->info.type * 96, 0, 96, 96));
+                blocks_[y][x]->sprite.setTextureRect(sf::IntRect{ blocks_[y][x]->info.type * 96, 0, 96, 96 });
             }
         }
     }

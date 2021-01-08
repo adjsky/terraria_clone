@@ -21,7 +21,7 @@ void World::initialize() {
 
 void World::draw(sf::RenderWindow& window)  {
     for (const auto& pair : chunks_) {
-        pair.second.draw(window);
+            pair.second.draw(window);
     }
 }
 
@@ -46,7 +46,7 @@ void World::placeBlock(int x, int y) {
         if (!block->visible) {
             block->visible = true;
             block->info.type = BlockType::GRASS;
-            block->sprite.setTextureRect(sf::IntRect(0, 0, 96, 96));
+            block->sprite.setTextureRect(sf::IntRect{ 0, 0, 96, 96 });
         }
     }
 }
@@ -60,7 +60,8 @@ Block* World::getBlock(int x, int y) {
         int chunkPosition = x / CHUNK_WIDTH;
         int blockPositionInChunkX = x % CHUNK_WIDTH;
         int blockPositionInChunkY = y % CHUNK_HEIGHT;
-        if (chunkPosition < chunks_.size()) {
+        auto chunk = chunks_.find(chunkPosition * CHUNK_WIDTH);
+        if (chunk != chunks_.end()) {
             return chunks_.at(chunkPosition * CHUNK_WIDTH).getBlock(blockPositionInChunkX, blockPositionInChunkY);
         }
         else {
