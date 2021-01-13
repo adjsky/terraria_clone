@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "../../Util/utility.h"
 #include "../../World/World.h"
+#include "../../InputHandler/InputHandler.h"
 
 Player::Player() :
     AnimatedSprite{},
@@ -12,14 +13,16 @@ Player::Player() :
     verticalSpeed{ },
     horizontalSpeed{ },
     hitBox_{ },
-    animations_{ }
+    animations_{ },
+    hotBar_{ sf::Vector2i{ 10, 1 } },
+    heldItem_{ 0 }
 {
 
 }
 
 void Player::moveWithCollide() {
     if (horizontalSpeed != 0) {
-        sf::FloatRect hitbox = getHitBoxBounds();
+        sf::FloatRect hitbox = getHitBox().getGlobalBounds();
         // move hitbox horizontally
         hitbox.left += horizontalSpeed;
 
@@ -36,7 +39,7 @@ void Player::moveWithCollide() {
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
-                            diff = block->sprite.getGlobalBounds().left - (getHitBoxBounds().left + getHitBoxBounds().width) ;
+                            diff = block->sprite.getGlobalBounds().left - (getHitBox().getGlobalBounds().left + getHitBox().getGlobalBounds().width) ;
                             break;
                         }
                     }
@@ -59,7 +62,7 @@ void Player::moveWithCollide() {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
                             diff = (block->sprite.getGlobalBounds().left + block->sprite.getGlobalBounds().width) -
-                                   getHitBoxBounds().left;
+                                getHitBox().getGlobalBounds().left;
                             break;
                         }
                     }
@@ -76,7 +79,7 @@ void Player::moveWithCollide() {
 
     // block above
     if (verticalSpeed < 0) {
-        sf::FloatRect hitbox = getHitBoxBounds();
+        sf::FloatRect hitbox = getHitBox().getGlobalBounds();
         // move hitbox vertically
         hitbox.top += verticalSpeed;
 
@@ -112,7 +115,7 @@ void Player::moveWithCollide() {
 }
 
 float Player::getDistanceToGround() const {
-    sf::FloatRect hitbox = getHitBoxBounds();
+    sf::FloatRect hitbox = getHitBox().getGlobalBounds();
     float minHeight = std::numeric_limits<float>::max();
     int startX = mapGlobalCoordsToGame(hitbox.left, 0).x;
     int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
@@ -135,15 +138,11 @@ float Player::getDistanceToGround() const {
     return minHeight;
 }
 
-sf::FloatRect Player::getHitBoxBounds() const {
-    return hitBox_.getGlobalBounds();
-}
-
 void Player::constructHitBox() {
-    hitBox_.setOutlineThickness(1.0f);
+    hitBox_.setOutlineThickness(1.5f);
     hitBox_.setOutlineColor(sf::Color::Blue);
     hitBox_.setFillColor(sf::Color::Transparent);
-    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - 35.0f, BLOCK_SIZE * 2.0f - 5.0f));
+    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - (BLOCK_SIZE / 5.0f), BLOCK_SIZE * 3.0f - BLOCK_SIZE / 5.0f));
     hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
 }
 
@@ -158,6 +157,47 @@ void Player::move(float x, float y) {
 
 Animation& Player::getAnimation(Player::AnimationTypes type) {
     return animations_[type];
+}
+
+void Player::updateStates() {
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num1) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 0;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num2) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 1;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num3) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 2;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num4) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 3;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num5) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 4;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num6) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 5;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num7) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 6;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num8) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 7;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num9) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 8;
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num0) == InputHandler::JUST_PRESSED) {
+        heldItem_ = 9;
+    }
+}
+
+Inventory& Player::getHotBar() {
+    return hotBar_;
+}
+
+int Player::getHeldItem() {
+    return heldItem_;
 }
 
 
