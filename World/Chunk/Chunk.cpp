@@ -3,10 +3,8 @@
 //
 
 #include "Chunk.h"
+#include "../Block/BlockDatabase.h"
 #include "../../ResourceManager/ResourceManager.h"
-
-
-#include <iostream>
 
 Chunk::Chunk(int startingPosition) :
     startingPosition_{ startingPosition }
@@ -16,23 +14,23 @@ Chunk::Chunk(int startingPosition) :
 void Chunk::generate(FastNoiseLite& noise) {
     for (int x = 0; x < CHUNK_WIDTH; x++) {
         float noiseValue = noise.GetNoise((float)(x+startingPosition_), 0.0f);
-        int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 70);
+        int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 20);
         for (int y = 0; y < CHUNK_HEIGHT; y++) {
             blocks_[y][x] = std::make_unique<Block>();
             blocks_[y][x]->sprite.setTexture(ResourceManager::getTexture(ResourceManager::BLOCK));
             blocks_[y][x]->sprite.move((float)startingPosition_ * BLOCK_SIZE + (float)x * BLOCK_SIZE, (float)-y * BLOCK_SIZE);
             blocks_[y][x]->sprite.scale(BLOCK_SIZE / 96.0f, BLOCK_SIZE / 96.0f);
             if (y > blockHeight) {
-                blocks_[y][x]->info = BlockInfo{ BlockType::AIR };
+                blocks_[y][x]->type = BlockType::AIR;
                 blocks_[y][x]->visible = false;
             }
             else {
                 if (y == blockHeight)
-                    blocks_[y][x]->info = BlockInfo{ BlockType::GRASS };
+                    blocks_[y][x]->type = BlockType::GRASS;
                 else
-                    blocks_[y][x]->info = BlockInfo{ BlockType::DIRT_PIXEL };
+                    blocks_[y][x]->type = BlockType::DIRT_PIXEL;
                 blocks_[y][x]->visible = true;
-                blocks_[y][x]->sprite.setTextureRect(sf::IntRect{ blocks_[y][x]->info.type * 96, 0, 96, 96 });
+                blocks_[y][x]->sprite.setTextureRect(BlockDatabase::getData(blocks_[y][x]->type).textureRect);
             }
         }
     }

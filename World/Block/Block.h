@@ -7,11 +7,11 @@
 
 #include <SFML/Graphics/Sprite.hpp>
 
-#include "BlockInfo.h"
+#include "BlockTypes.h"
 
 struct Block {
     sf::Sprite sprite;
-    BlockInfo info;
+    BlockType::Type type;
     bool visible;
 };
 
