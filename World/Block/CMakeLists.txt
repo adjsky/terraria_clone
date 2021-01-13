@@ -1,1 +1,1 @@
-add_library(block Block.cpp BlockTypes.h BlockInfo.h)
+add_library(block Block.cpp BlockDatabase.cpp)

@@ -3,50 +3,63 @@
 //
 
 #include "World.h"
-#include "../ResourceManager/ResourceManager.h"
+
+#include <iostream>
 
 std::unordered_map<int, Chunk> World::chunks_{};
 
 void World::initialize() {
+    BlockDatabase::initialize();
     FastNoiseLite noise_;
     noise_.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    noise_.SetSeed(1223311145);
+    noise_.SetSeed(122145);
     noise_.SetFractalOctaves(5);
     noise_.SetFrequency(0.003f);
-    for (int x = 0; x < 15; x++) {
+    for (int x = 0; x < 50; x++) {
         chunks_[x * CHUNK_WIDTH].setPosition(x * CHUNK_WIDTH);
         chunks_[x * CHUNK_WIDTH].generate(noise_);
     }
 }
 
 void World::draw(sf::RenderWindow& window)  {
+    const sf::View& view{ window.getView() };
+    float viewStart{  (view.getCenter().x - view.getSize().x / 2.0f) / BLOCK_SIZE };
+    float viewEnd{ (view.getCenter().x + view.getSize().x / 2.0f) / BLOCK_SIZE };
     for (const auto& pair : chunks_) {
+        if ((pair.first <= viewEnd && pair.first >= viewStart) ||
+            (pair.first + CHUNK_WIDTH <= viewEnd && pair.first + CHUNK_WIDTH>= viewStart))
+        {
             pair.second.draw(window);
+        }
     }
 }
 
-void World::destroyBlock(sf::Vector2i pos) {
-    destroyBlock(pos.x, pos.y);
+const Block* World::destroyBlock(sf::Vector2i pos) {
+    return destroyBlock(pos.x, pos.y);
 }
 
-void World::destroyBlock(int x, int y) {
+const Block* World::destroyBlock(int x, int y) {
     Block* block = getBlock(x, y);
     if (block) {
-        getBlock(x, y)->visible = false;
+        if (block->visible) {
+            block->visible = false;
+            return block;
+        }
     }
+    return nullptr;
 }
 
-void World::placeBlock(sf::Vector2i pos) {
-    placeBlock(pos.x, pos.y);
+void World::placeBlock(sf::Vector2i pos, BlockType::Type type) {
+    placeBlock(pos.x, pos.y, type);
 }
 
-void World::placeBlock(int x, int y) {
+void World::placeBlock(int x, int y, BlockType::Type type) {
     Block* block = getBlock(x, y);
     if (block) {
         if (!block->visible) {
             block->visible = true;
-            block->info.type = BlockType::GRASS;
-            block->sprite.setTextureRect(sf::IntRect{ 0, 0, 96, 96 });
+            block->type = type;
+            block->sprite.setTextureRect(BlockDatabase::getData(block->type).textureRect);
         }
     }
 }
