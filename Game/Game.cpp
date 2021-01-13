@@ -8,11 +8,13 @@
 #include "../InputHandler/InputHandler.h"
 #include "../ResourceManager/ResourceManager.h"
 #include "../World/World.h"
+#include "../Physics/Collisions.h"
+#include "../World/Block/BlockTypes.h"
 
 // @TODO
 // 1) Система интерфейса
 // 2) Написать систему инвентаря
-// 4) Фабрика информации о блоке
+// 3) Фабрика информации о блоке
 
 Game::Game() :
     fixedDelta_{ 1 / 60.0f },
@@ -36,6 +38,10 @@ Game::Game() :
     positionText_.setCharacterSize(15);
     positionText_.move(0.0f, 16.0f);
 
+
+    player_.move(0.0f, -63.0f * BLOCK_SIZE);
+    player_.setOrigin(PLAYER_WIDTH / 2.0f, PLAYER_HEIGHT / 2.0f);
+    player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH * 1.5f, (float)BLOCK_SIZE / PLAYER_HEIGHT * 3);
     player_.setTimeStep(0.2f);
     player_.constructHitBox();
 
@@ -56,16 +62,14 @@ Game::Game() :
     jumpAnimation.setSpriteSheet(ResourceManager::getTexture(ResourceManager::PLAYER));
     jumpAnimation.addFrame(sf::IntRect{ 383, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
 
-    player_.move(0.0f, -61.0f * BLOCK_SIZE);
-    player_.setOrigin(PLAYER_WIDTH / 2.0f, PLAYER_HEIGHT / 2.0f);
-    player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH, (float)BLOCK_SIZE / PLAYER_HEIGHT * 2);
+    player_.setAnimation(standAnimation);
 }
 
 void Game::start() {
     sf::Clock timer;
     sf::Clock fpsTimer;
-    int fps = 0;
-    float accumulator = 0.0f;
+    int fps{ 0 };
+    float accumulator{ 0.0f };
 
     while (window_.isOpen()) {
         if (fpsTimer.getElapsedTime().asSeconds() > 1.0f) {
@@ -76,11 +80,11 @@ void Game::start() {
             fps++;
         }
 
-        sf::Vector2i playerPos = mapGlobalCoordsToGame(player_.getPosition().x, player_.getHitBoxBounds().top);
+        sf::Vector2i playerPos{ mapGlobalCoordsToGame(player_.getPosition().x, player_.getHitBox().getGlobalBounds().top) };
         positionText_.setString("x: " + std::to_string(playerPos.x) + " y: " + std::to_string(playerPos.y));
 
         handleEvents();
-        float frameTime = timer.restart().asSeconds();
+        float frameTime{ timer.restart().asSeconds() };
         accumulator += frameTime;
         update();
         while (accumulator >= fixedDelta_) {
@@ -99,7 +103,7 @@ void Game::handleEvents() {
         }
         if (e.type == sf::Event::Resized) {
             // change game view ratio
-            float ratio = static_cast<float>(window_.getSize().x) / static_cast<float>(window_.getSize().y);
+            float ratio{ static_cast<float>(window_.getSize().x) / static_cast<float>(window_.getSize().y) };
             view_.setSize(VIEW_WIDTH * ratio, VIEW_HEIGHT);
         }
     }
@@ -109,28 +113,45 @@ void Game::handleEvents() {
 void Game::update() {
     if (InputHandler::getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
         window_.setView(view_);
-        sf::Vector2f globalCoords = window_.mapPixelToCoords(sf::Mouse::getPosition(window_));
-        sf::Vector2i pos = mapGlobalCoordsToGame(globalCoords);
-        World::destroyBlock(pos);
+        sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
+        sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
+        if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
+            const Block* block { World::destroyBlock(pos) };
+            if (block) {
+                player_.getHotBar().addItem(block->type);
+            }
+        }
         window_.setView(window_.getDefaultView());
     }
 
     if (InputHandler::getMouseButtonState(sf::Mouse::Right) == InputHandler::JUST_PRESSED) {
         window_.setView(view_);
-        sf::Vector2f globalCoords = window_.mapPixelToCoords(sf::Mouse::getPosition(window_));
-        sf::Vector2i pos = mapGlobalCoordsToGame(globalCoords);
-        World::placeBlock(pos);
+        sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
+        sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
+        if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
+            canPlaceBlock(player_, pos))
+        {
+            const InventoryCell& cell { player_.getHotBar().getCell(player_.getHeldItem(), 0) };
+            if (cell.amount != 0) {
+                World::placeBlock(pos, cell.blockType);
+                player_.getHotBar().removeItem(player_.getHeldItem(), 0, 1);
+            }
+
+        }
         window_.setView(window_.getDefaultView());
     }
 
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::X) == InputHandler::JUST_PRESSED) {
         noclip_ = !noclip_;
         player_.verticalSpeed = 0;
+        player_.setAnimation(player_.getAnimation(Player::STAND));
     }
 
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tilde) == InputHandler::JUST_PRESSED) {
         drawHitBoxes_ = !drawHitBoxes_;
     }
+
+    player_.updateStates();
 }
 
 void Game::fixedUpdate() {
@@ -148,7 +169,8 @@ void Game::fixedUpdate() {
 
     bool moved = false;
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED) {
+        InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED)
+    {
         if (player_.isOnGround && !noclip_) {
             player_.verticalSpeed = -GAME_SPEED * 2.0f;
             player_.isOnGround = false;
@@ -157,41 +179,45 @@ void Game::fixedUpdate() {
         }
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED) {
+        InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED)
+    {
         if (noclip_) {
             player_.move(-GAME_SPEED * 3.0f, 0.0f);
         }
         else {
             player_.horizontalSpeed = -GAME_SPEED;
-        }
-        if (player_.isOnGround) {
-            player_.setAnimation(player_.getAnimation(Player::MOVE));
-            moved = true;
+            if (player_.isOnGround) {
+                player_.setAnimation(player_.getAnimation(Player::MOVE));
+                moved = true;
+            }
         }
         player_.changeDirection(Player::MoveDirections::LEFT);
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED) {
+        InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED)
+    {
         if (noclip_) {
             player_.move(GAME_SPEED * 3.0f, 0.0f);
         }
         else {
             player_.horizontalSpeed = GAME_SPEED;
-        }
-        if (player_.isOnGround) {
-            player_.setAnimation(player_.getAnimation(Player::MOVE));
-            moved = true;
+            if (player_.isOnGround) {
+                player_.setAnimation(player_.getAnimation(Player::MOVE));
+                moved = true;
+            }
         }
         player_.changeDirection(Player::MoveDirections::RIGHT);
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED) {
+        InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED)
+    {
         if (noclip_) {
             player_.move(0.0f, -GAME_SPEED * 2.0f);
         }
     }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::JUST_PRESSED ||
-        InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED) {
+        InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED)
+    {
         if (noclip_) {
             player_.move(0.0f, GAME_SPEED * 2.0f);
         }
