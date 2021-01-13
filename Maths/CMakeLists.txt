@@ -1,0 +1,1 @@
+add_library(maths Ray.cpp Math.h)
