@@ -6,7 +6,7 @@
 #define TERRARIA_CLONE_RAY_H
 
 #include <SFML/System/Vector2.hpp>
-#include "../Maths/Math.h"
+#include "Math.h"
 
 namespace math {
     class Ray {

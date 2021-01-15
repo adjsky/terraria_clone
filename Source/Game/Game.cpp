@@ -26,6 +26,8 @@ Game::Game() :
     noclip_{ },
     drawHitBoxes_{ }
 {
+    resizeWindow();
+
     window_.setFramerateLimit(144);
 
     fpsText_.setFont(ResourceManager::getFont());
@@ -103,8 +105,7 @@ void Game::handleEvents() {
         }
         if (e.type == sf::Event::Resized) {
             // change game view ratio
-            float ratio{ static_cast<float>(window_.getSize().x) / static_cast<float>(window_.getSize().y) };
-            view_.setSize(VIEW_WIDTH * ratio, VIEW_HEIGHT);
+            resizeWindow();
         }
     }
     InputHandler::updateStates();
@@ -255,4 +256,9 @@ void Game::render() {
     window_.draw(positionText_);
 
     window_.display();
+}
+
+void Game::resizeWindow() {
+    float ratio{ static_cast<float>(window_.getSize().x) / static_cast<float>(window_.getSize().y) };
+    view_.setSize(VIEW_WIDTH * ratio, VIEW_HEIGHT);
 }

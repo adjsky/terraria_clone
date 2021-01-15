@@ -1,1 +1,0 @@
-add_library(resource-manager ResourceManager.cpp)

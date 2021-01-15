@@ -1,19 +1,10 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.3)
 project(terraria_clone)
 
 set(CMAKE_CXX_STANDARD 17)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+find_package(SFML 2.5.1 COMPONENTS system window graphics REQUIRED)
 
-add_subdirectory(Game)
-add_subdirectory(InputHandler)
-add_subdirectory(ResourceManager)
-add_subdirectory(World)
-add_subdirectory(Entities)
-add_subdirectory(Util)
-add_subdirectory(Animations)
-add_subdirectory(Maths)
+file(GLOB_RECURSE Sources Source/*.cpp)
 
-add_executable(terraria_clone main.cpp Util/constants.h Util/FastNoiseLite.h)
-target_link_libraries(terraria_clone sfml-window sfml-system sfml-graphics
-                      resource-manager world game utility input-handler chunk block
-                      animated_sprite animation player inventory maths)
+add_executable(terraria_clone ${Sources} Source/Util/constants.h Source/Util/FastNoiseLite.h)
+target_link_libraries(terraria_clone sfml-system sfml-window sfml-graphics)

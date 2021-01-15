@@ -23,6 +23,8 @@ public:
     void render();
 
 private:
+    void resizeWindow();
+
     float fixedDelta_;
     sf::RenderWindow window_;
     sf::View view_;

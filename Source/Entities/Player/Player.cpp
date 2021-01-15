@@ -6,6 +6,7 @@
 #include "../../Util/utility.h"
 #include "../../World/World.h"
 #include "../../InputHandler/InputHandler.h"
+#include <iostream>
 
 Player::Player() :
     AnimatedSprite{},
@@ -139,10 +140,10 @@ float Player::getDistanceToGround() const {
 }
 
 void Player::constructHitBox() {
-    hitBox_.setOutlineThickness(1.5f);
-    hitBox_.setOutlineColor(sf::Color::Blue);
+    hitBox_.setOutlineThickness(3.0f);
+    hitBox_.setOutlineColor(sf::Color::Red);
     hitBox_.setFillColor(sf::Color::Transparent);
-    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - (BLOCK_SIZE / 5.0f), BLOCK_SIZE * 3.0f - BLOCK_SIZE / 5.0f));
+    hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - (BLOCK_SIZE / 5), BLOCK_SIZE * 3 - BLOCK_SIZE / 5));
     hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
 }
 
