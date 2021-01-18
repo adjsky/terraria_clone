@@ -8,8 +8,7 @@
 namespace BlockType {
     enum Type {
         AIR = -1,
-        DIRT = 0,
-        DIRT_PIXEL,
+        DIRT_PIXEL = 0,
         GRASS,
         TYPE_COUNT
     };
