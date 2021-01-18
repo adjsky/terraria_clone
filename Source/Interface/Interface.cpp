@@ -6,7 +6,6 @@
 
 #include "Interface.h"
 #include "../ResourceManager/ResourceManager.h"
-#include "../World/Block/BlockDatabase.h"
 
 Interface::Interface(sf::RenderWindow &window) :
     gui_{ window },
@@ -33,6 +32,7 @@ Interface::Interface(sf::RenderWindow &window) :
     }
     tgui::Group::Ptr items{ tgui::Group::create() };
     hotBar->add(items, "items");
+    hotBar->setVisible(false);
     gui_.add(hotBar, "hotBar");
 
     tgui::Group::Ptr inventory{ tgui::Group::create() };
@@ -55,6 +55,11 @@ void Interface::draw() {
 void Interface::showInventory() {
     auto inventory{ gui_.get("inventory") };
     inventory->setVisible(!inventory->isVisible());
+}
+
+void Interface::showHotBar() {
+    tgui::Group::Ptr hotBar{ gui_.get<tgui::Group>("hotBar") };
+    hotBar->setVisible(!hotBar->isVisible());
 }
 
 void Interface::updateHealth(const Player &player) {

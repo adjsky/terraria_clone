@@ -6,9 +6,10 @@
 
 #include <iostream>
 
-std::unordered_map<int, Chunk> World::chunks_{};
 
-void World::initialize() {
+World::World() :
+    chunks_{ }
+{
     BlockDatabase::initialize();
     FastNoiseLite noise_;
     noise_.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -21,10 +22,14 @@ void World::initialize() {
     }
 }
 
+// @TODO
+// fix chunk checking
+
 void World::draw(sf::RenderWindow& window)  {
     const sf::View& view{ window.getView() };
     float viewStart{  (view.getCenter().x - view.getSize().x / 2.0f) / BLOCK_SIZE };
     float viewEnd{ (view.getCenter().x + view.getSize().x / 2.0f) / BLOCK_SIZE };
+    //std::cout << viewStart << ' ' << viewEnd << '\n';
     for (const auto& pair : chunks_) {
         if ((pair.first <= viewEnd && pair.first >= viewStart) ||
             (pair.first + CHUNK_WIDTH <= viewEnd && pair.first + CHUNK_WIDTH>= viewStart))
@@ -64,11 +69,11 @@ void World::placeBlock(int x, int y, BlockType::Type type) {
     }
 }
 
-Block* World::getBlock(sf::Vector2i pos) {
+Block* World::getBlock(sf::Vector2i pos) const {
     return getBlock(pos.x, pos.y);
 }
 
-Block* World::getBlock(int x, int y) {
+Block* World::getBlock(int x, int y) const {
     if (x >= 0 && y >= 0 && y < CHUNK_HEIGHT) {
         int chunkPosition = x / CHUNK_WIDTH;
         int blockPositionInChunkX = x % CHUNK_WIDTH;

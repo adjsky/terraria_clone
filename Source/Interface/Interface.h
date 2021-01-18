@@ -15,6 +15,7 @@ public:
     void handleEvent(sf::Event& e);
     void draw();
     void showInventory();
+    void showHotBar();
     void updateHealth(const Player& player);
     void updateHotBar(const Player& player);
     void highlightHotBarCell(const Player& player);

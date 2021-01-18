@@ -10,9 +10,7 @@
 
 #include "../../Animations/AnimatedSprite.h"
 #include "../Inventory/Inventory.h"
-
-constexpr int PLAYER_WIDTH = 45;
-constexpr int PLAYER_HEIGHT = 90;
+#include "../../World/World.h"
 
 class Player : public AnimatedSprite {
 public:
@@ -25,8 +23,8 @@ public:
 public:
     Player();
 
-    void moveWithCollide();
-    float getDistanceToGround() const;
+    void moveWithCollide(const World& world);
+    float getDistanceToGround(const World& world) const;
     void constructHitBox();
     const sf::RectangleShape& getHitBox() const;
     void move(float x, float y);

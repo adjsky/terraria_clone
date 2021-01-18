@@ -57,6 +57,6 @@ void Chunk::draw(sf::RenderWindow& window) const {
     }
 }
 
-Block* Chunk::getBlock(int x, int y) {
+Block* Chunk::getBlock(int x, int y) const {
     return blocks_[y][x].get();
 }

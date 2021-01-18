@@ -19,7 +19,7 @@ public:
     void generate(FastNoiseLite& noise);
     void setPosition(int x);
     void draw(sf::RenderWindow& window) const;
-    Block* getBlock(int x, int y);
+    Block* getBlock(int x, int y) const;
 private:
     int startingPosition_; // x position
     std::array<std::array<std::unique_ptr<Block>, CHUNK_WIDTH>, CHUNK_HEIGHT> blocks_;

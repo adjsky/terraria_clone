@@ -12,30 +12,30 @@
 #ifndef TERRARIA_CLONE_COLLISIONS_H
 #define TERRARIA_CLONE_COLLISIONS_H
 
-bool canPlaceBlock(const Player& player, const sf::Vector2i& pos) {
+bool canPlaceBlock(const Player& player, const sf::Vector2i& pos, const World& world) {
     sf::FloatRect playerHitBox { player.getHitBox().getGlobalBounds() };
     sf::Vector2f startPos { mapGlobalCoordsToGame(playerHitBox.left, playerHitBox.top + playerHitBox.height) };
     sf::Vector2f endPos { mapGlobalCoordsToGame(playerHitBox.left + playerHitBox.width, playerHitBox.top) };
-    Block* block{ World::getBlock(pos) };
+    Block* block{ world.getBlock(pos) };
     if (block) {
         if (block->visible) return false;
     }
     if (pos.x >= startPos.x && pos.x <= endPos.x && pos.y >= startPos.y && pos.y <= endPos.y) {
         return false;
     } else {
-        Block* leftBlock { World::getBlock(pos.x - 1, pos.y) };
+        Block* leftBlock { world.getBlock(pos.x - 1, pos.y) };
         if (leftBlock) {
             if (leftBlock->visible) return true;
         }
-        Block* rightBlock { World::getBlock(pos.x + 1, pos.y) };
+        Block* rightBlock { world.getBlock(pos.x + 1, pos.y) };
         if (rightBlock) {
             if (rightBlock->visible) return true;
         }
-        Block* topBlock { World::getBlock(pos.x, pos.y + 1) };
+        Block* topBlock { world.getBlock(pos.x, pos.y + 1) };
         if (topBlock) {
             if (topBlock->visible) return true;
         }
-        Block* bottomBlock { World::getBlock(pos.x, pos.y - 1) };
+        Block* bottomBlock { world.getBlock(pos.x, pos.y - 1) };
         if (bottomBlock) {
             if (bottomBlock->visible) return true;
         }

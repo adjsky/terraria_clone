@@ -4,8 +4,8 @@
 
 #include "Player.h"
 #include "../../Util/utility.h"
-#include "../../World/World.h"
 #include "../../InputHandler/InputHandler.h"
+
 #include <iostream>
 
 Player::Player() :
@@ -22,7 +22,7 @@ Player::Player() :
 
 }
 
-void Player::moveWithCollide() {
+void Player::moveWithCollide(const World& world) {
     if (horizontalSpeed != 0) {
         sf::FloatRect hitbox = getHitBox().getGlobalBounds();
         // move hitbox horizontally
@@ -37,7 +37,7 @@ void Player::moveWithCollide() {
         if (horizontalSpeed > 0) {
             float diff = std::numeric_limits<float>::max();
             for (int y = startPos.y; y < endPos.y + 1; y++) {
-                Block* block = World::getBlock(endPos.x, y);
+                Block* block = world.getBlock(endPos.x, y);
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -59,7 +59,7 @@ void Player::moveWithCollide() {
         if (horizontalSpeed < 0) {
             float diff = std::numeric_limits<float>::max();
             for (int y = startPos.y; y < endPos.y + 1; y++) {
-                Block* block = World::getBlock(startPos.x, y);
+                Block* block = world.getBlock(startPos.x, y);
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -91,7 +91,7 @@ void Player::moveWithCollide() {
         sf::Vector2i endPos = mapGlobalCoordsToGame(hitbox.left + hitbox.width, hitbox.top);
 
         for (int x = startPos.x; x < endPos.x + 1; x++) {
-            Block* block = World::getBlock(x, endPos.y);
+            Block* block = world.getBlock(x, endPos.y);
             if (block) {
                 if (block->visible) {
                     if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -106,7 +106,7 @@ void Player::moveWithCollide() {
 
     // block under
     if (verticalSpeed > 0) {
-        float diff = getDistanceToGround();
+        float diff = getDistanceToGround(world);
         if (diff < verticalSpeed) {
             move(0, diff - 0.01f); // subtract 0.01 to prevent stuck in a block
             verticalSpeed = 0;
@@ -116,7 +116,7 @@ void Player::moveWithCollide() {
     }
 }
 
-float Player::getDistanceToGround() const {
+float Player::getDistanceToGround(const World& world) const {
     sf::FloatRect hitbox = getHitBox().getGlobalBounds();
     float minHeight = std::numeric_limits<float>::max();
     int startX = mapGlobalCoordsToGame(hitbox.left, 0).x;
@@ -125,7 +125,7 @@ float Player::getDistanceToGround() const {
     for (int x = startX; x < endX + 1; x++) {
         Block* block;
         for (int y = 0; y < playerCoords.y; y++) {
-            block = World::getBlock(x, playerCoords.y - y);
+            block = world.getBlock(x, playerCoords.y - y);
             if (block) {
                 if (block->visible) {
                     float height =  -((hitbox.top + hitbox.height) - block->sprite.getPosition().y);
