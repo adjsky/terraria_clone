@@ -12,14 +12,14 @@
 
 struct InventoryCell {
     std::size_t amount;
-    BlockType::Type blockType;
+    BlockType::Type blockType = BlockType::AIR;
 };
 
 class Inventory {
 public:
     explicit Inventory(const sf::Vector2i& size);
     const InventoryCell& getCell(int x, int y) const;
-    void addItem(BlockType::Type type);
+    void addItem(BlockType::Type type, int amount);
     void removeItem(int x, int y, int amount);
     const sf::Vector2i& getSize() const;
 

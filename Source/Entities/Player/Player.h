@@ -31,9 +31,12 @@ public:
     const sf::RectangleShape& getHitBox() const;
     void move(float x, float y);
     Animation& getAnimation(AnimationTypes type);
-    void updateStates();
     Inventory& getHotBar();
-    int getHeldItem();
+    const Inventory& getHotBar() const;
+    int getHeldItem() const;
+    void setHeldItem(int i);
+
+    int getHealth() const;
 
 public:
     bool isOnGround;
@@ -45,6 +48,7 @@ private:
     std::array<Animation, ANIMATIONS_COUNT> animations_;
     Inventory hotBar_;
     int heldItem_;
+    int health_;
 };
 
 #endif //TERRARIA_CLONE_PLAYER_H

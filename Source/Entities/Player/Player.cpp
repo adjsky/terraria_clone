@@ -16,7 +16,8 @@ Player::Player() :
     hitBox_{ },
     animations_{ },
     hotBar_{ sf::Vector2i{ 10, 1 } },
-    heldItem_{ 0 }
+    heldItem_{ 0 },
+    health_{ 100 }
 {
 
 }
@@ -140,7 +141,7 @@ float Player::getDistanceToGround() const {
 }
 
 void Player::constructHitBox() {
-    hitBox_.setOutlineThickness(3.0f);
+    hitBox_.setOutlineThickness(1.0f);
     hitBox_.setOutlineColor(sf::Color::Red);
     hitBox_.setFillColor(sf::Color::Transparent);
     hitBox_.setSize(sf::Vector2f(BLOCK_SIZE - (BLOCK_SIZE / 5), BLOCK_SIZE * 3 - BLOCK_SIZE / 5));
@@ -160,45 +161,22 @@ Animation& Player::getAnimation(Player::AnimationTypes type) {
     return animations_[type];
 }
 
-void Player::updateStates() {
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num1) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 0;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num2) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 1;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num3) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 2;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num4) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 3;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num5) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 4;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num6) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 5;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num7) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 6;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num8) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 7;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num9) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 8;
-    }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num0) == InputHandler::JUST_PRESSED) {
-        heldItem_ = 9;
-    }
-}
-
 Inventory& Player::getHotBar() {
     return hotBar_;
 }
 
-int Player::getHeldItem() {
+const Inventory &Player::getHotBar() const {
+    return hotBar_;
+}
+
+int Player::getHeldItem() const {
     return heldItem_;
 }
 
+void Player::setHeldItem(int i) {
+    heldItem_ = i;
+}
 
+int Player::getHealth() const {
+    return health_;
+}
