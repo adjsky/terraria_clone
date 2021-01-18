@@ -10,12 +10,13 @@
 
 #include "../Util/constants.h"
 #include "../Entities/Player/Player.h"
+#include "../Interface/Interface.h"
 
 constexpr int GAME_SPEED = BLOCK_SIZE / 16;
 
 class Game {
 public:
-    Game();
+    Game(const sf::ContextSettings& context = sf::ContextSettings{});
     void start();
     void update();
     void fixedUpdate();
@@ -24,15 +25,16 @@ public:
 
 private:
     void resizeWindow();
+    void handleMouseClicks();
 
     float fixedDelta_;
     sf::RenderWindow window_;
     sf::View view_;
     Player player_;
-    sf::Text fpsText_;
-    sf::Text positionText_;
     bool noclip_;
     bool drawHitBoxes_;
+    bool paused_;
+    Interface gui_;
 };
 
 #endif //TERRARIA_CLONE_GAME_H

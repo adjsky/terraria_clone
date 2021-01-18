@@ -16,30 +16,21 @@
 // 2) Написать систему инвентаря
 // 3) Фабрика информации о блоке
 
-Game::Game() :
+Game::Game(const sf::ContextSettings& context) :
     fixedDelta_{ 1 / 60.0f },
-    window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone" },
+    window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone", sf::Style::Default, context },
     view_{sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
     player_{ },
-    fpsText_{ },
-    positionText_{ },
     noclip_{ },
-    drawHitBoxes_{ }
+    drawHitBoxes_{ },
+    paused_{ false },
+    gui_{ window_ }
 {
+    World::initialize();
+
     resizeWindow();
 
     window_.setFramerateLimit(144);
-
-    fpsText_.setFont(ResourceManager::getFont());
-    fpsText_.setFillColor(sf::Color::Red);
-    fpsText_.setCharacterSize(15);
-    fpsText_.setString("fps: 0");
-
-    positionText_.setFont(ResourceManager::getFont());
-    positionText_.setFillColor(sf::Color::Red);
-    positionText_.setCharacterSize(15);
-    positionText_.move(0.0f, 16.0f);
-
 
     player_.move(0.0f, -63.0f * BLOCK_SIZE);
     player_.setOrigin(PLAYER_WIDTH / 2.0f, PLAYER_HEIGHT / 2.0f);
@@ -65,34 +56,27 @@ Game::Game() :
     jumpAnimation.addFrame(sf::IntRect{ 383, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
 
     player_.setAnimation(standAnimation);
+
+    gui_.updateHealth(player_);
+    gui_.updateHotBar(player_);
+    gui_.highlightHotBarCell(player_);
 }
 
 void Game::start() {
     sf::Clock timer;
     sf::Clock fpsTimer;
-    int fps{ 0 };
     float accumulator{ 0.0f };
 
     while (window_.isOpen()) {
-        if (fpsTimer.getElapsedTime().asSeconds() > 1.0f) {
-            fpsText_.setString("fps: " + std::to_string(fps));
-            fps = 0;
-            fpsTimer.restart();
-        } else {
-            fps++;
-        }
-
-        sf::Vector2i playerPos{ mapGlobalCoordsToGame(player_.getPosition().x, player_.getHitBox().getGlobalBounds().top) };
-        positionText_.setString("x: " + std::to_string(playerPos.x) + " y: " + std::to_string(playerPos.y));
-
         handleEvents();
         float frameTime{ timer.restart().asSeconds() };
         accumulator += frameTime;
-        update();
+        if (!paused_) update();
         while (accumulator >= fixedDelta_) {
-            fixedUpdate();
+            if (!paused_) fixedUpdate();
             accumulator -= fixedDelta_;
         }
+
         render();
     }
 }
@@ -107,40 +91,20 @@ void Game::handleEvents() {
             // change game view ratio
             resizeWindow();
         }
+        gui_.handleEvent(e);
+
+        if (e.type == sf::Event::KeyPressed) {
+            if (e.key.code == sf::Keyboard::Tab) {
+                gui_.showInventory();
+                paused_ = !paused_;
+            }
+        }
     }
     InputHandler::updateStates();
 }
 
 void Game::update() {
-    if (InputHandler::getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
-        window_.setView(view_);
-        sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
-        sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
-        if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
-            const Block* block { World::destroyBlock(pos) };
-            if (block) {
-                player_.getHotBar().addItem(block->type);
-            }
-        }
-        window_.setView(window_.getDefaultView());
-    }
-
-    if (InputHandler::getMouseButtonState(sf::Mouse::Right) == InputHandler::JUST_PRESSED) {
-        window_.setView(view_);
-        sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
-        sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
-        if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
-            canPlaceBlock(player_, pos))
-        {
-            const InventoryCell& cell { player_.getHotBar().getCell(player_.getHeldItem(), 0) };
-            if (cell.amount != 0) {
-                World::placeBlock(pos, cell.blockType);
-                player_.getHotBar().removeItem(player_.getHeldItem(), 0, 1);
-            }
-
-        }
-        window_.setView(window_.getDefaultView());
-    }
+    handleMouseClicks();
 
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::X) == InputHandler::JUST_PRESSED) {
         noclip_ = !noclip_;
@@ -151,8 +115,16 @@ void Game::update() {
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tilde) == InputHandler::JUST_PRESSED) {
         drawHitBoxes_ = !drawHitBoxes_;
     }
-
-    player_.updateStates();
+    for (int i = sf::Keyboard::Num1; i <= sf::Keyboard::Num9; i++) {
+        if (InputHandler::getKeyboardKeyState(static_cast<sf::Keyboard::Key>(i)) == InputHandler::JUST_PRESSED) {
+            player_.setHeldItem(i - sf::Keyboard::Num1);
+            gui_.highlightHotBarCell(player_);
+        }
+    }
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num0) == InputHandler::JUST_PRESSED) {
+        player_.setHeldItem(9);
+        gui_.highlightHotBarCell(player_);
+    }
 }
 
 void Game::fixedUpdate() {
@@ -252,13 +224,45 @@ void Game::render() {
     }
 
     window_.setView(window_.getDefaultView());
-    window_.draw(fpsText_);
-    window_.draw(positionText_);
+    gui_.draw();
 
     window_.display();
 }
 
 void Game::resizeWindow() {
-    float ratio{ static_cast<float>(window_.getSize().x) / static_cast<float>(window_.getSize().y) };
-    view_.setSize(VIEW_WIDTH * ratio, VIEW_HEIGHT);
+//    float ratio{ static_cast<float>(window_.getSize().x) / static_cast<float>(window_.getSize().y) };
+//    view_.setSize(std::floor(VIEW_WIDTH * ratio), VIEW_HEIGHT);
+}
+
+void Game::handleMouseClicks() {
+    if (InputHandler::getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
+        window_.setView(view_);
+        sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
+        sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
+        if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
+            const Block* block { World::destroyBlock(pos) };
+            if (block) {
+                player_.getHotBar().addItem(block->type, 1);
+                gui_.updateHotBar(player_);
+            }
+        }
+        window_.setView(window_.getDefaultView());
+    }
+
+    if (InputHandler::getMouseButtonState(sf::Mouse::Right) == InputHandler::JUST_PRESSED) {
+        window_.setView(view_);
+        sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
+        sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
+        if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
+            canPlaceBlock(player_, pos))
+        {
+            const InventoryCell& cell { player_.getHotBar().getCell(player_.getHeldItem(), 0) };
+            if (cell.amount != 0) {
+                World::placeBlock(pos, cell.blockType);
+                player_.getHotBar().removeItem(player_.getHeldItem(), 0, 1);
+                gui_.updateHotBar(player_);
+            }
+        }
+        window_.setView(window_.getDefaultView());
+    }
 }
