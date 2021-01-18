@@ -18,17 +18,20 @@ void Chunk::generate(FastNoiseLite& noise) {
         for (int y = 0; y < CHUNK_HEIGHT; y++) {
             blocks_[y][x] = std::make_unique<Block>();
             blocks_[y][x]->sprite.setTexture(ResourceManager::getTexture(ResourceManager::BLOCK));
-            blocks_[y][x]->sprite.move((float)startingPosition_ * BLOCK_SIZE + (float)x * BLOCK_SIZE, (float)-y * BLOCK_SIZE);
-            blocks_[y][x]->sprite.scale(BLOCK_SIZE / 96.0f, BLOCK_SIZE / 96.0f);
+            blocks_[y][x]->sprite.move(startingPosition_ * BLOCK_SIZE + x * BLOCK_SIZE, -y * BLOCK_SIZE);
+            blocks_[y][x]->sprite.setScale(BLOCK_SIZE / 64.0f, BLOCK_SIZE / 64.0f);
             if (y > blockHeight) {
                 blocks_[y][x]->type = BlockType::AIR;
                 blocks_[y][x]->visible = false;
             }
             else {
                 if (y == blockHeight)
+                {
                     blocks_[y][x]->type = BlockType::GRASS;
-                else
+                }
+                else {
                     blocks_[y][x]->type = BlockType::DIRT_PIXEL;
+                }
                 blocks_[y][x]->visible = true;
                 blocks_[y][x]->sprite.setTextureRect(BlockDatabase::getData(blocks_[y][x]->type).textureRect);
             }
