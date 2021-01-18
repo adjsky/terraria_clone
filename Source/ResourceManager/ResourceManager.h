@@ -8,7 +8,7 @@
 #include <array>
 #include <memory>
 #include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/Font.hpp>
+#include <TGUI/Font.hpp>
 
 #include "../World/Block/Block.h"
 
@@ -17,16 +17,29 @@ public:
     enum Textures {
         BLOCK,
         PLAYER,
+        HOTBAR,
+        HEALTH,
+        INVENTORY,
+        INVENTORY_CELL,
+        INVENTORY_MARK,
         TEXTURES_COUNT
     };
 
-    static void initialize();
+    enum Fonts {
+        ROBOTO,
+        YUSEI,
+        POTTA_ONE,
+        FONTS_COUNT
+    };
+
+    static void initializeTextures();
+    static void initializeFonts();
     static const sf::Texture& getTexture(Textures texture);
-    static const sf::Font& getFont();
+    static const tgui::Font& getFont(Fonts font);
 
 private:
-    static std::array<std::unique_ptr<sf::Texture>, TEXTURES_COUNT> textures;
-    static std::unique_ptr<sf::Font> font;
+    static std::array<std::unique_ptr<sf::Texture>, TEXTURES_COUNT> textures_;
+    static std::array<std::unique_ptr<tgui::Font>, FONTS_COUNT> fonts_;
 };
 
 #endif //TERRARIA_CLONE_RESOURCEMANAGER_H

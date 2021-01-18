@@ -6,27 +6,45 @@
 
 #include "ResourceManager.h"
 
-std::array<std::unique_ptr<sf::Texture>, ResourceManager::TEXTURES_COUNT> ResourceManager::textures{ };
-std::unique_ptr<sf::Font> ResourceManager::font{ };
+std::array<std::unique_ptr<sf::Texture>, ResourceManager::TEXTURES_COUNT> ResourceManager::textures_{ };
+std::array<std::unique_ptr<tgui::Font>, ResourceManager::FONTS_COUNT> ResourceManager::fonts_{ };
 
-void ResourceManager::initialize() {
-    std::generate(textures.begin(), textures.end(), []() { return std::make_unique<sf::Texture>(); });
-    font = std::make_unique<sf::Font>();
-    if (!textures[BLOCK]->loadFromFile("../Resources/Spritesheets/block_sprites.png")) {
+void ResourceManager::initializeTextures() {
+    std::generate(textures_.begin(), textures_.end(), []() { return std::make_unique<sf::Texture>(); });
+    if (!textures_[BLOCK]->loadFromFile("../Resources/Spritesheets/block_sprites.png")) {
         throw std::runtime_error("Couldn't load block sprites");
     }
-    if (!textures[PLAYER]->loadFromFile("../Resources/Spritesheets/player_sprites.png")) {
+    if (!textures_[PLAYER]->loadFromFile("../Resources/Spritesheets/player_sprites.png")) {
         throw std::runtime_error("Couldn't load player sprites");
     }
-    if (!font->loadFromFile("../Resources/Fonts/Roboto/Roboto-Medium.ttf")) {
-        throw std::runtime_error("Couldn't load Roboto-Medium font");
+    if (!textures_[HEALTH]->loadFromFile("../Resources/Spritesheets/hearts.png")) {
+        throw std::runtime_error("Couldn't load hearts sprite");
     }
+    if (!textures_[INVENTORY_CELL]->loadFromFile("../Resources/Spritesheets/inventory_cells.png")) {
+        throw std::runtime_error("Couldn't load inventory cells sprite");
+    }
+    if (!textures_[HOTBAR]->loadFromFile("../Resources/Textures/hotbar.png")) {
+        throw std::runtime_error("Couldn't load hotbar texture");
+    }
+    if (!textures_[INVENTORY]->loadFromFile("../Resources/Textures/inventory.png")) {
+        throw std::runtime_error("Couldn't load inventory texture");
+    }
+    if (!textures_[INVENTORY_MARK]->loadFromFile("../Resources/Textures/inventory_mark.png")) {
+        throw std::runtime_error("Couldn't load inventory mark texture");
+    }
+
+}
+
+void ResourceManager::initializeFonts() {
+    fonts_[ROBOTO] = std::make_unique<tgui::Font>("../Resources/Fonts/Roboto/Roboto-Medium.ttf");
+    fonts_[YUSEI] = std::make_unique<tgui::Font>("../Resources/Fonts/YuseiMagic.ttf");
+    fonts_[POTTA_ONE] = std::make_unique<tgui::Font>("../Resources/Fonts/PottaOne.ttf");
 }
 
 const sf::Texture& ResourceManager::getTexture(Textures texture) {
-    return *textures[texture];
+    return *textures_[texture];
 }
 
-const sf::Font& ResourceManager::getFont() {
-    return *font;
+const tgui::Font& ResourceManager::getFont(Fonts font) {
+    return *fonts_[font];
 }
