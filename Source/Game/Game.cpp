@@ -11,10 +11,15 @@ Game::Game(const sf::ContextSettings& context) :
     fixedDelta_{ 1 / 60.0f },
     window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone", sf::Style::Default, context },
     gui_{ window_ },
-    currentGameSession{ nullptr }
+    currentGameSession{ nullptr },
+    shouldUpdate_{ true }
 {
     resizeWindow();
     window_.setFramerateLimit(144);
+
+    gui_.consoleEnterSignal.connect([]() {
+        std::cout << "clicked!\n";
+    });
 
     currentGameSession = std::make_unique<GameSession>(window_, gui_);
 }
@@ -27,10 +32,10 @@ void Game::start() {
         handleEvents();
 
         float frameTime{ timer.restart().asSeconds() };
-        if (currentGameSession) currentGameSession->update(frameTime);
+        if (currentGameSession && shouldUpdate_) currentGameSession->update(frameTime);
         accumulator += frameTime;
         while (accumulator >= fixedDelta_) {
-            if (currentGameSession) {
+            if (currentGameSession && shouldUpdate_) {
                 currentGameSession->fixedUpdate(fixedDelta_);
             }
             accumulator -= fixedDelta_;
@@ -52,6 +57,10 @@ void Game::handleEvents() {
         gui_.handleEvent(e);
     }
     InputHandler::updateStates();
+    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Slash) == InputHandler::JUST_PRESSED) {
+        gui_.showConsole();
+        shouldUpdate_ = !shouldUpdate_;
+    }
 }
 
 void Game::render() {

@@ -27,6 +27,7 @@ private:
     sf::RenderWindow window_;
     Interface gui_;
     std::unique_ptr<GameSession> currentGameSession;
+    bool shouldUpdate_;
 };
 
 #endif //TERRARIA_CLONE_GAME_H
