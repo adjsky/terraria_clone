@@ -3,21 +3,18 @@
 //
 
 #include "Player.h"
-#include "../../Util/utility.h"
 #include "../../InputHandler/InputHandler.h"
 
-#include <iostream>
-
 Player::Player() :
-    AnimatedSprite{},
-    isOnGround{ },
-    verticalSpeed{ },
-    horizontalSpeed{ },
-    hitBox_{ },
-    animations_{ },
-    hotBar_{ sf::Vector2i{ 10, 1 } },
-    heldItem_{ 0 },
-    health_{ 100 }
+        AnimatedSprite{},
+        isOnGround{ },
+        verticalSpeed{ },
+        horizontalSpeed{ },
+        hitBox_{ },
+        animations_{ },
+        inventory_{sf::Vector2i{10, 7 } },
+        heldItem_{ 0 },
+        health_{ 100 }
 {
 
 }
@@ -161,12 +158,12 @@ Animation& Player::getAnimation(Player::AnimationTypes type) {
     return animations_[type];
 }
 
-Inventory& Player::getHotBar() {
-    return hotBar_;
+Inventory& Player::getInventory() {
+    return inventory_;
 }
 
-const Inventory &Player::getHotBar() const {
-    return hotBar_;
+const Inventory &Player::getInventory() const {
+    return inventory_;
 }
 
 int Player::getHeldItem() const {

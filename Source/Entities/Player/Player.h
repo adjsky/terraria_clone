@@ -29,8 +29,8 @@ public:
     const sf::RectangleShape& getHitBox() const;
     void move(float x, float y);
     Animation& getAnimation(AnimationTypes type);
-    Inventory& getHotBar();
-    const Inventory& getHotBar() const;
+    Inventory& getInventory();
+    const Inventory& getInventory() const;
     int getHeldItem() const;
     void setHeldItem(int i);
 
@@ -44,7 +44,7 @@ public:
 private:
     sf::RectangleShape hitBox_;
     std::array<Animation, ANIMATIONS_COUNT> animations_;
-    Inventory hotBar_;
+    Inventory inventory_;
     int heldItem_;
     int health_;
 };
