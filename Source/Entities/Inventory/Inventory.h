@@ -24,6 +24,8 @@ public:
     const sf::Vector2i& getSize() const;
 
 private:
+    bool addToHotBar(BlockType::Type type, int amount);
+
     sf::Vector2i size_;
     std::vector<InventoryCell> cells_;
 };

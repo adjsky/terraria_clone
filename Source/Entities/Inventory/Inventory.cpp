@@ -18,6 +18,12 @@ const InventoryCell& Inventory::getCell(int x, int y) const {
 }
 
 void Inventory::addItem(BlockType::Type type, int amount) {
+    if (!addToHotBar(type, amount)) {
+
+    }
+}
+
+bool Inventory::addToHotBar(BlockType::Type type, int amount) {
     std::size_t lastEmptyCell = cells_.size();
     bool pushed = false;
     for (std::size_t i = 0; i < cells_.size(); i++) {
@@ -32,10 +38,12 @@ void Inventory::addItem(BlockType::Type type, int amount) {
             break;
         }
     }
+    if (lastEmptyCell == cells_.size()) return false;
     if (!pushed) {
         cells_[lastEmptyCell].amount = amount;
         cells_[lastEmptyCell].blockType = type;
     }
+    return true;
 }
 
 void Inventory::removeItem(int x, int y, int amount) {
