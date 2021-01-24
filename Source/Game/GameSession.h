@@ -16,6 +16,9 @@ public:
     void fixedUpdate(float fixedDelta);
     void render();
 
+    Player& getPlayer();
+    World& getWorld();
+
 private:
     sf::RenderWindow& window_;
     Interface& gui_;
@@ -26,6 +29,5 @@ private:
     bool drawHitBoxes_;
     bool paused_;
 };
-
 
 #endif //TERRARIA_CLONE_GAMESESSION_H
