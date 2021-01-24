@@ -21,10 +21,13 @@ public:
     void showConsole();
     void updateHealth(const Player& player);
     void updateHotBar(const Player& player);
+    void updateInventory(const Player& player);
     void highlightHotBarCell(const Player& player);
 
 public:
-    Signal<> consoleEnterSignal;
+    Signal<std::string> consoleEnterSignal;
+    Signal<int, int> backpackCellPressed;
+    Signal<int> hotBarCellPressed;
 
 private:
     void constructHotBar();

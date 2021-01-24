@@ -6,6 +6,7 @@
 
 #include "Interface.h"
 #include "../ResourceManager/ResourceManager.h"
+#include "../Util/constants.h"
 
 Interface::Interface(sf::RenderWindow &window) :
     gui_{ window },
@@ -79,16 +80,16 @@ void Interface::updateHotBar(const Player& player) {
     tgui::Group::Ptr hotBar{ gui_.get<tgui::Group>("hotBar") };
     tgui::Group::Ptr hotBarItems{ hotBar->get<tgui::Group>("items") };
     hotBarItems->removeAllWidgets();
-    const auto& playerHotBar{player.getInventory() };
-    for (int i = 0; i < 10; i++) {
+    const auto& playerHotBar{ player.getHotBar() };
+    for (int i = 0; i < playerHotBar.getSize().x; i++) {
         const auto& cell{ playerHotBar.getCell(i, 0) };
         if (cell.blockType != BlockType::AIR) {
             sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
             tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ ResourceManager::getTexture(ResourceManager::BLOCK),
                                                                          { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
             blockPicture->setOrigin(0.5f, 0.5f);
-            blockPicture->setPosition({"parent.parent.hotBar.cell" + std::to_string(i) + ".position + parent.parent.hotBar.cell" +  std::to_string(i) + ".size / 2"});
-            blockPicture->setSize({"parent.parent.hotBar.cell" + std::to_string(i) + ".size * 0.4"});
+            blockPicture->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(i) + ".position + parent.parent.hotBar.cells.cell" +  std::to_string(i) + ".size / 2"});
+            blockPicture->setSize({"parent.parent.hotBar.cells.cell" + std::to_string(i) + ".size * 0.4"});
             hotBarItems->add(blockPicture);
 
             if (cell.amount != 1) {
@@ -98,12 +99,16 @@ void Interface::updateHotBar(const Player& player) {
                 label->getRenderer()->setTextOutlineColor(sf::Color::Black);
                 label->getRenderer()->setTextOutlineThickness(0.5f);
                 label->setTextSize(13);
-                label->setPosition({"parent.parent.hotBar.cell" + std::to_string(i) + ".left + 5"},
-                                   {"parent.parent.hotBar.cell" + std::to_string(i) + ".top + 20"});
+                label->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(i) + ".left + 5"},
+                                   {"parent.parent.hotBar.cells.cell" + std::to_string(i) + ".top + 20"});
                 hotBarItems->add(label);
             }
         }
     }
+}
+
+void Interface::updateInventory(const Player& player) {
+
 }
 
 void Interface::highlightHotBarCell(const Player& player) {
@@ -123,15 +128,20 @@ void Interface::constructHotBar() {
     hotBarPicture->setPosition("parent.width / 2 - width / 2", "parent.height - height - 3");
     hotBar->add(hotBarPicture, "picture");
 
-    // add cell pictures to hot bar
-    for (int i = 0; i < 10; i++) {
-        tgui::Picture::Ptr cell{ tgui::Picture::create( {ResourceManager::getTexture(ResourceManager::INVENTORY_CELL),
-                                                         { 0, 0, 31, 31 }} ) };
+    tgui::Group::Ptr hotBarCells{ tgui::Group::create() };
+    hotBar->add(hotBarCells, "cells");
+
+    for (int x = 0; x < PLAYER_HOTBAR_SIZE; x++) {
+        tgui::Picture::Ptr cell{ tgui::Picture::create( { ResourceManager::getTexture(ResourceManager::INVENTORY_CELL),
+                                                          { 0, 0, 31, 31 }} ) };
         cell->setInheritedOpacity(0.75f);
         cell->setSize(cell->getSize() * 1.2f);
-        cell->setPosition({ "parent.picture.position + 26 + (size + 4) * " + std::to_string(i) },
+        cell->setPosition({ "parent.picture.position + 26 + (size + 4) * " + std::to_string(x) },
                           "parent.picture.position + 22");
-        hotBar->add(cell, "cell" + std::to_string(i));
+        cell->onClick([this, x]() {
+           hotBarCellPressed.emit(x);
+        });
+        hotBarCells->add(cell, "cell" + std::to_string(x));
     }
 
     // general group to hold pictures of items visible in hot bar
@@ -150,8 +160,26 @@ void Interface::constructInventory() {
     tgui::Group::Ptr inventory{ tgui::Group::create() };
     tgui::Picture::Ptr inventoryPicture{ tgui::Picture::create(ResourceManager::getTexture(ResourceManager::INVENTORY)) };
     inventoryPicture->setOrigin(0.5f, 0.5f);
+    inventoryPicture->setSize(inventoryPicture->getSize() * 0.8f);
     inventoryPicture->setPosition("parent.size / 2");
-    inventory->add(inventoryPicture, "inventoryPicture");
+    inventory->add(inventoryPicture, "picture");
+
+    tgui::Group::Ptr inventoryCells{ tgui::Group::create() };
+    inventory->add(inventoryCells, "cells");
+    for (int y = 0; y < PLAYER_BACKPACK_SIZE.y; y++) {
+        for (int x = 0; x < PLAYER_BACKPACK_SIZE.x; x++) {
+            tgui::Picture::Ptr cell{ tgui::Picture::create( {ResourceManager::getTexture(ResourceManager::INVENTORY_CELL),
+                                                             { 0, 0, 31, 31 }} ) };
+            cell->setPosition({ "60 + parent.parent.picture.position + (size + 2) * " + std::to_string(x)},
+                              { "parent.parent.picture.position - parent.parent.picture.size / 3 + (size + 2) * " + std::to_string(y)});
+            cell->onClick([this, x, y]() {
+                backpackCellPressed.emit(x, y);
+            });
+            inventoryCells->add(cell, "cell(" + std::to_string(x) + ";" + std::to_string(y) + ")");
+        }
+    }
+
+
     inventory->setVisible(false);
     gui_.add(inventory, "inventory");
 }
@@ -161,8 +189,9 @@ void Interface::constructConsole() {
     tgui::Group::Ptr console{ tgui::Group::create() };
 
     tgui::EditBox::Ptr consoleInput{ tgui::EditBox::create() };
-    consoleInput->onReturnKeyPress([this]() {
-        consoleEnterSignal.emit();
+    consoleInput->onReturnKeyPress([this, consoleInput]() {
+        consoleEnterSignal.emit(consoleInput->getText().toStdString());
+        consoleInput->setText("");
     });
 
     console->add(consoleInput, "input");
