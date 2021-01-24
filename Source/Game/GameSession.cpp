@@ -12,14 +12,12 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     window_{ window },
     gui_{ gui },
     player_{ },
-    view_{sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
+    view_{ sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
     world_{ },
     noclip_{ },
     drawHitBoxes_{ },
     paused_{ false }
 {
-
-
     player_.move(0.0f, -63.0f * BLOCK_SIZE);
     player_.setOrigin(PLAYER_WIDTH / 2.0f, PLAYER_HEIGHT / 2.0f);
     player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH * 1.5f, (float)BLOCK_SIZE / PLAYER_HEIGHT * 3);
@@ -48,6 +46,7 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     gui_.showHotBar();
     gui_.updateHealth(player_);
     gui_.updateHotBar(player_);
+    gui_.updateInventory(player_);
     gui_.highlightHotBarCell(player_);
 }
 
@@ -64,8 +63,14 @@ void GameSession::update(float delta) {
             if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
                 const Block* block { world_.destroyBlock(pos) };
                 if (block) {
-                    player_.getInventory().addItem(block->type, 1);
-                    gui_.updateHotBar(player_);
+                    if (player_.getHotBar().addItem(block->type, 1)) {
+                        gui_.updateHotBar(player_);
+                    }
+                    else {
+                        player_.getBackpack().addItem(block->type, 1);
+                        gui_.updateInventory(player_);
+                    }
+
                 }
             }
             window_.setView(window_.getDefaultView());
@@ -77,10 +82,10 @@ void GameSession::update(float delta) {
             if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
                 canPlaceBlock(player_, pos, world_))
             {
-                const InventoryCell& cell {player_.getInventory().getCell(player_.getHeldItem(), 0) };
+                const Inventory::Cell& cell { player_.getHotBar().getCell(player_.getHeldItem(), 0) };
                 if (cell.amount != 0) {
                     world_.placeBlock(pos, cell.blockType);
-                    player_.getInventory().removeItem(player_.getHeldItem(), 0, 1);
+                    player_.getHotBar().removeItem(player_.getHeldItem(), 0, 1);
                     gui_.updateHotBar(player_);
                 }
             }
@@ -203,4 +208,12 @@ void GameSession::render() {
         window_.draw(player_.getHitBox());
     }
     window_.setView(window_.getDefaultView());
+}
+
+Player &GameSession::getPlayer() {
+    return player_;
+}
+
+World &GameSession::getWorld() {
+    return world_;
 }
