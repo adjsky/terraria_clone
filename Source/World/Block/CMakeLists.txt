@@ -1,1 +1,0 @@
-add_library(block Block.cpp BlockDatabase.cpp)
