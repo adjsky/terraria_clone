@@ -12,16 +12,24 @@ Game::Game(const sf::ContextSettings& context) :
     window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone", sf::Style::Default, context },
     gui_{ window_ },
     currentGameSession{ nullptr },
-    shouldUpdate_{ true }
+    shouldUpdate_{ true },
+    consoleHandler_{ nullptr }
 {
     resizeWindow();
     window_.setFramerateLimit(144);
 
-    gui_.consoleEnterSignal.connect([]() {
-        std::cout << "clicked!\n";
-    });
-
     currentGameSession = std::make_unique<GameSession>(window_, gui_);
+    consoleHandler_.setGameSession(currentGameSession.get());
+
+    gui_.consoleEnterSignal.connect([this](const std::string& data){
+        consoleHandler_.process(data);
+    });
+    gui_.hotBarCellPressed.connect([](int x){
+        std::cout << "hotBar pressed: " << x << '\n';
+    });
+    gui_.backpackCellPressed.connect([](int x, int y){
+        std::cout << "backpack pressed: (" << x << ';' << y << ")\n";
+    });
 }
 
 void Game::start() {
