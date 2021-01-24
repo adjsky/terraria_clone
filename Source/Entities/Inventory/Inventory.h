@@ -10,24 +10,22 @@
 
 #include "../../World/Block/BlockTypes.h"
 
-struct InventoryCell {
-    std::size_t amount;
-    BlockType::Type blockType = BlockType::AIR;
-};
-
 class Inventory {
 public:
+    struct Cell {
+        std::size_t amount = 0;
+        BlockType::Type blockType = BlockType::AIR;
+    };
+public:
     explicit Inventory(const sf::Vector2i& size);
-    const InventoryCell& getCell(int x, int y) const;
-    void addItem(BlockType::Type type, int amount);
-    void removeItem(int x, int y, int amount);
+    const Cell& getCell(int x, int y) const;
+    bool addItem(BlockType::Type type, int amount);
+    void removeItem(int x, int y, int amount);;
     const sf::Vector2i& getSize() const;
 
 private:
-    bool addToHotBar(BlockType::Type type, int amount);
-
     sf::Vector2i size_;
-    std::vector<InventoryCell> cells_;
+    std::vector<std::vector<Cell>> cells_;
 };
 
 #endif //TERRARIA_CLONE_INVENTORY_H

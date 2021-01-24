@@ -3,57 +3,54 @@
 //
 
 #include <iostream>
+#include <functional>
 
 #include "Inventory.h"
 
-Inventory::Inventory(const sf::Vector2i &size) :
+Inventory::Inventory(const sf::Vector2i& size) :
     size_{ size },
     cells_{ }
 {
-    cells_.resize(size.x * size.y);
-}
-
-const InventoryCell& Inventory::getCell(int x, int y) const {
-    return cells_[size_.x * y + x];
-}
-
-void Inventory::addItem(BlockType::Type type, int amount) {
-    if (!addToHotBar(type, amount)) {
-
+    cells_.resize(size.y);
+    for (int y = 0; y < size.y; y++) {
+        cells_[y].resize(size.x);
     }
 }
 
-bool Inventory::addToHotBar(BlockType::Type type, int amount) {
-    std::size_t lastEmptyCell = cells_.size();
-    bool pushed = false;
-    for (std::size_t i = 0; i < cells_.size(); i++) {
-        if (cells_[i].amount == 0) {
-            if (i < lastEmptyCell) {
-                lastEmptyCell = i;
+const Inventory::Cell& Inventory::getCell(int x, int y) const {
+    return cells_[y][x];
+}
+
+bool Inventory::addItem(BlockType::Type type, int amount) {
+    sf::Vector2i lastEmptyCell = size_;
+    for (int y = 0; y < size_.y; y++) {
+        for (int x = 0; x < size_.x; x++) {
+            if (cells_[y][x].amount == 0) {
+                if (y < lastEmptyCell.y && x < lastEmptyCell.x) {
+                    lastEmptyCell.x = x;
+                    lastEmptyCell.y = y;
+                }
+            }
+            else if (cells_[y][x].blockType == type) {
+                cells_[y][x].amount += amount;
+                return true;
             }
         }
-        else if (cells_[i].blockType == type) {
-            pushed = true;
-            cells_[i].amount += amount;
-            break;
-        }
     }
-    if (lastEmptyCell == cells_.size()) return false;
-    if (!pushed) {
-        cells_[lastEmptyCell].amount = amount;
-        cells_[lastEmptyCell].blockType = type;
-    }
+    if (lastEmptyCell == size_ && cells_[lastEmptyCell.y][lastEmptyCell.x].blockType != BlockType::AIR) return false;
+    cells_[lastEmptyCell.y][lastEmptyCell.x].amount = amount;
+    cells_[lastEmptyCell.y][lastEmptyCell.x].blockType = type;
     return true;
 }
 
 void Inventory::removeItem(int x, int y, int amount) {
-    cells_[size_.x * y + x].amount -= amount;
-    if (cells_[size_.x * y + x].amount <= 0) {
-        cells_[size_.x * y + x].amount = 0;
-        cells_[size_.x * y + x].blockType = BlockType::AIR;
+    cells_[y][x].amount -= amount;
+    if (cells_[y][x].amount <= 0) {
+        cells_[y][x].amount = 0;
+        cells_[y][x].blockType = BlockType::AIR;
     }
 }
 
-const sf::Vector2i& Inventory::getSize() const {
+const sf::Vector2i &Inventory::getSize() const {
     return size_;
 }
