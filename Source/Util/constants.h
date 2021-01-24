@@ -5,6 +5,8 @@
 #ifndef TERRARIA_CLONE_CONSTANTS_H
 #define TERRARIA_CLONE_CONSTANTS_H
 
+#include <SFML/System/Vector2.hpp>
+
 constexpr int HEIGHT = 720;
 constexpr int WIDTH = 1280;
 constexpr int VIEW_HEIGHT = 720;
@@ -17,5 +19,7 @@ constexpr int BREAK_PLACE_DISTANCE = 10;
 constexpr int GAME_SPEED = BLOCK_SIZE / 16;
 constexpr int PLAYER_WIDTH = 45;
 constexpr int PLAYER_HEIGHT = 90;
+const sf::Vector2i PLAYER_BACKPACK_SIZE{ 9, 10 };
+constexpr int PLAYER_HOTBAR_SIZE = 10;
 
 #endif //TERRARIA_CLONE_CONSTANTS_H
