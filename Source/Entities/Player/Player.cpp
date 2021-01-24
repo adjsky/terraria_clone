@@ -4,6 +4,7 @@
 
 #include "Player.h"
 #include "../../InputHandler/InputHandler.h"
+#include "../../Util/constants.h"
 
 Player::Player() :
         AnimatedSprite{},
@@ -12,11 +13,11 @@ Player::Player() :
         horizontalSpeed{ },
         hitBox_{ },
         animations_{ },
-        inventory_{sf::Vector2i{10, 7 } },
+        hotBar_{ sf::Vector2i{ PLAYER_HOTBAR_SIZE, 1 } },
+        backpack_{ sf::Vector2i{ PLAYER_BACKPACK_SIZE.x, PLAYER_BACKPACK_SIZE.y } },
         heldItem_{ 0 },
         health_{ 100 }
 {
-
 }
 
 void Player::moveWithCollide(const World& world) {
@@ -158,12 +159,20 @@ Animation& Player::getAnimation(Player::AnimationTypes type) {
     return animations_[type];
 }
 
-Inventory& Player::getInventory() {
-    return inventory_;
+Inventory& Player::getHotBar() {
+    return hotBar_;
 }
 
-const Inventory &Player::getInventory() const {
-    return inventory_;
+Inventory& Player::getBackpack() {
+    return backpack_;
+}
+
+const Inventory& Player::getHotBar() const {
+    return hotBar_;
+}
+
+const Inventory& Player::getBackpack() const {
+    return backpack_;
 }
 
 int Player::getHeldItem() const {
