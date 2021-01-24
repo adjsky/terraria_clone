@@ -12,6 +12,7 @@
 #include "../Util/constants.h"
 #include "../Entities/Player/Player.h"
 #include "../Interface/Interface.h"
+#include "../Console/ConsoleHandler.h"
 
 class Game {
 public:
@@ -28,6 +29,7 @@ private:
     Interface gui_;
     std::unique_ptr<GameSession> currentGameSession;
     bool shouldUpdate_;
+    ConsoleHandler consoleHandler_;
 };
 
 #endif //TERRARIA_CLONE_GAME_H
