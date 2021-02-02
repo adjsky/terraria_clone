@@ -3,10 +3,10 @@
 //
 
 #include <iostream>
+#include <SFML/Window/Mouse.hpp>
 
 #include "Interface.h"
 #include "../ResourceManager/ResourceManager.h"
-#include "../Util/constants.h"
 
 Interface::Interface(sf::RenderWindow &window) :
     gui_{ window },
@@ -27,9 +27,14 @@ void Interface::draw() {
     gui_.draw();
 }
 
-void Interface::showInventory() {
+void Interface::showInventory(bool condition) {
     auto inventory{ gui_.get("inventory") };
-    inventory->setVisible(!inventory->isVisible());
+    inventory->setVisible(condition);
+}
+
+bool Interface::inventoryIsOpen() const {
+    auto inventory{ gui_.get("inventory") };
+    return inventory->isVisible();
 }
 
 void Interface::showHotBar() {
@@ -44,7 +49,7 @@ void Interface::showConsole() {
         tgui::EditBox::Ptr consoleInput{ console->get<tgui::EditBox>("input") };
         consoleInput->setFocused(true);
 
-        // clear previous entered text
+        // clear previously entered text
         consoleInput->setText("");
     }
 }
@@ -81,15 +86,16 @@ void Interface::updateHotBar(const Player& player) {
     tgui::Group::Ptr hotBarItems{ hotBar->get<tgui::Group>("items") };
     hotBarItems->removeAllWidgets();
     const auto& playerHotBar{ player.getHotBar() };
-    for (int i = 0; i < playerHotBar.getSize().x; i++) {
-        const auto& cell{ playerHotBar.getCell(i, 0) };
+    for (int x = 0; x < playerHotBar.getSize().x; x++) {
+        const auto& cell{ playerHotBar.getCell(x, 0) };
         if (cell.blockType != BlockType::AIR) {
             sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
             tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ ResourceManager::getTexture(ResourceManager::BLOCK),
                                                                          { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
             blockPicture->setOrigin(0.5f, 0.5f);
-            blockPicture->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(i) + ".position + parent.parent.hotBar.cells.cell" +  std::to_string(i) + ".size / 2"});
-            blockPicture->setSize({"parent.parent.hotBar.cells.cell" + std::to_string(i) + ".size * 0.4"});
+            blockPicture->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".position + parent.parent.hotBar.cells.cell" +  std::to_string(x) + ".size / 2"});
+            blockPicture->setSize({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".size * 0.4"});
+            blockPicture->ignoreMouseEvents(true);
             hotBarItems->add(blockPicture);
 
             if (cell.amount != 1) {
@@ -99,8 +105,9 @@ void Interface::updateHotBar(const Player& player) {
                 label->getRenderer()->setTextOutlineColor(sf::Color::Black);
                 label->getRenderer()->setTextOutlineThickness(0.5f);
                 label->setTextSize(13);
-                label->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(i) + ".left + 5"},
-                                   {"parent.parent.hotBar.cells.cell" + std::to_string(i) + ".top + 20"});
+                label->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".left + 5"},
+                                   {"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".top + 20"});
+                label->ignoreMouseEvents(true);
                 hotBarItems->add(label);
             }
         }
@@ -108,15 +115,47 @@ void Interface::updateHotBar(const Player& player) {
 }
 
 void Interface::updateInventory(const Player& player) {
+    tgui::Group::Ptr inventory{ gui_.get<tgui::Group>("inventory") };
+    tgui::Group::Ptr inventoryItems{ inventory->get<tgui::Group>("items") };
+    inventoryItems->removeAllWidgets();
+    const auto& playerBackpack{ player.getBackpack() };
+    for (int x = 0; x < playerBackpack.getSize().x; x++) {
+        for (int y = 0; y < playerBackpack.getSize().y; y++) {
+            const auto& cell{ playerBackpack.getCell(x, y) };
+            if (cell.blockType != BlockType::AIR) {
+                std::stringstream cellName{  };
+                sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
+                tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ ResourceManager::getTexture(ResourceManager::BLOCK),
+                                                                         { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
+                blockPicture->setOrigin(0.5f, 0.5f);
+                blockPicture->setPosition({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".position + parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size / 2"});
+                blockPicture->setSize({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size * 0.5"});
+                blockPicture->ignoreMouseEvents(true);
+                inventoryItems->add(blockPicture);
 
+                if (cell.amount != 1) {
+                    tgui::Label::Ptr label{ tgui::Label::create(std::to_string(cell.amount)) };
+                    label->setInheritedFont(ResourceManager::getFont(ResourceManager::YUSEI));
+                    label->getRenderer()->setTextColor({110,55,0});
+                    label->getRenderer()->setTextOutlineColor(sf::Color::Black);
+                    label->getRenderer()->setTextOutlineThickness(0.5f);
+                    label->setTextSize(13);
+                    label->setPosition({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".left + 3"},
+                                       {"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".top + 13"});
+                    label->ignoreMouseEvents(true);
+                    inventoryItems->add(label);
+                }
+            }
+        }
+    }
 }
 
 void Interface::highlightHotBarCell(const Player& player) {
     static int previousHighlightedCell{ 0 };
     tgui::Group::Ptr hotBar{ gui_.get<tgui::Group>("hotBar") };
     hotBar->get<tgui::Picture>("cell"+std::to_string(previousHighlightedCell))->getRenderer()->setTexture({ ResourceManager::getTexture(ResourceManager::INVENTORY_CELL),{ 0, 0, 31, 31 }});
-    hotBar->get<tgui::Picture>("cell"+std::to_string(player.getHeldItem()))->getRenderer()->setTexture({ ResourceManager::getTexture(ResourceManager::INVENTORY_CELL),{ 31, 0, 31, 31 }});
-    previousHighlightedCell = player.getHeldItem();
+    hotBar->get<tgui::Picture>("cell"+std::to_string(player.getHotBarIndex()))->getRenderer()->setTexture({ResourceManager::getTexture(ResourceManager::INVENTORY_CELL), {31, 0, 31, 31 }});
+    previousHighlightedCell = player.getHotBarIndex();
 }
 
 void Interface::constructHotBar() {
@@ -138,8 +177,8 @@ void Interface::constructHotBar() {
         cell->setSize(cell->getSize() * 1.2f);
         cell->setPosition({ "parent.picture.position + 26 + (size + 4) * " + std::to_string(x) },
                           "parent.picture.position + 22");
-        cell->onClick([this, x]() {
-           hotBarCellPressed.emit(x);
+        cell->onClick([this, x](){
+            hotBarCellPressed.emit(x);
         });
         hotBarCells->add(cell, "cell" + std::to_string(x));
     }
@@ -175,11 +214,12 @@ void Interface::constructInventory() {
             cell->onClick([this, x, y]() {
                 backpackCellPressed.emit(x, y);
             });
-            inventoryCells->add(cell, "cell(" + std::to_string(x) + ";" + std::to_string(y) + ")");
+            inventoryCells->add(cell, "cell" + std::to_string(x)  + std::to_string(y));
         }
     }
 
-
+    tgui::Group::Ptr items{ tgui::Group::create() };
+    inventory->add(items, "items");
     inventory->setVisible(false);
     gui_.add(inventory, "inventory");
 }
@@ -197,4 +237,25 @@ void Interface::constructConsole() {
     console->add(consoleInput, "input");
     console->setVisible(false);
     gui_.add(console, "console");
+}
+
+void Interface::updateAttachedItem(const Player &player, bool swapped) {
+    tgui::Picture::Ptr attachedItem{ gui_.get<tgui::Picture>("attachedItem") };
+    if (player.hasAttachedItem) {
+        if (attachedItem && !swapped) {
+            attachedItem->setPosition(sf::Mouse::getPosition(window_).x, sf::Mouse::getPosition(window_).y);
+        }
+        else {
+            sf::IntRect blockRect{ BlockDatabase::getData(player.attachedItem.blockType).textureRect };
+            if (swapped) gui_.remove(attachedItem);
+            attachedItem = tgui::Picture::create({ ResourceManager::getTexture(ResourceManager::BLOCK),
+                                                   { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }});
+            attachedItem->setScale(0.5f);
+            attachedItem->ignoreMouseEvents(true);
+            gui_.add(attachedItem, "attachedItem");
+        }
+    }
+    else {
+        gui_.remove(attachedItem);
+    }
 }

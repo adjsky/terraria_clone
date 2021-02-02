@@ -16,26 +16,26 @@ bool canPlaceBlock(const Player& player, const sf::Vector2i& pos, const World& w
     sf::FloatRect playerHitBox { player.getHitBox().getGlobalBounds() };
     sf::Vector2f startPos { mapGlobalCoordsToGame(playerHitBox.left, playerHitBox.top + playerHitBox.height) };
     sf::Vector2f endPos { mapGlobalCoordsToGame(playerHitBox.left + playerHitBox.width, playerHitBox.top) };
-    Block* block{ world.getBlock(pos) };
+    const auto* block{ world.getBlock(pos.x, pos.y) };
     if (block) {
         if (block->visible) return false;
     }
     if (pos.x >= startPos.x && pos.x <= endPos.x && pos.y >= startPos.y && pos.y <= endPos.y) {
         return false;
     } else {
-        Block* leftBlock { world.getBlock(pos.x - 1, pos.y) };
+        const auto* leftBlock { world.getBlock(pos.x - 1, pos.y) };
         if (leftBlock) {
             if (leftBlock->visible) return true;
         }
-        Block* rightBlock { world.getBlock(pos.x + 1, pos.y) };
+        const auto* rightBlock { world.getBlock(pos.x + 1, pos.y) };
         if (rightBlock) {
             if (rightBlock->visible) return true;
         }
-        Block* topBlock { world.getBlock(pos.x, pos.y + 1) };
+        const auto* topBlock { world.getBlock(pos.x, pos.y + 1) };
         if (topBlock) {
             if (topBlock->visible) return true;
         }
-        Block* bottomBlock { world.getBlock(pos.x, pos.y - 1) };
+        const auto* bottomBlock { world.getBlock(pos.x, pos.y - 1) };
         if (bottomBlock) {
             if (bottomBlock->visible) return true;
         }

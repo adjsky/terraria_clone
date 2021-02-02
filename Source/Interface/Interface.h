@@ -16,13 +16,15 @@ public:
     void handleEvent(sf::Event& e);
     void draw();
 
-    void showInventory();
+    void showInventory(bool condition);
+    bool inventoryIsOpen() const;
     void showHotBar();
     void showConsole();
     void updateHealth(const Player& player);
     void updateHotBar(const Player& player);
     void updateInventory(const Player& player);
     void highlightHotBarCell(const Player& player);
+    void updateAttachedItem(const Player& player, bool swapped = false);
 
 public:
     Signal<std::string> consoleEnterSignal;

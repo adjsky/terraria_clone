@@ -18,7 +18,7 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     drawHitBoxes_{ },
     paused_{ false }
 {
-    player_.move(0.0f, -63.0f * BLOCK_SIZE);
+    player_.move(0.0f, -65.0f * BLOCK_SIZE);
     player_.setOrigin(PLAYER_WIDTH / 2.0f, PLAYER_HEIGHT / 2.0f);
     player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH * 1.5f, (float)BLOCK_SIZE / PLAYER_HEIGHT * 3);
     player_.setTimeStep(0.2f);
@@ -51,8 +51,11 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
 }
 
 void GameSession::update(float delta) {
+    if (player_.hasAttachedItem) {
+        gui_.updateAttachedItem(player_);
+    }
     if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tab) == InputHandler::JUST_PRESSED) {
-        gui_.showInventory();
+        gui_.showInventory(!gui_.inventoryIsOpen());
         paused_ = !paused_;
     }
     if (!paused_) {
@@ -61,7 +64,7 @@ void GameSession::update(float delta) {
             sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
             sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
             if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
-                const Block* block { world_.destroyBlock(pos) };
+                const Block* block { world_.destroyBlock(pos.x, pos.y) };
                 if (block) {
                     if (player_.getHotBar().addItem(block->type, 1)) {
                         gui_.updateHotBar(player_);
@@ -82,10 +85,10 @@ void GameSession::update(float delta) {
             if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
                 canPlaceBlock(player_, pos, world_))
             {
-                const Inventory::Cell& cell { player_.getHotBar().getCell(player_.getHeldItem(), 0) };
+                const Inventory::Cell& cell { player_.getHotBar().getCell(player_.getHotBarIndex(), 0) };
                 if (cell.amount != 0) {
-                    world_.placeBlock(pos, cell.blockType);
-                    player_.getHotBar().removeItem(player_.getHeldItem(), 0, 1);
+                    world_.placeBlock(pos.x, pos.y, cell.blockType);
+                    player_.getHotBar().removeItem(player_.getHotBarIndex(), 0, 1);
                     gui_.updateHotBar(player_);
                 }
             }
@@ -101,12 +104,12 @@ void GameSession::update(float delta) {
         }
         for (int i = sf::Keyboard::Num1; i <= sf::Keyboard::Num9; i++) {
             if (InputHandler::getKeyboardKeyState(static_cast<sf::Keyboard::Key>(i)) == InputHandler::JUST_PRESSED) {
-                player_.setHeldItem(i - sf::Keyboard::Num1);
+                player_.setHotBarIndex(i - sf::Keyboard::Num1);
                 gui_.highlightHotBarCell(player_);
             }
         }
         if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num0) == InputHandler::JUST_PRESSED) {
-            player_.setHeldItem(9);
+            player_.setHotBarIndex(9);
             gui_.highlightHotBarCell(player_);
         }
     }

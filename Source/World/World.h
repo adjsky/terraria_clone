@@ -17,12 +17,11 @@ class World {
 public:
     World();
     void draw(sf::RenderWindow& window);
-    const Block* destroyBlock(sf::Vector2i pos);
     const Block* destroyBlock(int x, int y);
-    void placeBlock(sf::Vector2i pos, BlockType::Type type);
     void placeBlock(int x, int y, BlockType::Type type);
-    Block* getBlock(sf::Vector2i pos) const;
-    Block* getBlock(int x, int y) const;
+    Block* getBlock(int x, int y);
+    const Block* getBlock(int x, int y) const;
+
 
 private:
     // pair of x starting coordinate and chunk itself

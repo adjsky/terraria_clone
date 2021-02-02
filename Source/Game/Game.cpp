@@ -24,11 +24,58 @@ Game::Game(const sf::ContextSettings& context) :
     gui_.consoleEnterSignal.connect([this](const std::string& data){
         consoleHandler_.process(data);
     });
-    gui_.hotBarCellPressed.connect([](int x){
-        std::cout << "hotBar pressed: " << x << '\n';
+    gui_.hotBarCellPressed.connect([this](int x){
+        if (gui_.inventoryIsOpen()) {
+            Inventory::Cell cell{ currentGameSession->getPlayer().getHotBar().getCell(x, 0) };
+            if (currentGameSession->getPlayer().hasAttachedItem) {
+                bool swapped { currentGameSession->getPlayer().getHotBar().setItem(currentGameSession->getPlayer().attachedItem, x, 0) };
+                if (swapped) {
+                    currentGameSession->getPlayer().attachedItem = cell;
+                    gui_.updateAttachedItem(currentGameSession->getPlayer(), true);
+                }
+                else {
+                    currentGameSession->getPlayer().hasAttachedItem = false;
+                    gui_.updateAttachedItem(currentGameSession->getPlayer());
+                }
+                gui_.updateHotBar(currentGameSession->getPlayer());
+            }
+            else {
+                if (cell.amount) {
+                    currentGameSession->getPlayer().attachedItem = cell;
+                    currentGameSession->getPlayer().hasAttachedItem = true;
+                    currentGameSession->getPlayer().getHotBar().removeItem(x, 0);
+                    gui_.updateHotBar(currentGameSession->getPlayer());
+                    gui_.updateAttachedItem(currentGameSession->getPlayer());
+                }
+            }
+        }
     });
-    gui_.backpackCellPressed.connect([](int x, int y){
-        std::cout << "backpack pressed: (" << x << ';' << y << ")\n";
+
+    gui_.backpackCellPressed.connect([this](int x, int y){
+        if (gui_.inventoryIsOpen()) {
+            Inventory::Cell cell{ currentGameSession->getPlayer().getBackpack().getCell(x, y) };
+            if (currentGameSession->getPlayer().hasAttachedItem) {
+                bool swapped{ currentGameSession->getPlayer().getBackpack().setItem(currentGameSession->getPlayer().attachedItem, x, y) };
+                if (swapped) {
+                    currentGameSession->getPlayer().attachedItem = cell;
+                    gui_.updateAttachedItem(currentGameSession->getPlayer(), true);
+                }
+                else {
+                    currentGameSession->getPlayer().hasAttachedItem = false;
+                    gui_.updateAttachedItem(currentGameSession->getPlayer());
+                }
+                gui_.updateInventory(currentGameSession->getPlayer());
+            }
+            else {
+                if (cell.amount) {
+                    currentGameSession->getPlayer().attachedItem = cell;
+                    currentGameSession->getPlayer().hasAttachedItem = true;
+                    currentGameSession->getPlayer().getBackpack().removeItem(x, y);
+                    gui_.updateInventory(currentGameSession->getPlayer());
+                    gui_.updateAttachedItem(currentGameSession->getPlayer());
+                }
+            }
+        }
     });
 }
 

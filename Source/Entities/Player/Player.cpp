@@ -11,11 +11,13 @@ Player::Player() :
         isOnGround{ },
         verticalSpeed{ },
         horizontalSpeed{ },
+        hasAttachedItem{ false },
+        attachedItem{ },
         hitBox_{ },
         animations_{ },
         hotBar_{ sf::Vector2i{ PLAYER_HOTBAR_SIZE, 1 } },
         backpack_{ sf::Vector2i{ PLAYER_BACKPACK_SIZE.x, PLAYER_BACKPACK_SIZE.y } },
-        heldItem_{ 0 },
+        hotBarIndex_{0 },
         health_{ 100 }
 {
 }
@@ -35,7 +37,7 @@ void Player::moveWithCollide(const World& world) {
         if (horizontalSpeed > 0) {
             float diff = std::numeric_limits<float>::max();
             for (int y = startPos.y; y < endPos.y + 1; y++) {
-                Block* block = world.getBlock(endPos.x, y);
+                const auto* block = world.getBlock(endPos.x, y);
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -57,7 +59,7 @@ void Player::moveWithCollide(const World& world) {
         if (horizontalSpeed < 0) {
             float diff = std::numeric_limits<float>::max();
             for (int y = startPos.y; y < endPos.y + 1; y++) {
-                Block* block = world.getBlock(startPos.x, y);
+                const auto* block = world.getBlock(startPos.x, y);
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -89,7 +91,7 @@ void Player::moveWithCollide(const World& world) {
         sf::Vector2i endPos = mapGlobalCoordsToGame(hitbox.left + hitbox.width, hitbox.top);
 
         for (int x = startPos.x; x < endPos.x + 1; x++) {
-            Block* block = world.getBlock(x, endPos.y);
+            const auto* block = world.getBlock(x, endPos.y);
             if (block) {
                 if (block->visible) {
                     if (hitbox.intersects(block->sprite.getGlobalBounds())) {
@@ -121,7 +123,7 @@ float Player::getDistanceToGround(const World& world) const {
     int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
     sf::Vector2i playerCoords = mapGlobalCoordsToGame(getPosition().x, hitbox.top + hitbox.height);
     for (int x = startX; x < endX + 1; x++) {
-        Block* block;
+        const Block* block;
         for (int y = 0; y < playerCoords.y; y++) {
             block = world.getBlock(x, playerCoords.y - y);
             if (block) {
@@ -175,12 +177,12 @@ const Inventory& Player::getBackpack() const {
     return backpack_;
 }
 
-int Player::getHeldItem() const {
-    return heldItem_;
+int Player::getHotBarIndex() const {
+    return hotBarIndex_;
 }
 
-void Player::setHeldItem(int i) {
-    heldItem_ = i;
+void Player::setHotBarIndex(int i) {
+    hotBarIndex_ = i;
 }
 
 int Player::getHealth() const {

@@ -19,8 +19,10 @@ public:
 public:
     explicit Inventory(const sf::Vector2i& size);
     const Cell& getCell(int x, int y) const;
+    Cell& getCell(int x, int y);
     bool addItem(BlockType::Type type, int amount);
-    void removeItem(int x, int y, int amount);;
+    bool setItem(const Cell& cell, int x, int y);
+    void removeItem(int x, int y, int amount = -1);
     const sf::Vector2i& getSize() const;
 
 private:

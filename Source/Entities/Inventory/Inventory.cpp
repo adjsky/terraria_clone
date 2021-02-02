@@ -21,6 +21,10 @@ const Inventory::Cell& Inventory::getCell(int x, int y) const {
     return cells_[y][x];
 }
 
+Inventory::Cell& Inventory::getCell(int x, int y) {
+    return cells_[y][x];
+}
+
 bool Inventory::addItem(BlockType::Type type, int amount) {
     sf::Vector2i lastEmptyCell = size_;
     for (int y = 0; y < size_.y; y++) {
@@ -43,9 +47,30 @@ bool Inventory::addItem(BlockType::Type type, int amount) {
     return true;
 }
 
+bool Inventory::setItem(const Inventory::Cell &cell, int x, int y) {
+    if (cell.blockType == cells_[y][x].blockType) {
+        cells_[y][x].amount += cell.amount;
+    }
+    else {
+        bool swapped{ false };
+        if (cells_[y][x].amount > 0) {
+            swapped = true;
+        }
+        cells_[y][x] = cell;
+        return swapped;
+    }
+    return false;
+}
+
 void Inventory::removeItem(int x, int y, int amount) {
-    cells_[y][x].amount -= amount;
-    if (cells_[y][x].amount <= 0) {
+    if (amount != -1) {
+        cells_[y][x].amount -= amount;
+        if (cells_[y][x].amount <= 0) {
+            cells_[y][x].amount = 0;
+            cells_[y][x].blockType = BlockType::AIR;
+        }
+    }
+    else {
         cells_[y][x].amount = 0;
         cells_[y][x].blockType = BlockType::AIR;
     }

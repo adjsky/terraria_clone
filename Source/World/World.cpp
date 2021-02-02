@@ -39,10 +39,6 @@ void World::draw(sf::RenderWindow& window)  {
     }
 }
 
-const Block* World::destroyBlock(sf::Vector2i pos) {
-    return destroyBlock(pos.x, pos.y);
-}
-
 const Block* World::destroyBlock(int x, int y) {
     Block* block = getBlock(x, y);
     if (block) {
@@ -52,10 +48,6 @@ const Block* World::destroyBlock(int x, int y) {
         }
     }
     return nullptr;
-}
-
-void World::placeBlock(sf::Vector2i pos, BlockType::Type type) {
-    placeBlock(pos.x, pos.y, type);
 }
 
 void World::placeBlock(int x, int y, BlockType::Type type) {
@@ -69,11 +61,11 @@ void World::placeBlock(int x, int y, BlockType::Type type) {
     }
 }
 
-Block* World::getBlock(sf::Vector2i pos) const {
-    return getBlock(pos.x, pos.y);
+Block* World::getBlock(int x, int y) {
+    return const_cast<Block*>(std::as_const(*this).getBlock(x, y));
 }
 
-Block* World::getBlock(int x, int y) const {
+const Block* World::getBlock(int x, int y) const {
     if (x >= 0 && y >= 0 && y < CHUNK_HEIGHT) {
         int chunkPosition = x / CHUNK_WIDTH;
         int blockPositionInChunkX = x % CHUNK_WIDTH;

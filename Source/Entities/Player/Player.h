@@ -33,8 +33,8 @@ public:
     Inventory& getBackpack();
     const Inventory& getHotBar() const;
     const Inventory& getBackpack() const;
-    int getHeldItem() const;
-    void setHeldItem(int i);
+    int getHotBarIndex() const;
+    void setHotBarIndex(int i);
 
     int getHealth() const;
 
@@ -42,13 +42,15 @@ public:
     bool isOnGround;
     float verticalSpeed;
     float horizontalSpeed;
+    bool hasAttachedItem;
+    Inventory::Cell attachedItem;
 
 private:
     sf::RectangleShape hitBox_;
     std::array<Animation, ANIMATIONS_COUNT> animations_;
     Inventory hotBar_;
     Inventory backpack_;
-    int heldItem_;
+    int hotBarIndex_;
     int health_;
 };
 
