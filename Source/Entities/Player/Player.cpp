@@ -3,7 +3,6 @@
 //
 
 #include "Player.h"
-#include "../../InputHandler/InputHandler.h"
 #include "../../Util/constants.h"
 
 Player::Player() :

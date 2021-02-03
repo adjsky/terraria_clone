@@ -4,7 +4,7 @@
 
 #include "Chunk.h"
 #include "../Block/BlockDatabase.h"
-#include "../../ResourceManager/ResourceManager.h"
+#include "../../Core/Engine.h"
 
 Chunk::Chunk(int startingPosition) :
     startingPosition_{ startingPosition }
@@ -12,12 +12,13 @@ Chunk::Chunk(int startingPosition) :
 }
 
 void Chunk::generate(FastNoiseLite& noise) {
+    auto* resourceManager{ Engine::getResourceManager() };
     for (int x = 0; x < CHUNK_WIDTH; x++) {
         float noiseValue = noise.GetNoise((float)(x+startingPosition_), 0.0f);
         int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 20);
         for (int y = 0; y < CHUNK_HEIGHT; y++) {
             blocks_[y][x] = std::make_unique<Block>();
-            blocks_[y][x]->sprite.setTexture(ResourceManager::getTexture(ResourceManager::BLOCK));
+            blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::BLOCK));
             blocks_[y][x]->sprite.move(startingPosition_ * BLOCK_SIZE + x * BLOCK_SIZE, -y * BLOCK_SIZE);
             blocks_[y][x]->sprite.setScale(BLOCK_SIZE / 64.0f, BLOCK_SIZE / 64.0f);
             if (y > blockHeight) {

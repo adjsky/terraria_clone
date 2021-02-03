@@ -3,10 +3,8 @@
 //
 
 #include "GameSession.h"
-#include "../ResourceManager/ResourceManager.h"
-#include "../InputHandler/InputHandler.h"
-#include "../Maths/Math.h"
-#include "../Physics/Collisions.h"
+#include "../Core/Engine.h"
+#include "../Events/Events.h"
 
 GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     window_{ window },
@@ -25,7 +23,7 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     player_.constructHitBox();
 
     Animation& moveAnimation = player_.getAnimation(Player::MOVE);
-    moveAnimation.setSpriteSheet(ResourceManager::getTexture(ResourceManager::PLAYER));
+    moveAnimation.setSpriteSheet(Engine::getResourceManager()->getTexture(ResourceManager::PLAYER));
     moveAnimation.addFrame(sf::IntRect{ 65, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
 
     moveAnimation.addFrame(sf::IntRect{ 119, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
@@ -34,16 +32,16 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     moveAnimation.addFrame(sf::IntRect{ 280, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
 
     Animation& standAnimation = player_.getAnimation(Player::STAND);
-    standAnimation.setSpriteSheet(ResourceManager::getTexture(ResourceManager::PLAYER));
+    standAnimation.setSpriteSheet(Engine::getResourceManager()->getTexture(ResourceManager::PLAYER));
     standAnimation.addFrame(sf::IntRect{ 9, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
 
     Animation& jumpAnimation = player_.getAnimation(Player::JUMP);
-    jumpAnimation.setSpriteSheet(ResourceManager::getTexture(ResourceManager::PLAYER));
+    jumpAnimation.setSpriteSheet(Engine::getResourceManager()->getTexture(ResourceManager::PLAYER));
     jumpAnimation.addFrame(sf::IntRect{ 383, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
 
     player_.setAnimation(standAnimation);
 
-    gui_.showHotBar();
+    gui_.showHotBar(true);
     gui_.updateHealth(player_);
     gui_.updateHotBar(player_);
     gui_.updateInventory(player_);
@@ -51,71 +49,50 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
 }
 
 void GameSession::update(float delta) {
+    auto* inputHandler{ Engine::getInputHandler() };
     if (player_.hasAttachedItem) {
         gui_.updateAttachedItem(player_);
     }
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tab) == InputHandler::JUST_PRESSED) {
-        gui_.showInventory(!gui_.inventoryIsOpen());
-        paused_ = !paused_;
+    if (inputHandler->getKeyboardKeyState(sf::Keyboard::Tab) == InputHandler::JUST_PRESSED) {
+        Engine::getEventSystem()->trigger<GameEvent::InventoryShown>();
+    }
+    if (inputHandler->getKeyboardKeyState(sf::Keyboard::Slash) == InputHandler::JUST_PRESSED) {
+        Engine::getEventSystem()->trigger<GameEvent::ConsoleShown>();
     }
     if (!paused_) {
-        if (InputHandler::getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
+        if (inputHandler->getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
             window_.setView(view_);
             sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
             sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
-            if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
-                const Block* block { world_.destroyBlock(pos.x, pos.y) };
-                if (block) {
-                    if (player_.getHotBar().addItem(block->type, 1)) {
-                        gui_.updateHotBar(player_);
-                    }
-                    else {
-                        player_.getBackpack().addItem(block->type, 1);
-                        gui_.updateInventory(player_);
-                    }
-
-                }
-            }
+            Engine::getEventSystem()->trigger<GameEvent::BlockBroken>(pos);
             window_.setView(window_.getDefaultView());
         }
-        if (InputHandler::getMouseButtonState(sf::Mouse::Right) == InputHandler::JUST_PRESSED) {
+        if (inputHandler->getMouseButtonState(sf::Mouse::Right) == InputHandler::JUST_PRESSED) {
             window_.setView(view_);
             sf::Vector2f globalCoords{ window_.mapPixelToCoords(sf::Mouse::getPosition(window_)) };
             sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
-            if (math::distanceBetween(mapGlobalCoordsToGame(player_.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
-                canPlaceBlock(player_, pos, world_))
-            {
-                const Inventory::Cell& cell { player_.getHotBar().getCell(player_.getHotBarIndex(), 0) };
-                if (cell.amount != 0) {
-                    world_.placeBlock(pos.x, pos.y, cell.blockType);
-                    player_.getHotBar().removeItem(player_.getHotBarIndex(), 0, 1);
-                    gui_.updateHotBar(player_);
-                }
-            }
+            Engine::getEventSystem()->trigger<GameEvent::BlockPlaced>(pos);
             window_.setView(window_.getDefaultView());
         }
-        if (InputHandler::getKeyboardKeyState(sf::Keyboard::X) == InputHandler::JUST_PRESSED) {
-            noclip_ = !noclip_;
-            player_.verticalSpeed = 0;
-            player_.setAnimation(player_.getAnimation(Player::STAND));
+        if (inputHandler->getKeyboardKeyState(sf::Keyboard::X) == InputHandler::JUST_PRESSED) {
+            Engine::getEventSystem()->trigger<GameEvent::NoClipSet>();
         }
-        if (InputHandler::getKeyboardKeyState(sf::Keyboard::Tilde) == InputHandler::JUST_PRESSED) {
-            drawHitBoxes_ = !drawHitBoxes_;
+        if (inputHandler->getKeyboardKeyState(sf::Keyboard::Tilde) == InputHandler::JUST_PRESSED) {
+            Engine::getEventSystem()->trigger<GameEvent::HitBoxesDrawn>();
         }
         for (int i = sf::Keyboard::Num1; i <= sf::Keyboard::Num9; i++) {
-            if (InputHandler::getKeyboardKeyState(static_cast<sf::Keyboard::Key>(i)) == InputHandler::JUST_PRESSED) {
-                player_.setHotBarIndex(i - sf::Keyboard::Num1);
-                gui_.highlightHotBarCell(player_);
+            if (inputHandler->getKeyboardKeyState(static_cast<sf::Keyboard::Key>(i)) == InputHandler::JUST_PRESSED) {
+                Engine::getEventSystem()->trigger<GameEvent::HotBarSwitched>(i - sf::Keyboard::Num1);
             }
         }
-        if (InputHandler::getKeyboardKeyState(sf::Keyboard::Num0) == InputHandler::JUST_PRESSED) {
-            player_.setHotBarIndex(9);
-            gui_.highlightHotBarCell(player_);
+        if (inputHandler->getKeyboardKeyState(sf::Keyboard::Num0) == InputHandler::JUST_PRESSED) {
+            Engine::getEventSystem()->trigger<GameEvent::HotBarSwitched>(9);
         }
     }
 }
 
 void GameSession::fixedUpdate(float fixedDelta) {
+    auto* inputHandler{ Engine::getInputHandler() };
     if (!paused_) {
         if (!noclip_) {
             if (player_.getDistanceToGround(world_) < 0.5f) {
@@ -130,8 +107,8 @@ void GameSession::fixedUpdate(float fixedDelta) {
         }
 
         bool moved = false;
-        if (InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED ||
-            InputHandler::getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED)
+        if (inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED ||
+            inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED)
         {
             if (player_.isOnGround && !noclip_) {
                 player_.verticalSpeed = -GAME_SPEED * 2.0f;
@@ -140,8 +117,8 @@ void GameSession::fixedUpdate(float fixedDelta) {
                 moved = true;
             }
         }
-        if (InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
-            InputHandler::getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED)
+        if (inputHandler->getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
+            inputHandler->getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED)
         {
             if (noclip_) {
                 player_.move(-GAME_SPEED * 3.0f, 0.0f);
@@ -155,8 +132,8 @@ void GameSession::fixedUpdate(float fixedDelta) {
             }
             player_.changeDirection(Player::MoveDirections::LEFT);
         }
-        if (InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
-            InputHandler::getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED)
+        if (inputHandler->getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
+            inputHandler->getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED)
         {
             if (noclip_) {
                 player_.move(GAME_SPEED * 3.0f, 0.0f);
@@ -170,15 +147,15 @@ void GameSession::fixedUpdate(float fixedDelta) {
             }
             player_.changeDirection(Player::MoveDirections::RIGHT);
         }
-        if (InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
-            InputHandler::getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED)
+        if (inputHandler->getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
+            inputHandler->getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED)
         {
             if (noclip_) {
                 player_.move(0.0f, -GAME_SPEED * 2.0f);
             }
         }
-        if (InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::JUST_PRESSED ||
-            InputHandler::getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED)
+        if (inputHandler->getKeyboardKeyState(sf::Keyboard::S) == InputHandler::JUST_PRESSED ||
+            inputHandler->getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED)
         {
             if (noclip_) {
                 player_.move(0.0f, GAME_SPEED * 2.0f);
@@ -213,10 +190,41 @@ void GameSession::render() {
     window_.setView(window_.getDefaultView());
 }
 
-Player &GameSession::getPlayer() {
+Player& GameSession::getPlayer() {
     return player_;
 }
 
-World &GameSession::getWorld() {
+World& GameSession::getWorld() {
     return world_;
 }
+
+Interface& GameSession::getInterface() {
+    return gui_;
+}
+
+void GameSession::setNoClip(bool condition) {
+    noclip_ = condition;
+}
+
+void GameSession::shouldDrawHitBoxes(bool condition) {
+    drawHitBoxes_ = condition;
+}
+
+void GameSession::pause(bool condition) {
+    paused_ = condition;
+}
+
+bool GameSession::isNoClipEnabled() const {
+    return noclip_;
+}
+
+bool GameSession::hitBoxesAreDrawn() const {
+    return drawHitBoxes_;
+}
+
+bool GameSession::isPaused() const {
+    return paused_;
+}
+
+
+

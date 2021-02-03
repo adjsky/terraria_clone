@@ -18,6 +18,15 @@ public:
 
     Player& getPlayer();
     World& getWorld();
+    Interface& getInterface();
+
+    void setNoClip(bool condition);
+    void shouldDrawHitBoxes(bool condition);
+    void pause(bool condition);
+
+    bool isNoClipEnabled() const;
+    bool hitBoxesAreDrawn() const;
+    bool isPaused() const;
 
 private:
     sf::RenderWindow& window_;

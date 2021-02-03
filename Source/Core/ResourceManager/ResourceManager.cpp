@@ -6,11 +6,11 @@
 
 #include "ResourceManager.h"
 
-std::array<std::unique_ptr<sf::Texture>, ResourceManager::TEXTURES_COUNT> ResourceManager::textures_{ };
-std::array<std::unique_ptr<tgui::Font>, ResourceManager::FONTS_COUNT> ResourceManager::fonts_{ };
-
-void ResourceManager::initializeTextures() {
-    std::generate(textures_.begin(), textures_.end(), []() { return std::make_unique<sf::Texture>(); });
+ResourceManager::ResourceManager() :
+    textures_{ },
+    fonts_{ }
+{
+    std::generate(textures_.begin(), textures_.end(), [](){ return std::make_unique<sf::Texture>(); });
     if (!textures_[BLOCK]->loadFromFile("../Resources/Spritesheets/block_sprites.png")) {
         throw std::runtime_error("Couldn't load block sprites");
     }
@@ -32,7 +32,6 @@ void ResourceManager::initializeTextures() {
     if (!textures_[INVENTORY_MARK]->loadFromFile("../Resources/Textures/inventory_mark.png")) {
         throw std::runtime_error("Couldn't load inventory mark texture");
     }
-
 }
 
 void ResourceManager::initializeFonts() {

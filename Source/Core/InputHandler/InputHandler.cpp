@@ -4,17 +4,22 @@
 
 #include "InputHandler.h"
 
-std::array<KeyFrames, sf::Keyboard::KeyCount> InputHandler::keyboardKeys{};
-std::array<KeyFrames, sf::Mouse::ButtonCount> InputHandler::mouseButtons{};
+
+InputHandler::InputHandler() :
+    keyboardKeys_{ },
+    mouseButtons_{ }
+{
+
+}
 
 void InputHandler::updateMouseButton(sf::Mouse::Button button) {
-    mouseButtons[button].lastFrame = mouseButtons[button].currentFrame;
-    mouseButtons[button].currentFrame = sf::Mouse::isButtonPressed(button);
+    mouseButtons_[button].lastFrame = mouseButtons_[button].currentFrame;
+    mouseButtons_[button].currentFrame = sf::Mouse::isButtonPressed(button);
 }
 
 InputHandler::States InputHandler::getMouseButtonState(sf::Mouse::Button button) {
-    if (mouseButtons[button].lastFrame) {
-        if (mouseButtons[button].currentFrame) {
+    if (mouseButtons_[button].lastFrame) {
+        if (mouseButtons_[button].currentFrame) {
             return States::STILL_PRESSED;
         }
         else {
@@ -22,7 +27,7 @@ InputHandler::States InputHandler::getMouseButtonState(sf::Mouse::Button button)
         }
     }
     else {
-        if (mouseButtons[button].currentFrame) {
+        if (mouseButtons_[button].currentFrame) {
             return States::JUST_PRESSED;
         }
         else {
@@ -32,13 +37,13 @@ InputHandler::States InputHandler::getMouseButtonState(sf::Mouse::Button button)
 }
 
 void InputHandler::updateKeyboardKey(sf::Keyboard::Key key) {
-    keyboardKeys[key].lastFrame = keyboardKeys[key].currentFrame;
-    keyboardKeys[key].currentFrame = sf::Keyboard::isKeyPressed(key);
+    keyboardKeys_[key].lastFrame = keyboardKeys_[key].currentFrame;
+    keyboardKeys_[key].currentFrame = sf::Keyboard::isKeyPressed(key);
 }
 
 InputHandler::States InputHandler::getKeyboardKeyState(sf::Keyboard::Key key) {
-    if (keyboardKeys[key].lastFrame) {
-        if (keyboardKeys[key].currentFrame) {
+    if (keyboardKeys_[key].lastFrame) {
+        if (keyboardKeys_[key].currentFrame) {
             return States::STILL_PRESSED;
         }
         else {
@@ -46,7 +51,7 @@ InputHandler::States InputHandler::getKeyboardKeyState(sf::Keyboard::Key key) {
         }
     }
     else {
-        if (keyboardKeys[key].currentFrame) {
+        if (keyboardKeys_[key].currentFrame) {
             return States::JUST_PRESSED;
         }
         else {

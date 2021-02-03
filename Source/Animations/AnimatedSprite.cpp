@@ -3,7 +3,6 @@
 //
 
 #include "AnimatedSprite.h"
-#include "../ResourceManager/ResourceManager.h"
 
 AnimatedSprite::AnimatedSprite(float timeStep) :
     vertices_{ },

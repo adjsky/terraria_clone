@@ -27,15 +27,17 @@ public:
     };
 
 public:
-    static States getMouseButtonState(sf::Mouse::Button button);
-    static States getKeyboardKeyState(sf::Keyboard::Key key);
-    static void updateStates();
+    InputHandler();
+
+    States getMouseButtonState(sf::Mouse::Button button);
+    States getKeyboardKeyState(sf::Keyboard::Key key);
+    void updateStates();
 
 private:
-    static void updateKeyboardKey(sf::Keyboard::Key key);
-    static void updateMouseButton(sf::Mouse::Button button);
-    static std::array<KeyFrames, sf::Keyboard::KeyCount> keyboardKeys;
-    static std::array<KeyFrames, sf::Mouse::ButtonCount> mouseButtons;
+    void updateKeyboardKey(sf::Keyboard::Key key);
+    void updateMouseButton(sf::Mouse::Button button);
+    std::array<KeyFrames, sf::Keyboard::KeyCount> keyboardKeys_;
+    std::array<KeyFrames, sf::Mouse::ButtonCount> mouseButtons_;
 };
 
 #endif //TERRARIA_CLONE_INPUTHANDLER_H

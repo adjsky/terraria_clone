@@ -10,7 +10,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <TGUI/Font.hpp>
 
-#include "../World/Block/Block.h"
+#include "../../World/Block/Block.h"
 
 class ResourceManager {
 public:
@@ -32,14 +32,17 @@ public:
         FONTS_COUNT
     };
 
-    static void initializeTextures();
-    static void initializeFonts();
-    static const sf::Texture& getTexture(Textures texture);
-    static const tgui::Font& getFont(Fonts font);
+    ResourceManager();
+
+    const sf::Texture& getTexture(Textures texture);
+    const tgui::Font& getFont(Fonts font);
+
+    // can't initialize tgui fonts before Interface class is constructed so i need to call it manually after creating this class
+    void initializeFonts();
 
 private:
-    static std::array<std::unique_ptr<sf::Texture>, TEXTURES_COUNT> textures_;
-    static std::array<std::unique_ptr<tgui::Font>, FONTS_COUNT> fonts_;
+    std::array<std::unique_ptr<sf::Texture>, TEXTURES_COUNT> textures_;
+    std::array<std::unique_ptr<tgui::Font>, FONTS_COUNT> fonts_;
 };
 
 #endif //TERRARIA_CLONE_RESOURCEMANAGER_H

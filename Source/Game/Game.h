@@ -12,7 +12,7 @@
 #include "../Util/constants.h"
 #include "../Entities/Player/Player.h"
 #include "../Interface/Interface.h"
-#include "../Console/ConsoleHandler.h"
+#include "../GameLogic/GameLogic.h"
 
 class Game {
 public:
@@ -27,9 +27,8 @@ private:
     float fixedDelta_;
     sf::RenderWindow window_;
     Interface gui_;
-    std::unique_ptr<GameSession> currentGameSession;
-    bool shouldUpdate_;
-    ConsoleHandler consoleHandler_;
+    std::unique_ptr<GameSession> currentGameSession_;
+    GameLogic gameLogic_;
 };
 
 #endif //TERRARIA_CLONE_GAME_H

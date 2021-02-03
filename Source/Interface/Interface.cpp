@@ -2,17 +2,17 @@
 // Created by adjsky on 15.01.2021.
 //
 
-#include <iostream>
 #include <SFML/Window/Mouse.hpp>
 
 #include "Interface.h"
-#include "../ResourceManager/ResourceManager.h"
+#include "../Core/Engine.h"
+#include "../Events/Events.h"
 
 Interface::Interface(sf::RenderWindow &window) :
     gui_{ window },
     window_{ window }
 {
-    ResourceManager::initializeFonts();
+    Engine::getResourceManager()->initializeFonts();
     constructHotBar();
     constructHealthBar();
     constructInventory();
@@ -37,15 +37,20 @@ bool Interface::inventoryIsOpen() const {
     return inventory->isVisible();
 }
 
-void Interface::showHotBar() {
+void Interface::showHotBar(bool condition) {
     tgui::Group::Ptr hotBar{ gui_.get<tgui::Group>("hotBar") };
-    hotBar->setVisible(!hotBar->isVisible());
+    hotBar->setVisible(condition);
 }
 
-void Interface::showConsole() {
+bool Interface::hotBarIsShown() const{
+    auto hotBar{ gui_.get<tgui::Group>("hotBar") };
+    return hotBar->isVisible();
+}
+
+void Interface::showConsole(bool condition) {
     tgui::Group::Ptr console{ gui_.get<tgui::Group>("console") };
-    console->setVisible(!console->isVisible());
-    if (console->isVisible()) {
+    console->setVisible(condition);
+    if (condition) {
         tgui::EditBox::Ptr consoleInput{ console->get<tgui::EditBox>("input") };
         consoleInput->setFocused(true);
 
@@ -54,7 +59,13 @@ void Interface::showConsole() {
     }
 }
 
+bool Interface::consoleIsShown() const {
+    auto console{ gui_.get<tgui::Group>("console") };
+    return console->isVisible();
+}
+
 void Interface::updateHealth(const Player &player) {
+    auto* resourceManager{ Engine::getResourceManager() };
     auto healthBar{ gui_.get<tgui::Group>("healthBar") };
     int playerHealth{ player.getHealth() };
     healthBar->removeAllWidgets();
@@ -62,19 +73,19 @@ void Interface::updateHealth(const Player &player) {
     int halfHearts{ (playerHealth - fullHearts * 10) / 5 };
     int emptyHearts{ (100 - playerHealth) / 10 };
     for (int i = 0; i < fullHearts; i++) {
-        tgui::Picture::Ptr heart{ tgui::Picture::create({ResourceManager::getTexture(ResourceManager::HEALTH), {0, 0, 22, 20} }) };
+        tgui::Picture::Ptr heart{ tgui::Picture::create({resourceManager->getTexture(ResourceManager::HEALTH), {0, 0, 22, 20} }) };
         heart->setPosition({"parent.parent.hotBar.picture.position + 35 + (22.0f + 8.0f) * "  + std::to_string(i)},
                            "parent.parent.hotBar.picture.position - 13.0f");
         healthBar->add(heart, "heart"+std::to_string(i));
     }
     for (int i = 0; i < halfHearts; i++) {
-        tgui::Picture::Ptr heart{ tgui::Picture::create({ResourceManager::getTexture(ResourceManager::HEALTH), {22, 0, 22, 20} }) };
+        tgui::Picture::Ptr heart{ tgui::Picture::create({resourceManager->getTexture(ResourceManager::HEALTH), {22, 0, 22, 20} }) };
         heart->setPosition({"parent.heart" + std::to_string(fullHearts-1) + ".position + (22.0f + 8.0f) * "  + std::to_string(i+1)},
                            "parent.parent.hotBar.picture.position - 13.0f");
         healthBar->add(heart, "heart"+std::to_string(i+fullHearts));
     }
     for (int i = 0; i < emptyHearts; i++) {
-        tgui::Picture::Ptr heart{ tgui::Picture::create({ResourceManager::getTexture(ResourceManager::HEALTH), {44, 0, 22, 20} }) };
+        tgui::Picture::Ptr heart{ tgui::Picture::create({resourceManager->getTexture(ResourceManager::HEALTH), {44, 0, 22, 20} }) };
         heart->setPosition({"parent.heart" + std::to_string(fullHearts+halfHearts-1) + ".position + (22.0f + 8.0f) * "  + std::to_string(i+1)},
                            "parent.parent.hotBar.picture.position - 13.0f");
         healthBar->add(heart, "heart"+std::to_string(i+fullHearts+halfHearts));
@@ -82,6 +93,7 @@ void Interface::updateHealth(const Player &player) {
 }
 
 void Interface::updateHotBar(const Player& player) {
+    auto* resourceManager{ Engine::getResourceManager() };
     tgui::Group::Ptr hotBar{ gui_.get<tgui::Group>("hotBar") };
     tgui::Group::Ptr hotBarItems{ hotBar->get<tgui::Group>("items") };
     hotBarItems->removeAllWidgets();
@@ -90,7 +102,7 @@ void Interface::updateHotBar(const Player& player) {
         const auto& cell{ playerHotBar.getCell(x, 0) };
         if (cell.blockType != BlockType::AIR) {
             sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
-            tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ ResourceManager::getTexture(ResourceManager::BLOCK),
+            tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCK),
                                                                          { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
             blockPicture->setOrigin(0.5f, 0.5f);
             blockPicture->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".position + parent.parent.hotBar.cells.cell" +  std::to_string(x) + ".size / 2"});
@@ -100,7 +112,7 @@ void Interface::updateHotBar(const Player& player) {
 
             if (cell.amount != 1) {
                 tgui::Label::Ptr label{ tgui::Label::create(std::to_string(cell.amount)) };
-                label->setInheritedFont(ResourceManager::getFont(ResourceManager::YUSEI));
+                label->setInheritedFont(resourceManager->getFont(ResourceManager::YUSEI));
                 label->getRenderer()->setTextColor({110,55,0});
                 label->getRenderer()->setTextOutlineColor(sf::Color::Black);
                 label->getRenderer()->setTextOutlineThickness(0.5f);
@@ -115,6 +127,7 @@ void Interface::updateHotBar(const Player& player) {
 }
 
 void Interface::updateInventory(const Player& player) {
+    auto* resourceManager{ Engine::getResourceManager() };
     tgui::Group::Ptr inventory{ gui_.get<tgui::Group>("inventory") };
     tgui::Group::Ptr inventoryItems{ inventory->get<tgui::Group>("items") };
     inventoryItems->removeAllWidgets();
@@ -125,7 +138,7 @@ void Interface::updateInventory(const Player& player) {
             if (cell.blockType != BlockType::AIR) {
                 std::stringstream cellName{  };
                 sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
-                tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ ResourceManager::getTexture(ResourceManager::BLOCK),
+                tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCK),
                                                                          { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
                 blockPicture->setOrigin(0.5f, 0.5f);
                 blockPicture->setPosition({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".position + parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size / 2"});
@@ -135,7 +148,7 @@ void Interface::updateInventory(const Player& player) {
 
                 if (cell.amount != 1) {
                     tgui::Label::Ptr label{ tgui::Label::create(std::to_string(cell.amount)) };
-                    label->setInheritedFont(ResourceManager::getFont(ResourceManager::YUSEI));
+                    label->setInheritedFont(resourceManager->getFont(ResourceManager::YUSEI));
                     label->getRenderer()->setTextColor({110,55,0});
                     label->getRenderer()->setTextOutlineColor(sf::Color::Black);
                     label->getRenderer()->setTextOutlineThickness(0.5f);
@@ -151,18 +164,20 @@ void Interface::updateInventory(const Player& player) {
 }
 
 void Interface::highlightHotBarCell(const Player& player) {
+    auto* resourceManager{ Engine::getResourceManager() };
     static int previousHighlightedCell{ 0 };
     tgui::Group::Ptr hotBar{ gui_.get<tgui::Group>("hotBar") };
-    hotBar->get<tgui::Picture>("cell"+std::to_string(previousHighlightedCell))->getRenderer()->setTexture({ ResourceManager::getTexture(ResourceManager::INVENTORY_CELL),{ 0, 0, 31, 31 }});
-    hotBar->get<tgui::Picture>("cell"+std::to_string(player.getHotBarIndex()))->getRenderer()->setTexture({ResourceManager::getTexture(ResourceManager::INVENTORY_CELL), {31, 0, 31, 31 }});
+    hotBar->get<tgui::Picture>("cell"+std::to_string(previousHighlightedCell))->getRenderer()->setTexture({ resourceManager->getTexture(ResourceManager::INVENTORY_CELL),{ 0, 0, 31, 31 }});
+    hotBar->get<tgui::Picture>("cell"+std::to_string(player.getHotBarIndex()))->getRenderer()->setTexture({ resourceManager->getTexture(ResourceManager::INVENTORY_CELL), {31, 0, 31, 31 }});
     previousHighlightedCell = player.getHotBarIndex();
 }
 
 void Interface::constructHotBar() {
+    auto* resourceManager{ Engine::getResourceManager() };
     // general group to hold all hot bar related widgets
     tgui::Group::Ptr hotBar{ tgui::Group::create() };
 
-    tgui::Picture::Ptr hotBarPicture{ tgui::Picture::create(ResourceManager::getTexture(ResourceManager::HOTBAR)) };
+    tgui::Picture::Ptr hotBarPicture{ tgui::Picture::create(resourceManager->getTexture(ResourceManager::HOTBAR)) };
     hotBarPicture->setSize(hotBarPicture->getSize() * 1 / 1.5f);
     hotBarPicture->setPosition("parent.width / 2 - width / 2", "parent.height - height - 3");
     hotBar->add(hotBarPicture, "picture");
@@ -171,14 +186,14 @@ void Interface::constructHotBar() {
     hotBar->add(hotBarCells, "cells");
 
     for (int x = 0; x < PLAYER_HOTBAR_SIZE; x++) {
-        tgui::Picture::Ptr cell{ tgui::Picture::create( { ResourceManager::getTexture(ResourceManager::INVENTORY_CELL),
+        tgui::Picture::Ptr cell{ tgui::Picture::create( { resourceManager->getTexture(ResourceManager::INVENTORY_CELL),
                                                           { 0, 0, 31, 31 }} ) };
         cell->setInheritedOpacity(0.75f);
         cell->setSize(cell->getSize() * 1.2f);
         cell->setPosition({ "parent.picture.position + 26 + (size + 4) * " + std::to_string(x) },
                           "parent.picture.position + 22");
-        cell->onClick([this, x](){
-            hotBarCellPressed.emit(x);
+        cell->onClick([x](){
+            Engine::getEventSystem()->trigger<GameEvent::HotBarCellPressed>(x);
         });
         hotBarCells->add(cell, "cell" + std::to_string(x));
     }
@@ -196,8 +211,9 @@ void Interface::constructHealthBar() {
 }
 
 void Interface::constructInventory() {
+    auto* resourceManager{ Engine::getResourceManager() };
     tgui::Group::Ptr inventory{ tgui::Group::create() };
-    tgui::Picture::Ptr inventoryPicture{ tgui::Picture::create(ResourceManager::getTexture(ResourceManager::INVENTORY)) };
+    tgui::Picture::Ptr inventoryPicture{ tgui::Picture::create(resourceManager->getTexture(ResourceManager::INVENTORY)) };
     inventoryPicture->setOrigin(0.5f, 0.5f);
     inventoryPicture->setSize(inventoryPicture->getSize() * 0.8f);
     inventoryPicture->setPosition("parent.size / 2");
@@ -207,12 +223,12 @@ void Interface::constructInventory() {
     inventory->add(inventoryCells, "cells");
     for (int y = 0; y < PLAYER_BACKPACK_SIZE.y; y++) {
         for (int x = 0; x < PLAYER_BACKPACK_SIZE.x; x++) {
-            tgui::Picture::Ptr cell{ tgui::Picture::create( {ResourceManager::getTexture(ResourceManager::INVENTORY_CELL),
-                                                             { 0, 0, 31, 31 }} ) };
+            tgui::Picture::Ptr cell{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::INVENTORY_CELL),
+                                                             { 0, 0, 31, 31 }} )};
             cell->setPosition({ "60 + parent.parent.picture.position + (size + 2) * " + std::to_string(x)},
                               { "parent.parent.picture.position - parent.parent.picture.size / 3 + (size + 2) * " + std::to_string(y)});
             cell->onClick([this, x, y]() {
-                backpackCellPressed.emit(x, y);
+                Engine::getEventSystem()->trigger<GameEvent::InventoryCellPressed>(x, y);
             });
             inventoryCells->add(cell, "cell" + std::to_string(x)  + std::to_string(y));
         }
@@ -229,8 +245,8 @@ void Interface::constructConsole() {
     tgui::Group::Ptr console{ tgui::Group::create() };
 
     tgui::EditBox::Ptr consoleInput{ tgui::EditBox::create() };
-    consoleInput->onReturnKeyPress([this, consoleInput]() {
-        consoleEnterSignal.emit(consoleInput->getText().toStdString());
+    consoleInput->onReturnKeyPress([consoleInput]() {
+        Engine::getEventSystem()->trigger<GameEvent::ConsoleEntered>(consoleInput->getText().toStdString());
         consoleInput->setText("");
     });
 
@@ -240,6 +256,7 @@ void Interface::constructConsole() {
 }
 
 void Interface::updateAttachedItem(const Player &player, bool swapped) {
+    auto* resourceManager{ Engine::getResourceManager() };
     tgui::Picture::Ptr attachedItem{ gui_.get<tgui::Picture>("attachedItem") };
     if (player.hasAttachedItem) {
         if (attachedItem && !swapped) {
@@ -248,7 +265,7 @@ void Interface::updateAttachedItem(const Player &player, bool swapped) {
         else {
             sf::IntRect blockRect{ BlockDatabase::getData(player.attachedItem.blockType).textureRect };
             if (swapped) gui_.remove(attachedItem);
-            attachedItem = tgui::Picture::create({ ResourceManager::getTexture(ResourceManager::BLOCK),
+            attachedItem = tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCK),
                                                    { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }});
             attachedItem->setScale(0.5f);
             attachedItem->ignoreMouseEvents(true);

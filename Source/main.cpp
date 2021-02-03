@@ -1,8 +1,8 @@
-#include "ResourceManager/ResourceManager.h"
+#include "Core/Engine.h"
 #include "Game/Game.h"
 
 int main() {
-    ResourceManager::initializeTextures();
+    Engine::init();
     sf::ContextSettings context{};
     Game game{ context };
     game.start();

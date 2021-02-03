@@ -2,81 +2,24 @@
 // Created by adjsky on 12/28/20.
 //
 
-#include <iostream>
-
 #include "Game.h"
-#include "../InputHandler/InputHandler.h"
 
 Game::Game(const sf::ContextSettings& context) :
-    fixedDelta_{ 1 / 60.0f },
-    window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone", sf::Style::Default, context },
-    gui_{ window_ },
-    currentGameSession{ nullptr },
-    shouldUpdate_{ true },
-    consoleHandler_{ nullptr }
+        fixedDelta_{ 1 / 60.0f },
+        window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone", sf::Style::Default, context },
+        gui_{ window_ },
+        currentGameSession_{ nullptr },
+        gameLogic_{ }
 {
     resizeWindow();
     window_.setFramerateLimit(144);
 
-    currentGameSession = std::make_unique<GameSession>(window_, gui_);
-    consoleHandler_.setGameSession(currentGameSession.get());
+    currentGameSession_ = std::make_unique<GameSession>(window_, gui_);
+    gameLogic_.setGameSession(currentGameSession_.get());
 
-    gui_.consoleEnterSignal.connect([this](const std::string& data){
-        consoleHandler_.process(data);
-    });
-    gui_.hotBarCellPressed.connect([this](int x){
-        if (gui_.inventoryIsOpen()) {
-            Inventory::Cell cell{ currentGameSession->getPlayer().getHotBar().getCell(x, 0) };
-            if (currentGameSession->getPlayer().hasAttachedItem) {
-                bool swapped { currentGameSession->getPlayer().getHotBar().setItem(currentGameSession->getPlayer().attachedItem, x, 0) };
-                if (swapped) {
-                    currentGameSession->getPlayer().attachedItem = cell;
-                    gui_.updateAttachedItem(currentGameSession->getPlayer(), true);
-                }
-                else {
-                    currentGameSession->getPlayer().hasAttachedItem = false;
-                    gui_.updateAttachedItem(currentGameSession->getPlayer());
-                }
-                gui_.updateHotBar(currentGameSession->getPlayer());
-            }
-            else {
-                if (cell.amount) {
-                    currentGameSession->getPlayer().attachedItem = cell;
-                    currentGameSession->getPlayer().hasAttachedItem = true;
-                    currentGameSession->getPlayer().getHotBar().removeItem(x, 0);
-                    gui_.updateHotBar(currentGameSession->getPlayer());
-                    gui_.updateAttachedItem(currentGameSession->getPlayer());
-                }
-            }
-        }
-    });
-
-    gui_.backpackCellPressed.connect([this](int x, int y){
-        if (gui_.inventoryIsOpen()) {
-            Inventory::Cell cell{ currentGameSession->getPlayer().getBackpack().getCell(x, y) };
-            if (currentGameSession->getPlayer().hasAttachedItem) {
-                bool swapped{ currentGameSession->getPlayer().getBackpack().setItem(currentGameSession->getPlayer().attachedItem, x, y) };
-                if (swapped) {
-                    currentGameSession->getPlayer().attachedItem = cell;
-                    gui_.updateAttachedItem(currentGameSession->getPlayer(), true);
-                }
-                else {
-                    currentGameSession->getPlayer().hasAttachedItem = false;
-                    gui_.updateAttachedItem(currentGameSession->getPlayer());
-                }
-                gui_.updateInventory(currentGameSession->getPlayer());
-            }
-            else {
-                if (cell.amount) {
-                    currentGameSession->getPlayer().attachedItem = cell;
-                    currentGameSession->getPlayer().hasAttachedItem = true;
-                    currentGameSession->getPlayer().getBackpack().removeItem(x, y);
-                    gui_.updateInventory(currentGameSession->getPlayer());
-                    gui_.updateAttachedItem(currentGameSession->getPlayer());
-                }
-            }
-        }
-    });
+//    gui_.consoleEntered.connect([this](const std::string& data){
+//        consoleHandler_.process(data);
+//    });
 }
 
 void Game::start() {
@@ -87,11 +30,11 @@ void Game::start() {
         handleEvents();
 
         float frameTime{ timer.restart().asSeconds() };
-        if (currentGameSession && shouldUpdate_) currentGameSession->update(frameTime);
+        if (currentGameSession_) currentGameSession_->update(frameTime);
         accumulator += frameTime;
         while (accumulator >= fixedDelta_) {
-            if (currentGameSession && shouldUpdate_) {
-                currentGameSession->fixedUpdate(fixedDelta_);
+            if (currentGameSession_) {
+                currentGameSession_->fixedUpdate(fixedDelta_);
             }
             accumulator -= fixedDelta_;
         }
@@ -111,17 +54,13 @@ void Game::handleEvents() {
         }
         gui_.handleEvent(e);
     }
-    InputHandler::updateStates();
-    if (InputHandler::getKeyboardKeyState(sf::Keyboard::Slash) == InputHandler::JUST_PRESSED) {
-        gui_.showConsole();
-        shouldUpdate_ = !shouldUpdate_;
-    }
+    Engine::getInputHandler()->updateStates();
 }
 
 void Game::render() {
     window_.clear(sf::Color::White);
 
-    if (currentGameSession) currentGameSession->render();
+    if (currentGameSession_) currentGameSession_->render();
 
     window_.setView(window_.getDefaultView());
     gui_.draw();
