@@ -7,6 +7,12 @@
 
 #include "Inventory.h"
 
+Inventory::Inventory() :
+    size_{ },
+    cells_{ }
+{
+}
+
 Inventory::Inventory(const sf::Vector2i& size) :
     size_{ size },
     cells_{ }
@@ -73,6 +79,14 @@ void Inventory::removeItem(int x, int y, int amount) {
     else {
         cells_[y][x].amount = 0;
         cells_[y][x].blockType = BlockType::AIR;
+    }
+}
+
+void Inventory::setSize(const sf::Vector2i& size) {
+    size_ = size;
+    cells_.resize(size.y);
+    for (int y = 0; y < size.y; y++) {
+        cells_[y].resize(size.x);
     }
 }
 

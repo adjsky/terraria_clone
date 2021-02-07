@@ -5,6 +5,8 @@
 #ifndef TERRARIA_CLONE_PLAYER_H
 #define TERRARIA_CLONE_PLAYER_H
 
+#include <iostream>
+
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <array>
 
@@ -35,9 +37,32 @@ public:
     const Inventory& getBackpack() const;
     int getHotBarIndex() const;
     void setHotBarIndex(int i);
-
     int getHealth() const;
 
+    // serialization
+    friend boost::serialization::access;
+    template<class Archive>
+    inline void save(Archive& ar, const unsigned int version) const {
+        sf::Vector2f pos{ getPosition() };
+        ar & pos;
+        ar & isOnGround;
+        ar & hotBar_;
+        ar & backpack_;
+        ar & health_;
+        ar & hotBarIndex_;
+    }
+    template<class Archive>
+    inline void load(Archive& ar, const unsigned int version) {
+        sf::Vector2f pos;
+        ar & pos;
+        move(pos.x, pos.y);
+        ar & isOnGround;
+        ar & hotBar_;
+        ar & backpack_;
+        ar & health_;
+        ar & hotBarIndex_;
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER();
 public:
     bool isOnGround;
     float verticalSpeed;

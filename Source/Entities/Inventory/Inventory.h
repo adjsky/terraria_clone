@@ -5,8 +5,10 @@
 #ifndef TERRARIA_CLONE_INVENTORY_H
 #define TERRARIA_CLONE_INVENTORY_H
 
-#include <SFML/System/Vector2.hpp>
 #include <vector>
+#include <SFML/System/Vector2.hpp>
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include "../../World/Block/BlockTypes.h"
 
@@ -15,16 +17,33 @@ public:
     struct Cell {
         std::size_t amount = 0;
         BlockType::Type blockType = BlockType::AIR;
+
+        // serialization
+        friend boost::serialization::access;
+        template<class Archive>
+        inline void serialize(Archive & ar, const unsigned int version) {
+            ar & amount;
+            ar & blockType;
+        }
     };
 public:
+    Inventory();
     explicit Inventory(const sf::Vector2i& size);
     const Cell& getCell(int x, int y) const;
     Cell& getCell(int x, int y);
     bool addItem(BlockType::Type type, int amount);
     bool setItem(const Cell& cell, int x, int y);
     void removeItem(int x, int y, int amount = -1);
+    void setSize(const sf::Vector2i& size);
     const sf::Vector2i& getSize() const;
 
+    // serialization
+    friend boost::serialization::access;
+    template<class Archive>
+    inline void serialize(Archive & ar, const unsigned int version) {
+        ar & size_;
+        ar & cells_;
+    }
 private:
     sf::Vector2i size_;
     std::vector<std::vector<Cell>> cells_;

@@ -2,23 +2,33 @@
 // Created by adjsky on 12/29/20.
 //
 
-#include "World.h"
-
 #include <iostream>
+#include <vector>
 
+#include "World.h"
 
 World::World() :
     chunks_{ }
 {
     BlockDatabase::initialize();
+}
+
+void World::generate() {
     FastNoiseLite noise_;
     noise_.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noise_.SetSeed(122145);
     noise_.SetFractalOctaves(5);
     noise_.SetFrequency(0.003f);
+
     for (int x = 0; x < 50; x++) {
         chunks_[x * CHUNK_WIDTH].setPosition(x * CHUNK_WIDTH);
         chunks_[x * CHUNK_WIDTH].generate(noise_);
+    }
+}
+
+void World::updateSprites() {
+    for (auto& chunk : chunks_) {
+        chunk.second.updateSprites();
     }
 }
 
@@ -50,15 +60,17 @@ const Block* World::destroyBlock(int x, int y) {
     return nullptr;
 }
 
-void World::placeBlock(int x, int y, BlockType::Type type) {
+bool World::placeBlock(int x, int y, BlockType::Type type) {
     Block* block = getBlock(x, y);
     if (block) {
         if (!block->visible) {
             block->visible = true;
             block->type = type;
             block->sprite.setTextureRect(BlockDatabase::getData(block->type).textureRect);
+            return true;
         }
     }
+    return false;
 }
 
 Block* World::getBlock(int x, int y) {

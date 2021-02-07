@@ -2,9 +2,12 @@
 // Created by adjsky on 18.01.2021.
 //
 
+#include <fstream>
+
 #include "GameSession.h"
 #include "../Core/Engine.h"
 #include "../Events/Events.h"
+#include "../Util/Serialization/GameSerialization.h"
 
 GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     window_{ window },
@@ -16,7 +19,16 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     drawHitBoxes_{ },
     paused_{ false }
 {
-    player_.move(0.0f, -65.0f * BLOCK_SIZE);
+    if (GameSerialization::isGameSaved()) {
+        GameSerialization::SerializedData serializedData{ GameSerialization::getGameData() };
+        world_ = serializedData.world;
+        player_ = serializedData.player;
+    }
+    else {
+        world_.generate();
+        player_.move(0.0f, -65.0f * BLOCK_SIZE);
+    }
+
     player_.setOrigin(PLAYER_WIDTH / 2.0f, PLAYER_HEIGHT / 2.0f);
     player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH * 1.5f, (float)BLOCK_SIZE / PLAYER_HEIGHT * 3);
     player_.setTimeStep(0.2f);
@@ -199,6 +211,18 @@ World& GameSession::getWorld() {
 }
 
 Interface& GameSession::getInterface() {
+    return gui_;
+}
+
+const Player& GameSession::getPlayer() const {
+    return player_;
+}
+
+const World& GameSession::getWorld() const {
+    return world_;
+}
+
+const Interface& GameSession::getInterface() const {
     return gui_;
 }
 

@@ -3,7 +3,7 @@
 //
 
 #include "Player.h"
-#include "../../Util/constants.h"
+#include "../../Util/Serialization/GameSerialization.h"
 
 Player::Player() :
         AnimatedSprite{},
@@ -16,7 +16,7 @@ Player::Player() :
         animations_{ },
         hotBar_{ sf::Vector2i{ PLAYER_HOTBAR_SIZE, 1 } },
         backpack_{ sf::Vector2i{ PLAYER_BACKPACK_SIZE.x, PLAYER_BACKPACK_SIZE.y } },
-        hotBarIndex_{0 },
+        hotBarIndex_{ 0 },
         health_{ 100 }
 {
 }
