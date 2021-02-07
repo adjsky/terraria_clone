@@ -2,7 +2,10 @@
 // Created by adjsky on 12/28/20.
 //
 
+#include <fstream>
+
 #include "Game.h"
+#include "../Util/Serialization/GameSerialization.h"
 
 Game::Game(const sf::ContextSettings& context) :
         fixedDelta_{ 1 / 60.0f },
@@ -46,6 +49,7 @@ void Game::handleEvents() {
     sf::Event e{};
     while (window_.pollEvent(e)) {
         if (e.type == sf::Event::Closed) {
+            GameSerialization::saveGame(*currentGameSession_);
             window_.close();
         }
         if (e.type == sf::Event::Resized) {
