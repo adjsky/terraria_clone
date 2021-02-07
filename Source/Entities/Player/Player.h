@@ -5,8 +5,6 @@
 #ifndef TERRARIA_CLONE_PLAYER_H
 #define TERRARIA_CLONE_PLAYER_H
 
-#include <iostream>
-
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <array>
 
@@ -43,8 +41,11 @@ public:
     friend boost::serialization::access;
     template<class Archive>
     inline void save(Archive& ar, const unsigned int version) const {
-        sf::Vector2f pos{ getPosition() };
-        ar & pos;
+        // can't get rid of a bug of saving and loading a local vector so i have to use floats instead
+        float x{ getPosition().x };
+        float y{ getPosition().y };
+        ar & x;
+        ar & y;
         ar & isOnGround;
         ar & hotBar_;
         ar & backpack_;
@@ -53,9 +54,12 @@ public:
     }
     template<class Archive>
     inline void load(Archive& ar, const unsigned int version) {
-        sf::Vector2f pos;
-        ar & pos;
-        move(pos.x, pos.y);
+        // can't get rid of a bug of saving and loading a local vector so i have to use floats instead
+        float x;
+        float y;
+        ar & x;
+        ar & y;
+        move(x, y);
         ar & isOnGround;
         ar & hotBar_;
         ar & backpack_;
