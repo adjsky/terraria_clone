@@ -20,6 +20,10 @@ public:
     World& getWorld();
     Interface& getInterface();
 
+    const Player& getPlayer() const;
+    const World& getWorld() const;
+    const Interface& getInterface() const;
+
     void setNoClip(bool condition);
     void shouldDrawHitBoxes(bool condition);
     void pause(bool condition);

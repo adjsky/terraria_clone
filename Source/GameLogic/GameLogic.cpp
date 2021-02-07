@@ -70,7 +70,7 @@ void GameLogic::inventoryCellPress(const GameEvent::InventoryCellPressed& event)
             if (cell.amount) {
                 gameSession_->getPlayer().attachedItem = cell;
                 gameSession_->getPlayer().hasAttachedItem = true;
-                gameSession_->getPlayer().getBackpack().removeItem(event.y, event.y);
+                gameSession_->getPlayer().getBackpack().removeItem(event.x, event.y);
                 gameSession_->getInterface().updateInventory(gameSession_->getPlayer());
                 gameSession_->getInterface().updateAttachedItem(gameSession_->getPlayer());
             }
@@ -110,9 +110,11 @@ void GameLogic::placeBlock(const GameEvent::BlockPlaced& event) {
     {
         const Inventory::Cell& cell { gameSession_->getPlayer().getHotBar().getCell(gameSession_->getPlayer().getHotBarIndex(), 0) };
         if (cell.amount != 0) {
-            gameSession_->getWorld().placeBlock(event.blockPosition.x, event.blockPosition.y, cell.blockType);
-            gameSession_->getPlayer().getHotBar().removeItem(gameSession_->getPlayer().getHotBarIndex(), 0, 1);
-            gameSession_->getInterface().updateHotBar(gameSession_->getPlayer());
+            bool placed{ gameSession_->getWorld().placeBlock(event.blockPosition.x, event.blockPosition.y, cell.blockType) };
+            if (placed) {
+                gameSession_->getPlayer().getHotBar().removeItem(gameSession_->getPlayer().getHotBarIndex(), 0, 1);
+                gameSession_->getInterface().updateHotBar(gameSession_->getPlayer());
+            }
         }
     }
 }
