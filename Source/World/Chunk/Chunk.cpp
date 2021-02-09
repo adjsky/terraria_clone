@@ -41,8 +41,8 @@ void Chunk::updateSprites() {
     auto* resourceManager{ Engine::getResourceManager() };
     for (int y = 0; y < CHUNK_HEIGHT; y++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
-            blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::BLOCK));
-            blocks_[y][x]->sprite.move(startingPosition_ * BLOCK_SIZE + x * BLOCK_SIZE, -y * BLOCK_SIZE);
+            blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::BLOCKS));
+            blocks_[y][x]->sprite.setPosition(startingPosition_ * BLOCK_SIZE + x * BLOCK_SIZE, -y * BLOCK_SIZE);
             blocks_[y][x]->sprite.setScale(BLOCK_SIZE / 64.0f, BLOCK_SIZE / 64.0f);
             if (blocks_[y][x]->type != BlockType::AIR) {
                 blocks_[y][x]->sprite.setTextureRect(BlockDatabase::getData(blocks_[y][x]->type).textureRect);
@@ -58,7 +58,7 @@ void Chunk::generate(FastNoiseLite& noise) {
         int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 20);
         for (int y = 0; y < CHUNK_HEIGHT; y++) {
             blocks_[y][x] = std::make_unique<Block>();
-            blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::BLOCK));
+            blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::BLOCKS));
             blocks_[y][x]->sprite.move(startingPosition_ * BLOCK_SIZE + x * BLOCK_SIZE, -y * BLOCK_SIZE);
             blocks_[y][x]->sprite.setScale(BLOCK_SIZE / 64.0f, BLOCK_SIZE / 64.0f);
             if (y > blockHeight) {

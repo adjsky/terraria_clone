@@ -2,9 +2,8 @@
 // Created by adjsky on 12/28/20.
 //
 
-#include <fstream>
-
 #include "Game.h"
+#include "../Core/Engine.h"
 #include "../Util/Serialization/GameSerialization.h"
 
 Game::Game(const sf::ContextSettings& context) :
@@ -16,9 +15,6 @@ Game::Game(const sf::ContextSettings& context) :
 {
     resizeWindow();
     window_.setFramerateLimit(144);
-
-    currentGameSession_ = std::make_unique<GameSession>(window_, gui_);
-    gameLogic_.setGameSession(currentGameSession_.get());
 
 //    gui_.consoleEntered.connect([this](const std::string& data){
 //        consoleHandler_.process(data);
@@ -49,8 +45,7 @@ void Game::handleEvents() {
     sf::Event e{};
     while (window_.pollEvent(e)) {
         if (e.type == sf::Event::Closed) {
-            GameSerialization::saveGame(*currentGameSession_);
-            window_.close();
+            close();
         }
         if (e.type == sf::Event::Resized) {
             // change game view ratio
@@ -59,6 +54,33 @@ void Game::handleEvents() {
         gui_.handleEvent(e);
     }
     Engine::getInputHandler()->updateStates();
+}
+
+void Game::close() {
+    if (currentGameSession_)
+        GameSerialization::saveGame(*currentGameSession_);
+    window_.close();
+}
+
+GameSession* Game::getGameSession() {
+    return currentGameSession_.get();
+}
+
+GameSession* Game::createGameSession() {
+    currentGameSession_ = std::make_unique<GameSession>(window_, gui_);
+    return currentGameSession_.get();
+}
+
+void Game::deleteGameSession() {
+    currentGameSession_ = nullptr;
+}
+
+Interface& Game::getInterface() {
+    return gui_;
+}
+
+const Interface& Game::getInterface() const {
+    return gui_;
 }
 
 void Game::render() {

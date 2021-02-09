@@ -7,11 +7,15 @@
 std::unique_ptr<InputHandler> Engine::inputHandler_{};
 std::unique_ptr<ResourceManager> Engine::resourceManager_{};
 std::unique_ptr<entt::dispatcher> Engine::eventSystem_{};
+std::unique_ptr<Game> Engine::gameInstance_{};
 
 void Engine::init() {
     inputHandler_ = std::make_unique<InputHandler>();
     resourceManager_ = std::make_unique<ResourceManager>();
     eventSystem_ = std::make_unique<entt::dispatcher>();
+
+    sf::ContextSettings context{};
+    gameInstance_ = std::make_unique<Game>(context);
 }
 
 InputHandler* Engine::getInputHandler() {
@@ -24,4 +28,8 @@ ResourceManager* Engine::getResourceManager() {
 
 entt::dispatcher* Engine::getEventSystem() {
     return eventSystem_.get();
+}
+
+Game *Engine::getGameInstance() {
+    return gameInstance_.get();
 }

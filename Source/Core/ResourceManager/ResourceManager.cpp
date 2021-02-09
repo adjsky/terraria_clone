@@ -11,7 +11,7 @@ ResourceManager::ResourceManager() :
     fonts_{ }
 {
     std::generate(textures_.begin(), textures_.end(), [](){ return std::make_unique<sf::Texture>(); });
-    if (!textures_[BLOCK]->loadFromFile("../Resources/Spritesheets/block_sprites.png")) {
+    if (!textures_[BLOCKS]->loadFromFile("../Resources/Spritesheets/block_sprites.png")) {
         throw std::runtime_error("Couldn't load block sprites");
     }
     if (!textures_[PLAYER]->loadFromFile("../Resources/Spritesheets/player_sprites.png")) {
@@ -31,6 +31,12 @@ ResourceManager::ResourceManager() :
     }
     if (!textures_[INVENTORY_MARK]->loadFromFile("../Resources/Textures/inventory_mark.png")) {
         throw std::runtime_error("Couldn't load inventory mark texture");
+    }
+    if (!textures_[BUTTONS]->loadFromFile("../Resources/Spritesheets/buttons.png")) {
+        throw std::runtime_error("Couldn't load buttons textures");
+    }
+    if (!textures_[GAME_MENU_BACKGROUND]->loadFromFile("../Resources/Textures/black_background.jpg")) {
+        throw std::runtime_error("Couldn't load game menu background texture");
     }
 }
 

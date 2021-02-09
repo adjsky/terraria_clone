@@ -5,9 +5,10 @@
 #include "GameLogic.h"
 #include "../Maths/Math.h"
 #include "../Physics/Collisions.h"
+#include "../Core/Engine.h"
+#include "../Util/Serialization/GameSerialization.h"
 
-GameLogic::GameLogic() :
-    gameSession_{ nullptr }
+GameLogic::GameLogic()
 {
     Engine::getEventSystem()->sink<GameEvent::HotBarCellPressed>().connect<&GameLogic::hotBarCellPress>(this);
     Engine::getEventSystem()->sink<GameEvent::InventoryCellPressed>().connect<&GameLogic::inventoryCellPress>(this);
@@ -18,86 +19,93 @@ GameLogic::GameLogic() :
     Engine::getEventSystem()->sink<GameEvent::NoClipSet>().connect<&GameLogic::setNoClip>(this);
     Engine::getEventSystem()->sink<GameEvent::HitBoxesDrawn>().connect<&GameLogic::drawHitBoxes>(this);
     Engine::getEventSystem()->sink<GameEvent::HotBarSwitched>().connect<&GameLogic::switchHotBar>(this);
-}
-
-void GameLogic::setGameSession(GameSession* gameSession) {
-    gameSession_ = gameSession;
+    Engine::getEventSystem()->sink<GameEvent::MenuOpened>().connect<&GameLogic::openMenu>(this);
+    Engine::getEventSystem()->sink<GameEvent::ExitButtonClicked>().connect<&GameLogic::closeGame>(this);
+    Engine::getEventSystem()->sink<GameEvent::ContinueGameButtonClicked>().connect<&GameLogic::closeMenu>(this);
+    Engine::getEventSystem()->sink<GameEvent::ContinueMenuButtonClicked>().connect<&GameLogic::continueGame>(this);
+    Engine::getEventSystem()->sink<GameEvent::NewWorldButtonClicked>().connect<&GameLogic::createNewWorld>(this);
+    Engine::getEventSystem()->sink<GameEvent::MainMenuButtonClicked>().connect<&GameLogic::openMainMenu>(this);
 }
 
 void GameLogic::hotBarCellPress(const GameEvent::HotBarCellPressed& event) {
-    if (gameSession_->getInterface().inventoryIsOpen()) {
-        Inventory::Cell cell{gameSession_->getPlayer().getHotBar().getCell(event.x, 0) };
-        if (gameSession_->getPlayer().hasAttachedItem) {
-            bool swapped {gameSession_->getPlayer().getHotBar().setItem(gameSession_->getPlayer().attachedItem, event.x, 0) };
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    if ( Engine::getGameInstance()->getInterface().inventoryIsOpen()) {
+        Inventory::Cell cell{gameSession->getPlayer().getHotBar().getCell(event.x, 0) };
+        if (gameSession->getPlayer().hasAttachedItem) {
+            bool swapped { gameSession->getPlayer().getHotBar().setItem(gameSession->getPlayer().attachedItem, event.x, 0) };
             if (swapped) {
-                gameSession_->getPlayer().attachedItem = cell;
-                gameSession_->getInterface().updateAttachedItem(gameSession_->getPlayer(), true);
+                gameSession->getPlayer().attachedItem = cell;
+                Engine::getGameInstance()->getInterface().updateAttachedItem(gameSession->getPlayer(), true);
             }
             else {
-                gameSession_->getPlayer().hasAttachedItem = false;
-                gameSession_->getInterface().updateAttachedItem(gameSession_->getPlayer());
+                gameSession->getPlayer().hasAttachedItem = false;
+                Engine::getGameInstance()->getInterface().updateAttachedItem(gameSession->getPlayer());
             }
-            gameSession_->getInterface().updateHotBar(gameSession_->getPlayer());
+            Engine::getGameInstance()->getInterface().updateHotBar(gameSession->getPlayer());
         }
         else {
             if (cell.amount) {
-                gameSession_->getPlayer().attachedItem = cell;
-                gameSession_->getPlayer().hasAttachedItem = true;
-                gameSession_->getPlayer().getHotBar().removeItem(event.x, 0);
-                gameSession_->getInterface().updateHotBar(gameSession_->getPlayer());
-                gameSession_->getInterface().updateAttachedItem(gameSession_->getPlayer());
+                gameSession->getPlayer().attachedItem = cell;
+                gameSession->getPlayer().hasAttachedItem = true;
+                gameSession->getPlayer().getHotBar().removeItem(event.x, 0);
+                Engine::getGameInstance()->getInterface().updateHotBar(gameSession->getPlayer());
+                Engine::getGameInstance()->getInterface().updateAttachedItem(gameSession->getPlayer());
             }
         }
     }
 }
 
 void GameLogic::inventoryCellPress(const GameEvent::InventoryCellPressed& event) {
-    if (gameSession_->getInterface().inventoryIsOpen()) {
-        Inventory::Cell cell{gameSession_->getPlayer().getBackpack().getCell(event.x, event.y) };
-        if (gameSession_->getPlayer().hasAttachedItem) {
-            bool swapped{gameSession_->getPlayer().getBackpack().setItem(gameSession_->getPlayer().attachedItem, event.x, event.y) };
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    if (Engine::getGameInstance()->getInterface().inventoryIsOpen()) {
+        Inventory::Cell cell{gameSession->getPlayer().getBackpack().getCell(event.x, event.y) };
+        if (gameSession->getPlayer().hasAttachedItem) {
+            bool swapped{gameSession->getPlayer().getBackpack().setItem(gameSession->getPlayer().attachedItem, event.x, event.y) };
             if (swapped) {
-                gameSession_->getPlayer().attachedItem = cell;
-                gameSession_->getInterface().updateAttachedItem(gameSession_->getPlayer(), true);
+                gameSession->getPlayer().attachedItem = cell;
+                Engine::getGameInstance()->getInterface().updateAttachedItem(gameSession->getPlayer(), true);
             }
             else {
-                gameSession_->getPlayer().hasAttachedItem = false;
-                gameSession_->getInterface().updateAttachedItem(gameSession_->getPlayer());
+                gameSession->getPlayer().hasAttachedItem = false;
+                Engine::getGameInstance()->getInterface().updateAttachedItem(gameSession->getPlayer());
             }
-            gameSession_->getInterface().updateInventory(gameSession_->getPlayer());
+            Engine::getGameInstance()->getInterface().updateInventory(gameSession->getPlayer());
         }
         else {
             if (cell.amount) {
-                gameSession_->getPlayer().attachedItem = cell;
-                gameSession_->getPlayer().hasAttachedItem = true;
-                gameSession_->getPlayer().getBackpack().removeItem(event.x, event.y);
-                gameSession_->getInterface().updateInventory(gameSession_->getPlayer());
-                gameSession_->getInterface().updateAttachedItem(gameSession_->getPlayer());
+                gameSession->getPlayer().attachedItem = cell;
+                gameSession->getPlayer().hasAttachedItem = true;
+                gameSession->getPlayer().getBackpack().removeItem(event.x, event.y);
+                Engine::getGameInstance()->getInterface().updateInventory(gameSession->getPlayer());
+                Engine::getGameInstance()->getInterface().updateAttachedItem(gameSession->getPlayer());
             }
         }
     }
 }
 
 void GameLogic::showInventory(const GameEvent::InventoryShown& event) {
-    gameSession_->getInterface().showInventory(!gameSession_->getInterface().inventoryIsOpen());
-    gameSession_->pause(!gameSession_->isPaused());
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    Engine::getGameInstance()->getInterface().showInventory(! Engine::getGameInstance()->getInterface().inventoryIsOpen());
+    gameSession->pause(!gameSession->isPaused());
 }
 
 void GameLogic::showConsole(const GameEvent::ConsoleShown& event) {
-    gameSession_->getInterface().showConsole(!gameSession_->getInterface().consoleIsShown());
-    gameSession_->pause(!gameSession_->isPaused());
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    Engine::getGameInstance()->getInterface().showConsole(! Engine::getGameInstance()->getInterface().consoleIsShown());
+    gameSession->pause(!gameSession->isPaused());
 }
 
 void GameLogic::breakBlock(const GameEvent::BlockBroken& event) {
-    if (math::distanceBetween(mapGlobalCoordsToGame(gameSession_->getPlayer().getPosition()), event.blockPosition) <= BREAK_PLACE_DISTANCE) {
-        const Block* block { gameSession_->getWorld().destroyBlock(event.blockPosition.x, event.blockPosition.y) };
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    if (math::distanceBetween(mapGlobalCoordsToGame(gameSession->getPlayer().getPosition()), event.blockPosition) <= BREAK_PLACE_DISTANCE) {
+        const Block* block { gameSession->getWorld().destroyBlock(event.blockPosition.x, event.blockPosition.y) };
         if (block) {
-            if (gameSession_->getPlayer().getHotBar().addItem(block->type, 1)) {
-                gameSession_->getInterface().updateHotBar(gameSession_->getPlayer());
+            if (gameSession->getPlayer().getHotBar().addItem(block->type, 1)) {
+                Engine::getGameInstance()->getInterface().updateHotBar(gameSession->getPlayer());
             }
             else {
-                gameSession_->getPlayer().getBackpack().addItem(block->type, 1);
-                gameSession_->getInterface().updateInventory(gameSession_->getPlayer());
+                gameSession->getPlayer().getBackpack().addItem(block->type, 1);
+                Engine::getGameInstance()->getInterface().updateInventory(gameSession->getPlayer());
             }
 
         }
@@ -105,29 +113,76 @@ void GameLogic::breakBlock(const GameEvent::BlockBroken& event) {
 }
 
 void GameLogic::placeBlock(const GameEvent::BlockPlaced& event) {
-    if (math::distanceBetween(mapGlobalCoordsToGame(gameSession_->getPlayer().getPosition()), event.blockPosition) <= BREAK_PLACE_DISTANCE &&
-        canPlaceBlock(gameSession_->getPlayer(), event.blockPosition, gameSession_->getWorld()))
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    if (math::distanceBetween(mapGlobalCoordsToGame(gameSession->getPlayer().getPosition()), event.blockPosition) <= BREAK_PLACE_DISTANCE &&
+        canPlaceBlock(gameSession->getPlayer(), event.blockPosition, gameSession->getWorld()))
     {
-        const Inventory::Cell& cell { gameSession_->getPlayer().getHotBar().getCell(gameSession_->getPlayer().getHotBarIndex(), 0) };
+        const Inventory::Cell& cell { gameSession->getPlayer().getHotBar().getCell(gameSession->getPlayer().getHotBarIndex(), 0) };
         if (cell.amount != 0) {
-            bool placed{ gameSession_->getWorld().placeBlock(event.blockPosition.x, event.blockPosition.y, cell.blockType) };
+            bool placed{ gameSession->getWorld().placeBlock(event.blockPosition.x, event.blockPosition.y, cell.blockType) };
             if (placed) {
-                gameSession_->getPlayer().getHotBar().removeItem(gameSession_->getPlayer().getHotBarIndex(), 0, 1);
-                gameSession_->getInterface().updateHotBar(gameSession_->getPlayer());
+                gameSession->getPlayer().getHotBar().removeItem(gameSession->getPlayer().getHotBarIndex(), 0, 1);
+                Engine::getGameInstance()->getInterface().updateHotBar(gameSession->getPlayer());
             }
         }
     }
 }
 
 void GameLogic::setNoClip(const GameEvent::NoClipSet& event) {
-    gameSession_->setNoClip(!gameSession_->isNoClipEnabled());
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    gameSession->setNoClip(!gameSession->isNoClipEnabled());
 }
 
 void GameLogic::drawHitBoxes(const GameEvent::HitBoxesDrawn& event) {
-    gameSession_->shouldDrawHitBoxes(!gameSession_->hitBoxesAreDrawn());
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    gameSession->shouldDrawHitBoxes(!gameSession->hitBoxesAreDrawn());
 }
 
 void GameLogic::switchHotBar(const GameEvent::HotBarSwitched& event) {
-    gameSession_->getPlayer().setHotBarIndex(event.x);
-    gameSession_->getInterface().highlightHotBarCell(gameSession_->getPlayer());
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    gameSession->getPlayer().setHotBarIndex(event.x);
+    Engine::getGameInstance()->getInterface().highlightHotBarCell(gameSession->getPlayer());
+}
+
+void GameLogic::openMenu(const GameEvent::MenuOpened& event) {
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    gameSession->pause(!gameSession->isPaused());
+    Engine::getGameInstance()->getInterface().showGameMenu(!Engine::getGameInstance()->getInterface().gameMenuIsOpen());
+}
+
+void GameLogic::closeGame(const GameEvent::ExitButtonClicked& event) {
+    Engine::getGameInstance()->close();
+}
+
+void GameLogic::closeMenu(const GameEvent::ContinueGameButtonClicked& event) {
+    Engine::getGameInstance()->getInterface().showGameMenu(false);
+    Engine::getGameInstance()->getGameSession()->pause(false);
+}
+
+void GameLogic::continueGame(const GameEvent::ContinueMenuButtonClicked& event) {
+    auto gameSession{ Engine::getGameInstance()->createGameSession() };
+    GameSerialization::SerializedData gameData{ GameSerialization::getGameData() };
+    gameSession->setWorld(gameData.world);
+    gameSession->setPlayer(gameData.player);
+    gameSession->initializePlayer();
+    gameSession->initializeAnimations();
+    gameSession->initializeInterface();
+}
+
+void GameLogic::createNewWorld(const GameEvent::NewWorldButtonClicked& event) {
+    auto gameSession{ Engine::getGameInstance()->createGameSession() };
+    gameSession->getWorld().generate();
+    gameSession->getPlayer().move(0.0f, -65.0f * BLOCK_SIZE);
+    gameSession->initializePlayer();
+    gameSession->initializeAnimations();
+    gameSession->initializeInterface();
+}
+
+void GameLogic::openMainMenu(const GameEvent::MainMenuButtonClicked& event) {
+    auto gameSession{ Engine::getGameInstance()->getGameSession() };
+    GameSerialization::saveGame(*gameSession);
+    Engine::getGameInstance()->deleteGameSession();
+    Engine::getGameInstance()->getInterface().showMainMenu(true);
+    Engine::getGameInstance()->getInterface().showGameInterface(false);
+    Engine::getGameInstance()->getInterface().showGameMenu(false);
 }

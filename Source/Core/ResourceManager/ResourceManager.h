@@ -15,13 +15,15 @@
 class ResourceManager {
 public:
     enum Textures {
-        BLOCK,
+        BLOCKS,
         PLAYER,
         HOTBAR,
         HEALTH,
         INVENTORY,
         INVENTORY_CELL,
         INVENTORY_MARK,
+        BUTTONS,
+        GAME_MENU_BACKGROUND,
         TEXTURES_COUNT
     };
 

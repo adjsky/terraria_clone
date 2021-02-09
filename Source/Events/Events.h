@@ -45,6 +45,24 @@ namespace GameEvent {
     struct HotBarSwitched {
         int x;
     };
+
+    struct MenuOpened {
+    };
+
+    struct ExitButtonClicked {
+    };
+
+    struct ContinueGameButtonClicked {
+    };
+
+    struct NewWorldButtonClicked {
+    };
+
+    struct ContinueMenuButtonClicked {
+    };
+
+    struct MainMenuButtonClicked {
+    };
 }
 
 #endif //TERRARIA_CLONE_EVENTS_H

@@ -20,6 +20,14 @@ public:
     void start();
     void handleEvents();
     void render();
+    void close();
+
+    GameSession* getGameSession();
+    GameSession* createGameSession();
+    void deleteGameSession();
+
+    Interface& getInterface();
+    const Interface& getInterface() const;
 
 private:
     void resizeWindow();

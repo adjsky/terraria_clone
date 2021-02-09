@@ -9,6 +9,7 @@
 
 #include "InputHandler/InputHandler.h"
 #include "ResourceManager/ResourceManager.h"
+#include "../Game/Game.h"
 #include "../Util/entt.hpp"
 
 class Engine {
@@ -18,11 +19,13 @@ public:
     static InputHandler* getInputHandler();
     static ResourceManager* getResourceManager();
     static entt::dispatcher* getEventSystem();
+    static Game* getGameInstance();
 
 private:
     static std::unique_ptr<entt::dispatcher> eventSystem_;
     static std::unique_ptr<InputHandler> inputHandler_;
     static std::unique_ptr<ResourceManager> resourceManager_;
+    static std::unique_ptr<Game> gameInstance_;
 };
 
 

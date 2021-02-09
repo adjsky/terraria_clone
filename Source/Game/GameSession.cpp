@@ -2,12 +2,8 @@
 // Created by adjsky on 18.01.2021.
 //
 
-#include <fstream>
-
 #include "GameSession.h"
 #include "../Core/Engine.h"
-#include "../Events/Events.h"
-#include "../Util/Serialization/GameSerialization.h"
 
 GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     window_{ window },
@@ -19,21 +15,16 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     drawHitBoxes_{ },
     paused_{ false }
 {
-    if (GameSerialization::isGameSaved()) {
-        GameSerialization::SerializedData serializedData{ GameSerialization::getGameData() };
-        world_ = serializedData.world;
-        player_ = serializedData.player;
-    }
-    else {
-        world_.generate();
-        player_.move(0.0f, -65.0f * BLOCK_SIZE);
-    }
+}
 
+void GameSession::initializePlayer() {
     player_.setOrigin(PLAYER_WIDTH / 2.0f, PLAYER_HEIGHT / 2.0f);
     player_.setScale((float)BLOCK_SIZE / PLAYER_WIDTH * 1.5f, (float)BLOCK_SIZE / PLAYER_HEIGHT * 3);
     player_.setTimeStep(0.2f);
     player_.constructHitBox();
+}
 
+void GameSession::initializeAnimations() {
     Animation& moveAnimation = player_.getAnimation(Player::MOVE);
     moveAnimation.setSpriteSheet(Engine::getResourceManager()->getTexture(ResourceManager::PLAYER));
     moveAnimation.addFrame(sf::IntRect{ 65, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
@@ -52,12 +43,21 @@ GameSession::GameSession(sf::RenderWindow& window, Interface& gui) :
     jumpAnimation.addFrame(sf::IntRect{ 383, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
 
     player_.setAnimation(standAnimation);
+}
 
-    gui_.showHotBar(true);
+void GameSession::initializeInterface() {
     gui_.updateHealth(player_);
     gui_.updateHotBar(player_);
     gui_.updateInventory(player_);
     gui_.highlightHotBarCell(player_);
+}
+
+void GameSession::setPlayer(Player& player) {
+    player_ = player;
+}
+
+void GameSession::setWorld(World& world) {
+    world_ = world;
 }
 
 void GameSession::update(float delta) {
@@ -70,6 +70,9 @@ void GameSession::update(float delta) {
     }
     if (inputHandler->getKeyboardKeyState(sf::Keyboard::Slash) == InputHandler::JUST_PRESSED) {
         Engine::getEventSystem()->trigger<GameEvent::ConsoleShown>();
+    }
+    if (inputHandler->getKeyboardKeyState(sf::Keyboard::Escape) == InputHandler::JUST_PRESSED) {
+        Engine::getEventSystem()->trigger<GameEvent::MenuOpened>();
     }
     if (!paused_) {
         if (inputHandler->getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
@@ -210,20 +213,12 @@ World& GameSession::getWorld() {
     return world_;
 }
 
-Interface& GameSession::getInterface() {
-    return gui_;
-}
-
 const Player& GameSession::getPlayer() const {
     return player_;
 }
 
 const World& GameSession::getWorld() const {
     return world_;
-}
-
-const Interface& GameSession::getInterface() const {
-    return gui_;
 }
 
 void GameSession::setNoClip(bool condition) {

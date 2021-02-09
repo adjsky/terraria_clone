@@ -6,14 +6,12 @@
 #define TERRARIA_CLONE_GAMELOGIC_H
 
 #include "../Game/GameSession.h"
-#include "../Core/Engine.h"
 #include "../Events/Events.h"
 
 class GameLogic {
 public:
     GameLogic();
 
-    void setGameSession(GameSession* gameSession);
     void hotBarCellPress(const GameEvent::HotBarCellPressed& event);
     void inventoryCellPress(const GameEvent::InventoryCellPressed& event);
     void showInventory(const GameEvent::InventoryShown& event);
@@ -23,9 +21,12 @@ public:
     void setNoClip(const GameEvent::NoClipSet& event);
     void drawHitBoxes(const GameEvent::HitBoxesDrawn& event);
     void switchHotBar(const GameEvent::HotBarSwitched& event);
-
-private:
-    GameSession* gameSession_;
+    void openMenu(const GameEvent::MenuOpened& event);
+    void closeGame(const GameEvent::ExitButtonClicked& event);
+    void closeMenu(const GameEvent::ContinueGameButtonClicked& event);
+    void continueGame(const GameEvent::ContinueMenuButtonClicked& event);
+    void createNewWorld(const GameEvent::NewWorldButtonClicked& event);
+    void openMainMenu(const GameEvent::MainMenuButtonClicked& event);
 };
 
 #endif //TERRARIA_CLONE_GAMELOGIC_H

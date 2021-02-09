@@ -6,17 +6,18 @@
 
 #include "Interface.h"
 #include "../Core/Engine.h"
-#include "../Events/Events.h"
+#include "../Util/Serialization/GameSerialization.h"
 
 Interface::Interface(sf::RenderWindow &window) :
     gui_{ window },
     window_{ window }
 {
     Engine::getResourceManager()->initializeFonts();
-    constructHotBar();
-    constructHealthBar();
-    constructInventory();
+    constructGameInterface();
+    constructMainMenu();
+    constructPlayMenu();
     constructConsole();
+    constructMenu();
 }
 
 void Interface::handleEvent(sf::Event& e) {
@@ -27,24 +28,52 @@ void Interface::draw() {
     gui_.draw();
 }
 
-void Interface::showInventory(bool condition) {
-    auto inventory{ gui_.get("inventory") };
-    inventory->setVisible(condition);
+bool Interface::gameInterfaceIsShown() const {
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
+    return gameInterface->isVisible();
 }
 
 bool Interface::inventoryIsOpen() const {
-    auto inventory{ gui_.get("inventory") };
-    return inventory->isVisible();
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
+    if (gameInterface->isVisible()) {
+        tgui::Group::Ptr inventory{ gameInterface->get<tgui::Group>("inventory") };
+        return inventory->isVisible();
+    }
+    return false;
+}
+
+bool Interface::consoleIsShown() const {
+    auto console{ gui_.get("console") };
+    return console->isVisible();
+}
+
+bool Interface::hotBarIsShown() const{
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
+    if (gameInterface->isVisible()) {
+        tgui::Group::Ptr hotBar{ gameInterface->get<tgui::Group>("hotBar") };
+        return hotBar->isVisible();
+    }
+    return false;
+}
+
+bool Interface::gameMenuIsOpen() const {
+    auto menu{ gui_.get("menu") };
+    return menu->isVisible();
+}
+
+void Interface::showGameInterface(bool condition) {
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
+    gameInterface->setVisible(condition);
+}
+
+void Interface::showInventory(bool condition) {
+    tgui::Group::Ptr inventory{ gui_.get<tgui::Group>("inventory") };
+    inventory->setVisible(condition);
 }
 
 void Interface::showHotBar(bool condition) {
     tgui::Group::Ptr hotBar{ gui_.get<tgui::Group>("hotBar") };
     hotBar->setVisible(condition);
-}
-
-bool Interface::hotBarIsShown() const{
-    auto hotBar{ gui_.get<tgui::Group>("hotBar") };
-    return hotBar->isVisible();
 }
 
 void Interface::showConsole(bool condition) {
@@ -59,9 +88,14 @@ void Interface::showConsole(bool condition) {
     }
 }
 
-bool Interface::consoleIsShown() const {
-    auto console{ gui_.get<tgui::Group>("console") };
-    return console->isVisible();
+void Interface::showGameMenu(bool condition) {
+    tgui::Group::Ptr menu{ gui_.get<tgui::Group>("menu") };
+    menu->setVisible(condition);
+}
+
+void Interface::showMainMenu(bool condition) {
+    tgui::Group::Ptr menu{ gui_.get<tgui::Group>("mainMenu") };
+    menu->setVisible(condition);
 }
 
 void Interface::updateHealth(const Player &player) {
@@ -102,7 +136,7 @@ void Interface::updateHotBar(const Player& player) {
         const auto& cell{ playerHotBar.getCell(x, 0) };
         if (cell.blockType != BlockType::AIR) {
             sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
-            tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCK),
+            tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCKS),
                                                                          { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
             blockPicture->setOrigin(0.5f, 0.5f);
             blockPicture->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".position + parent.parent.hotBar.cells.cell" +  std::to_string(x) + ".size / 2"});
@@ -128,7 +162,8 @@ void Interface::updateHotBar(const Player& player) {
 
 void Interface::updateInventory(const Player& player) {
     auto* resourceManager{ Engine::getResourceManager() };
-    tgui::Group::Ptr inventory{ gui_.get<tgui::Group>("inventory") };
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
+    tgui::Group::Ptr inventory{ gameInterface->get<tgui::Group>("inventory") };
     tgui::Group::Ptr inventoryItems{ inventory->get<tgui::Group>("items") };
     inventoryItems->removeAllWidgets();
     const auto& playerBackpack{ player.getBackpack() };
@@ -138,7 +173,7 @@ void Interface::updateInventory(const Player& player) {
             if (cell.blockType != BlockType::AIR) {
                 std::stringstream cellName{  };
                 sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
-                tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCK),
+                tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCKS),
                                                                          { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
                 blockPicture->setOrigin(0.5f, 0.5f);
                 blockPicture->setPosition({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".position + parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size / 2"});
@@ -163,6 +198,29 @@ void Interface::updateInventory(const Player& player) {
     }
 }
 
+void Interface::updateAttachedItem(const Player &player, bool swapped) {
+    auto* resourceManager{ Engine::getResourceManager() };
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
+    tgui::Picture::Ptr attachedItem{ gameInterface->get<tgui::Picture>("attachedItem") };
+    if (player.hasAttachedItem) {
+        if (attachedItem && !swapped) {
+            attachedItem->setPosition(sf::Mouse::getPosition(window_).x, sf::Mouse::getPosition(window_).y);
+        }
+        else {
+            sf::IntRect blockRect{ BlockDatabase::getData(player.attachedItem.blockType).textureRect };
+            if (swapped) gameInterface->remove(attachedItem);
+            attachedItem = tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCKS),
+                                                   { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }});
+            attachedItem->setScale(0.5f);
+            attachedItem->ignoreMouseEvents(true);
+            gameInterface->add(attachedItem, "attachedItem");
+        }
+    }
+    else {
+        gameInterface->remove(attachedItem);
+    }
+}
+
 void Interface::highlightHotBarCell(const Player& player) {
     auto* resourceManager{ Engine::getResourceManager() };
     static int previousHighlightedCell{ 0 };
@@ -172,8 +230,98 @@ void Interface::highlightHotBarCell(const Player& player) {
     previousHighlightedCell = player.getHotBarIndex();
 }
 
+void Interface::constructMainMenu() {
+    auto resourceManager{ Engine::getResourceManager() };
+    tgui::Group::Ptr mainMenu{ tgui::Group::create() };
+
+    tgui::Picture::Ptr playButton{ tgui::Picture::create() };
+    tgui::Texture playTexture{ resourceManager->getTexture(ResourceManager::BUTTONS),
+                                                                 { 0, 0, 549, 95 } };
+    playButton->getRenderer()->setTexture(playTexture);
+    playButton->setSize(playButton->getSize() * 0.6f);
+    playButton->setPosition({ "parent.size / 2" },
+                            { "parent.size / 2 - size / 2 - 10" });
+    playButton->setOrigin(0.5f, 0.5f);
+    playButton->onClick([this](){
+        bool hasSavedGame{ GameSerialization::isGameSaved() };
+        if (hasSavedGame) {
+            auto mainMenu{ gui_.get<tgui::Group>("mainMenu") };
+            auto playMenu{ gui_.get<tgui::Group>("playMenu") };
+            mainMenu->setVisible(false);
+            playMenu->setVisible(true);
+        }
+        else {
+            Engine::getEventSystem()->trigger<GameEvent::NewWorldButtonClicked>();
+        }
+    });
+    mainMenu->add(playButton, "playButton");
+
+    tgui::Picture::Ptr exitButton{ tgui::Picture::create() };
+    tgui::Texture exitTexture{ resourceManager->getTexture(ResourceManager::BUTTONS),
+                               { 0, 95, 549, 95 } };
+    exitButton->getRenderer()->setTexture(exitTexture);
+    exitButton->setSize(exitButton->getSize() * 0.6f);
+    exitButton->onClick([](){
+        Engine::getEventSystem()->trigger<GameEvent::ExitButtonClicked>();
+    });
+    exitButton->setPosition({ "parent.size / 2" },
+                            { "parent.size / 2 + size / 2 + 10" });
+    exitButton->setOrigin(0.5f, 0.5f);
+    mainMenu->add(exitButton, "exitButton");
+
+    gui_.add(mainMenu, "mainMenu");
+}
+
+void Interface::constructPlayMenu() {
+    auto resourceManager{ Engine::getResourceManager() };
+    tgui::Group::Ptr playMenu{ tgui::Group::create() };
+    playMenu->setVisible(false);
+
+    tgui::Picture::Ptr continueButton{ tgui::Picture::create() };
+    tgui::Texture continueTexture{ resourceManager->getTexture(ResourceManager::BUTTONS),
+                                   { 0, 190, 549, 95 } };
+    continueButton->getRenderer()->setTexture(continueTexture);
+    continueButton->setSize(continueButton->getSize() * 0.6f);
+    continueButton->setPosition({ "parent.size / 2" },
+                                { "parent.size / 2 - size / 2 - 10" });
+    continueButton->setOrigin(0.5f, 0.5f);
+    continueButton->onClick([this, playMenu](){
+        Engine::getEventSystem()->trigger<GameEvent::ContinueMenuButtonClicked>();
+        showGameInterface(true);
+        playMenu->setVisible(false);
+    });
+    playMenu->add(continueButton, "continueButton");
+
+    tgui::Picture::Ptr newWorldButton{ tgui::Picture::create() };
+    tgui::Texture newWorldTexture{ resourceManager->getTexture(ResourceManager::BUTTONS),
+                                   { 0, 285, 549, 95 } };
+    newWorldButton->getRenderer()->setTexture(newWorldTexture);
+    newWorldButton->setSize(newWorldButton->getSize() * 0.6f);
+    newWorldButton->setPosition({ "parent.size / 2" },
+                                { "parent.size / 2 + size / 2 + 10" });
+    newWorldButton->setOrigin(0.5f, 0.5f);
+    newWorldButton->onClick([this, playMenu](){
+        Engine::getEventSystem()->trigger<GameEvent::NewWorldButtonClicked>();
+        showGameInterface(true);
+        playMenu->setVisible(false);
+    });
+    playMenu->add(newWorldButton, "newWorldButton");
+
+    gui_.add(playMenu, "playMenu");
+}
+
+void Interface::constructGameInterface() {
+    tgui::Group::Ptr gameInterface{ tgui::Group::create() };
+    gameInterface->setVisible(false);
+    gui_.add(gameInterface, "gameInterface");
+    constructHotBar();
+    constructHealthBar();
+    constructInventory();
+}
+
 void Interface::constructHotBar() {
     auto* resourceManager{ Engine::getResourceManager() };
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
     // general group to hold all hot bar related widgets
     tgui::Group::Ptr hotBar{ tgui::Group::create() };
 
@@ -186,8 +334,10 @@ void Interface::constructHotBar() {
     hotBar->add(hotBarCells, "cells");
 
     for (int x = 0; x < PLAYER_HOTBAR_SIZE; x++) {
-        tgui::Picture::Ptr cell{ tgui::Picture::create( { resourceManager->getTexture(ResourceManager::INVENTORY_CELL),
-                                                          { 0, 0, 31, 31 }} ) };
+        tgui::Picture::Ptr cell{ tgui::Picture::create() };
+        tgui::Texture texture{ resourceManager->getTexture(ResourceManager::INVENTORY_CELL),
+                                                           { 0, 0, 31, 31 } };
+        cell->getRenderer()->setTexture(texture);
         cell->setInheritedOpacity(0.75f);
         cell->setSize(cell->getSize() * 1.2f);
         cell->setPosition({ "parent.picture.position + 26 + (size + 4) * " + std::to_string(x) },
@@ -201,16 +351,17 @@ void Interface::constructHotBar() {
     // general group to hold pictures of items visible in hot bar
     tgui::Group::Ptr items{ tgui::Group::create() };
     hotBar->add(items, "items");
-    hotBar->setVisible(false);
-    gui_.add(hotBar, "hotBar");
+    gameInterface->add(hotBar, "hotBar");
 }
 
 void Interface::constructHealthBar() {
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
     tgui::Group::Ptr healthBar{ tgui::Group::create() };
-    gui_.add(healthBar, "healthBar");
+    gameInterface->add(healthBar, "healthBar");
 }
 
 void Interface::constructInventory() {
+    tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
     auto* resourceManager{ Engine::getResourceManager() };
     tgui::Group::Ptr inventory{ tgui::Group::create() };
     tgui::Picture::Ptr inventoryPicture{ tgui::Picture::create(resourceManager->getTexture(ResourceManager::INVENTORY)) };
@@ -223,11 +374,13 @@ void Interface::constructInventory() {
     inventory->add(inventoryCells, "cells");
     for (int y = 0; y < PLAYER_BACKPACK_SIZE.y; y++) {
         for (int x = 0; x < PLAYER_BACKPACK_SIZE.x; x++) {
-            tgui::Picture::Ptr cell{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::INVENTORY_CELL),
-                                                             { 0, 0, 31, 31 }} )};
+            tgui::Picture::Ptr cell{ tgui::Picture::create() };
+            tgui::Texture texture{ resourceManager->getTexture(ResourceManager::INVENTORY_CELL),
+                                   { 0, 0, 31, 31 } };
+            cell->getRenderer()->setTexture(texture);
             cell->setPosition({ "60 + parent.parent.picture.position + (size + 2) * " + std::to_string(x)},
                               { "parent.parent.picture.position - parent.parent.picture.size / 3 + (size + 2) * " + std::to_string(y)});
-            cell->onClick([this, x, y]() {
+            cell->onClick([x, y]() {
                 Engine::getEventSystem()->trigger<GameEvent::InventoryCellPressed>(x, y);
             });
             inventoryCells->add(cell, "cell" + std::to_string(x)  + std::to_string(y));
@@ -237,7 +390,7 @@ void Interface::constructInventory() {
     tgui::Group::Ptr items{ tgui::Group::create() };
     inventory->add(items, "items");
     inventory->setVisible(false);
-    gui_.add(inventory, "inventory");
+    gameInterface->add(inventory, "inventory");
 }
 
 void Interface::constructConsole() {
@@ -255,24 +408,57 @@ void Interface::constructConsole() {
     gui_.add(console, "console");
 }
 
-void Interface::updateAttachedItem(const Player &player, bool swapped) {
-    auto* resourceManager{ Engine::getResourceManager() };
-    tgui::Picture::Ptr attachedItem{ gui_.get<tgui::Picture>("attachedItem") };
-    if (player.hasAttachedItem) {
-        if (attachedItem && !swapped) {
-            attachedItem->setPosition(sf::Mouse::getPosition(window_).x, sf::Mouse::getPosition(window_).y);
-        }
-        else {
-            sf::IntRect blockRect{ BlockDatabase::getData(player.attachedItem.blockType).textureRect };
-            if (swapped) gui_.remove(attachedItem);
-            attachedItem = tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCK),
-                                                   { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }});
-            attachedItem->setScale(0.5f);
-            attachedItem->ignoreMouseEvents(true);
-            gui_.add(attachedItem, "attachedItem");
-        }
-    }
-    else {
-        gui_.remove(attachedItem);
-    }
+void Interface::constructMenu() {
+    auto resourceManager{ Engine::getResourceManager() };
+    tgui::Group::Ptr menu{ tgui::Group::create() };
+
+    tgui::Picture::Ptr background{ tgui::Picture::create() };
+    tgui::Texture backgroundTexture{ resourceManager->getTexture(ResourceManager::GAME_MENU_BACKGROUND) };
+    background->getRenderer()->setTexture(backgroundTexture);
+    background->getRenderer()->setOpacity(0.5f);
+    background->setSize("parent.size");
+    menu->add(background, "background");
+
+    tgui::Picture::Ptr continueButton{ tgui::Picture::create() };
+    tgui::Texture continueTexture{ resourceManager->getTexture(ResourceManager::BUTTONS),
+                               { 0, 190 , 549, 95 }};
+    continueButton->getRenderer()->setTexture(continueTexture);
+    continueButton->onClick([](){
+        Engine::getEventSystem()->trigger<GameEvent::ContinueGameButtonClicked>();
+    });
+    continueButton->setSize(continueButton->getSize() * 0.5f);
+    continueButton->setOrigin(0.5f, 0.5f);
+    continueButton->setPosition({ "parent.size / 2" },
+                                { "parent.size / 2 - size - 10" });
+    menu->add(continueButton, "continueButton");
+
+    tgui::Picture::Ptr mainMenuButton{ tgui::Picture::create() };
+    tgui::Texture mainMenuTexture{ resourceManager->getTexture(ResourceManager::BUTTONS),
+                                   { 0, 380, 549, 95 }};
+    mainMenuButton->getRenderer()->setTexture(mainMenuTexture);
+    mainMenuButton->onClick([](){
+        Engine::getEventSystem()->trigger<GameEvent::MainMenuButtonClicked>();
+    });
+    mainMenuButton->setSize(mainMenuButton->getSize() * 0.5f);
+    mainMenuButton->setOrigin(0.5f, 0.5f);
+    mainMenuButton->setPosition("parent.size / 2");
+
+    menu->add(mainMenuButton, "mainMenuButton");
+
+    tgui::Picture::Ptr exitButton{ tgui::Picture::create() };
+    tgui::Texture exitTexture{ resourceManager->getTexture(ResourceManager::BUTTONS),
+                               { 0, 95, 549, 95 }};
+    exitButton->getRenderer()->setTexture(exitTexture);
+    exitButton->onClick([](){
+        Engine::getEventSystem()->trigger<GameEvent::ExitButtonClicked>();
+    });
+    exitButton->setSize(exitButton->getSize() * 0.5f);
+    exitButton->setOrigin(0.5f, 0.5f);
+    exitButton->setPosition({ "parent.size / 2" },
+                            { "parent.size / 2 + size + 10" });
+    menu->add(exitButton, "exitButton");
+
+    menu->setVisible(false);
+    gui_.add(menu, "menu");
 }
+
