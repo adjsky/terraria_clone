@@ -6,11 +6,11 @@
 #include <vector>
 
 #include "World.h"
+#include "../Core/Engine.h"
 
 World::World() :
     chunks_{ }
 {
-    BlockDatabase::initialize();
 }
 
 void World::generate() {
@@ -66,7 +66,7 @@ bool World::placeBlock(int x, int y, BlockType::Type type) {
         if (!block->visible) {
             block->visible = true;
             block->type = type;
-            block->sprite.setTextureRect(BlockDatabase::getData(block->type).textureRect);
+            block->sprite.setTextureRect(Engine::getDatabaseManager()->getDatabase<BlockDatabase>()->getData(block->type).textureRect);
             return true;
         }
     }

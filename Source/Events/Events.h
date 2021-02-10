@@ -22,33 +22,6 @@ namespace GameEvent {
         std::string data;
     };
 
-    struct InventoryShown {
-    };
-
-    struct ConsoleShown {
-    };
-
-    struct BlockBroken {
-        sf::Vector2i blockPosition;
-    };
-
-    struct BlockPlaced {
-        sf::Vector2i blockPosition;
-    };
-
-    struct NoClipSet {
-    };
-
-    struct HitBoxesDrawn {
-    };
-
-    struct HotBarSwitched {
-        int x;
-    };
-
-    struct MenuOpened {
-    };
-
     struct ExitButtonClicked {
     };
 

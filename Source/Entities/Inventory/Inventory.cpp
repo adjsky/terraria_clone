@@ -31,7 +31,7 @@ Inventory::Cell& Inventory::getCell(int x, int y) {
     return cells_[y][x];
 }
 
-bool Inventory::addItem(BlockType::Type type, int amount) {
+bool Inventory::addItem(const Cell& cell) {
     sf::Vector2i lastEmptyCell = size_;
     for (int y = 0; y < size_.y; y++) {
         for (int x = 0; x < size_.x; x++) {
@@ -41,20 +41,21 @@ bool Inventory::addItem(BlockType::Type type, int amount) {
                     lastEmptyCell.y = y;
                 }
             }
-            else if (cells_[y][x].blockType == type) {
-                cells_[y][x].amount += amount;
+            else if (cells_[y][x].itemType == cell.itemType && cells_[y][x].id == cell.id) {
+                cells_[y][x].amount += cell.amount;
                 return true;
             }
         }
     }
-    if (lastEmptyCell == size_ && cells_[lastEmptyCell.y][lastEmptyCell.x].blockType != BlockType::AIR) return false;
-    cells_[lastEmptyCell.y][lastEmptyCell.x].amount = amount;
-    cells_[lastEmptyCell.y][lastEmptyCell.x].blockType = type;
+    if (lastEmptyCell == size_ && cells_[lastEmptyCell.y][lastEmptyCell.x].id != BlockType::AIR) return false;
+    cells_[lastEmptyCell.y][lastEmptyCell.x].amount = cell.amount;
+    cells_[lastEmptyCell.y][lastEmptyCell.x].id = cell.id;
+    cells_[lastEmptyCell.y][lastEmptyCell.x].itemType = cell.itemType;
     return true;
 }
 
 bool Inventory::setItem(const Inventory::Cell &cell, int x, int y) {
-    if (cell.blockType == cells_[y][x].blockType) {
+    if (cell.itemType == cells_[y][x].itemType && cell.id == cells_[y][x].id) {
         cells_[y][x].amount += cell.amount;
     }
     else {
@@ -73,12 +74,12 @@ void Inventory::removeItem(int x, int y, int amount) {
         cells_[y][x].amount -= amount;
         if (cells_[y][x].amount <= 0) {
             cells_[y][x].amount = 0;
-            cells_[y][x].blockType = BlockType::AIR;
+            cells_[y][x].id = BlockType::AIR;
         }
     }
     else {
         cells_[y][x].amount = 0;
-        cells_[y][x].blockType = BlockType::AIR;
+        cells_[y][x].id = BlockType::AIR;
     }
 }
 

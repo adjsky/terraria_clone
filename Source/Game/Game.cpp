@@ -11,7 +11,10 @@ Game::Game(const sf::ContextSettings& context) :
         window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone", sf::Style::Default, context },
         gui_{ window_ },
         currentGameSession_{ nullptr },
-        gameLogic_{ }
+        gameLogic_{ },
+        camera_{ sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
+        drawHitBoxes_{ false },
+        paused_{ false }
 {
     resizeWindow();
     window_.setFramerateLimit(144);
@@ -29,11 +32,11 @@ void Game::start() {
         handleEvents();
 
         float frameTime{ timer.restart().asSeconds() };
-        if (currentGameSession_) currentGameSession_->update(frameTime);
+        if (currentGameSession_) gameLogic_.update(frameTime);
         accumulator += frameTime;
         while (accumulator >= fixedDelta_) {
             if (currentGameSession_) {
-                currentGameSession_->fixedUpdate(fixedDelta_);
+                gameLogic_.fixedUpdate(fixedDelta_);
             }
             accumulator -= fixedDelta_;
         }
@@ -67,7 +70,7 @@ GameSession* Game::getGameSession() {
 }
 
 GameSession* Game::createGameSession() {
-    currentGameSession_ = std::make_unique<GameSession>(window_, gui_);
+    currentGameSession_ = std::make_unique<GameSession>();
     return currentGameSession_.get();
 }
 
@@ -79,14 +82,38 @@ Interface& Game::getInterface() {
     return gui_;
 }
 
-const Interface& Game::getInterface() const {
-    return gui_;
+sf::RenderWindow& Game::getWindow() {
+    return window_;
+}
+
+sf::View& Game::getCamera() {
+    return camera_;
+}
+
+void Game::drawHitBoxes(bool condition) {
+    drawHitBoxes_ = condition;
+}
+
+void Game::pause(bool condition) {
+    paused_ = condition;
+}
+
+bool Game::isPaused() const {
+    return paused_;
 }
 
 void Game::render() {
     window_.clear(sf::Color::White);
 
-    if (currentGameSession_) currentGameSession_->render();
+    if (currentGameSession_) {
+        window_.setView(camera_);
+        currentGameSession_->getWorld().draw(window_);
+        window_.draw( currentGameSession_->getPlayer());
+        if (drawHitBoxes_) {
+            window_.draw( currentGameSession_->getPlayer().getHitBox());
+        }
+        window_.setView(window_.getDefaultView());
+    }
 
     window_.setView(window_.getDefaultView());
     gui_.draw();

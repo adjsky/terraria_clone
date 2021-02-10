@@ -43,7 +43,7 @@ bool Interface::inventoryIsOpen() const {
 }
 
 bool Interface::consoleIsShown() const {
-    auto console{ gui_.get("console") };
+    tgui::Widget::Ptr console{ gui_.get("console") };
     return console->isVisible();
 }
 
@@ -57,7 +57,7 @@ bool Interface::hotBarIsShown() const{
 }
 
 bool Interface::gameMenuIsOpen() const {
-    auto menu{ gui_.get("menu") };
+    tgui::Widget::Ptr menu{ gui_.get("menu") };
     return menu->isVisible();
 }
 
@@ -100,7 +100,7 @@ void Interface::showMainMenu(bool condition) {
 
 void Interface::updateHealth(const Player &player) {
     auto* resourceManager{ Engine::getResourceManager() };
-    auto healthBar{ gui_.get<tgui::Group>("healthBar") };
+    tgui::Group::Ptr healthBar{ gui_.get<tgui::Group>("healthBar") };
     int playerHealth{ player.getHealth() };
     healthBar->removeAllWidgets();
     int fullHearts{ playerHealth / 10 };
@@ -128,21 +128,28 @@ void Interface::updateHealth(const Player &player) {
 
 void Interface::updateHotBar(const Player& player) {
     auto* resourceManager{ Engine::getResourceManager() };
+    auto* blockDatabase{ Engine::getDatabaseManager()->getDatabase<BlockDatabase>() };
     tgui::Group::Ptr hotBar{ gui_.get<tgui::Group>("hotBar") };
     tgui::Group::Ptr hotBarItems{ hotBar->get<tgui::Group>("items") };
     hotBarItems->removeAllWidgets();
     const auto& playerHotBar{ player.getHotBar() };
     for (int x = 0; x < playerHotBar.getSize().x; x++) {
         const auto& cell{ playerHotBar.getCell(x, 0) };
-        if (cell.blockType != BlockType::AIR) {
-            sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
-            tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCKS),
-                                                                         { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
-            blockPicture->setOrigin(0.5f, 0.5f);
-            blockPicture->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".position + parent.parent.hotBar.cells.cell" +  std::to_string(x) + ".size / 2"});
-            blockPicture->setSize({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".size * 0.4"});
-            blockPicture->ignoreMouseEvents(true);
-            hotBarItems->add(blockPicture);
+        if (cell.amount != 0) {
+            tgui::Picture::Ptr picture{ tgui::Picture::create() };
+            if (cell.itemType == ItemTypes::BLOCK)
+            {
+                sf::IntRect blockRect{ blockDatabase->getData(static_cast<BlockType::Type>(cell.id)).textureRect };
+                tgui::Texture texture{ resourceManager->getTexture(ResourceManager::BLOCKS),
+                                       { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }};
+                picture->getRenderer()->setTexture(texture);
+            }
+
+            picture->setOrigin(0.5f, 0.5f);
+            picture->setPosition({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".position + parent.parent.hotBar.cells.cell" +  std::to_string(x) + ".size / 2"});
+            picture->setSize({"parent.parent.hotBar.cells.cell" + std::to_string(x) + ".size * 0.4"});
+            picture->ignoreMouseEvents(true);
+            hotBarItems->add(picture);
 
             if (cell.amount != 1) {
                 tgui::Label::Ptr label{ tgui::Label::create(std::to_string(cell.amount)) };
@@ -162,6 +169,7 @@ void Interface::updateHotBar(const Player& player) {
 
 void Interface::updateInventory(const Player& player) {
     auto* resourceManager{ Engine::getResourceManager() };
+    auto* blockDatabase{ Engine::getDatabaseManager()->getDatabase<BlockDatabase>() };
     tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
     tgui::Group::Ptr inventory{ gameInterface->get<tgui::Group>("inventory") };
     tgui::Group::Ptr inventoryItems{ inventory->get<tgui::Group>("items") };
@@ -170,16 +178,21 @@ void Interface::updateInventory(const Player& player) {
     for (int x = 0; x < playerBackpack.getSize().x; x++) {
         for (int y = 0; y < playerBackpack.getSize().y; y++) {
             const auto& cell{ playerBackpack.getCell(x, y) };
-            if (cell.blockType != BlockType::AIR) {
-                std::stringstream cellName{  };
-                sf::IntRect blockRect{ BlockDatabase::getData(cell.blockType).textureRect };
-                tgui::Picture::Ptr blockPicture{ tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCKS),
-                                                                         { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }}) };
-                blockPicture->setOrigin(0.5f, 0.5f);
-                blockPicture->setPosition({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".position + parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size / 2"});
-                blockPicture->setSize({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size * 0.5"});
-                blockPicture->ignoreMouseEvents(true);
-                inventoryItems->add(blockPicture);
+            if (cell.amount != 0) {
+                std::stringstream cellName{};
+                tgui::Picture::Ptr picture{ tgui::Picture::create() };
+                if (cell.itemType == ItemTypes::BLOCK)
+                {
+                    sf::IntRect blockRect{ blockDatabase->getData(static_cast<BlockType::Type>(cell.id)).textureRect };
+                    tgui::Texture texture{ resourceManager->getTexture(ResourceManager::BLOCKS),
+                                           { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }};
+                    picture->getRenderer()->setTexture(texture);
+                }
+                picture->setOrigin(0.5f, 0.5f);
+                picture->setPosition({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".position + parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size / 2"});
+                picture->setSize({"parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size * 0.5"});
+                picture->ignoreMouseEvents(true);
+                inventoryItems->add(picture);
 
                 if (cell.amount != 1) {
                     tgui::Label::Ptr label{ tgui::Label::create(std::to_string(cell.amount)) };
@@ -200,6 +213,7 @@ void Interface::updateInventory(const Player& player) {
 
 void Interface::updateAttachedItem(const Player &player, bool swapped) {
     auto* resourceManager{ Engine::getResourceManager() };
+    auto* blockDatabase{ Engine::getDatabaseManager()->getDatabase<BlockDatabase>() };
     tgui::Group::Ptr gameInterface{ gui_.get<tgui::Group>("gameInterface") };
     tgui::Picture::Ptr attachedItem{ gameInterface->get<tgui::Picture>("attachedItem") };
     if (player.hasAttachedItem) {
@@ -207,10 +221,13 @@ void Interface::updateAttachedItem(const Player &player, bool swapped) {
             attachedItem->setPosition(sf::Mouse::getPosition(window_).x, sf::Mouse::getPosition(window_).y);
         }
         else {
-            sf::IntRect blockRect{ BlockDatabase::getData(player.attachedItem.blockType).textureRect };
             if (swapped) gameInterface->remove(attachedItem);
-            attachedItem = tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCKS),
-                                                   { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }});
+            if (player.attachedItem.itemType == ItemTypes::BLOCK)
+            {
+                sf::IntRect blockRect{ blockDatabase->getData(static_cast<BlockType::Type>(player.attachedItem.id)).textureRect };
+                attachedItem = tgui::Picture::create({ resourceManager->getTexture(ResourceManager::BLOCKS),
+                                                       { static_cast<unsigned int>(blockRect.left), static_cast<unsigned int>(blockRect.top), static_cast<unsigned int>(blockRect.width), static_cast<unsigned int>(blockRect.height) }});
+            }
             attachedItem->setScale(0.5f);
             attachedItem->ignoreMouseEvents(true);
             gameInterface->add(attachedItem, "attachedItem");
@@ -231,7 +248,7 @@ void Interface::highlightHotBarCell(const Player& player) {
 }
 
 void Interface::constructMainMenu() {
-    auto resourceManager{ Engine::getResourceManager() };
+    auto* resourceManager{ Engine::getResourceManager() };
     tgui::Group::Ptr mainMenu{ tgui::Group::create() };
 
     tgui::Picture::Ptr playButton{ tgui::Picture::create() };
@@ -245,8 +262,8 @@ void Interface::constructMainMenu() {
     playButton->onClick([this](){
         bool hasSavedGame{ GameSerialization::isGameSaved() };
         if (hasSavedGame) {
-            auto mainMenu{ gui_.get<tgui::Group>("mainMenu") };
-            auto playMenu{ gui_.get<tgui::Group>("playMenu") };
+            tgui::Group::Ptr mainMenu{ gui_.get<tgui::Group>("mainMenu") };
+            tgui::Group::Ptr playMenu{ gui_.get<tgui::Group>("playMenu") };
             mainMenu->setVisible(false);
             playMenu->setVisible(true);
         }
@@ -273,7 +290,7 @@ void Interface::constructMainMenu() {
 }
 
 void Interface::constructPlayMenu() {
-    auto resourceManager{ Engine::getResourceManager() };
+    auto* resourceManager{ Engine::getResourceManager() };
     tgui::Group::Ptr playMenu{ tgui::Group::create() };
     playMenu->setVisible(false);
 
@@ -409,7 +426,7 @@ void Interface::constructConsole() {
 }
 
 void Interface::constructMenu() {
-    auto resourceManager{ Engine::getResourceManager() };
+    auto* resourceManager{ Engine::getResourceManager() };
     tgui::Group::Ptr menu{ tgui::Group::create() };
 
     tgui::Picture::Ptr background{ tgui::Picture::create() };

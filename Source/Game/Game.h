@@ -9,17 +9,14 @@
 #include <memory>
 
 #include "GameSession.h"
-#include "../Util/constants.h"
 #include "../Entities/Player/Player.h"
 #include "../Interface/Interface.h"
 #include "../GameLogic/GameLogic.h"
 
 class Game {
 public:
-    Game(const sf::ContextSettings& context = sf::ContextSettings{});
+    explicit Game(const sf::ContextSettings& context = sf::ContextSettings{});
     void start();
-    void handleEvents();
-    void render();
     void close();
 
     GameSession* getGameSession();
@@ -27,9 +24,16 @@ public:
     void deleteGameSession();
 
     Interface& getInterface();
-    const Interface& getInterface() const;
+    sf::RenderWindow& getWindow();
+    sf::View& getCamera();
+
+    void drawHitBoxes(bool condition);
+    void pause(bool condition);
+    bool isPaused() const;
 
 private:
+    void handleEvents();
+    void render();
     void resizeWindow();
 
     float fixedDelta_;
@@ -37,6 +41,9 @@ private:
     Interface gui_;
     std::unique_ptr<GameSession> currentGameSession_;
     GameLogic gameLogic_;
+    sf::View camera_;
+    bool drawHitBoxes_;
+    bool paused_;
 };
 
 #endif //TERRARIA_CLONE_GAME_H

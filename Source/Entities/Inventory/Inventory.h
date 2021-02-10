@@ -11,19 +11,21 @@
 #include <boost/serialization/vector.hpp>
 
 #include "../../World/Block/BlockTypes.h"
+#include "ItemTypes.h"
 
 class Inventory {
 public:
     struct Cell {
         std::size_t amount = 0;
-        BlockType::Type blockType = BlockType::AIR;
+        ItemTypes itemType;
+        int id;
 
         // serialization
         friend boost::serialization::access;
         template<class Archive>
         inline void serialize(Archive & ar, const unsigned int version) {
             ar & amount;
-            ar & blockType;
+            ar & id;
         }
     };
 public:
@@ -31,7 +33,7 @@ public:
     explicit Inventory(const sf::Vector2i& size);
     const Cell& getCell(int x, int y) const;
     Cell& getCell(int x, int y);
-    bool addItem(BlockType::Type type, int amount);
+    bool addItem(const Cell& cell);
     bool setItem(const Cell& cell, int x, int y);
     void removeItem(int x, int y, int amount = -1);
     void setSize(const sf::Vector2i& size);

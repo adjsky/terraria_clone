@@ -3,7 +3,6 @@
 //
 
 #include "Chunk.h"
-#include "../Block/BlockDatabase.h"
 #include "../../Core/Engine.h"
 
 Chunk::Chunk(int startingPosition) :
@@ -39,13 +38,14 @@ Chunk& Chunk::operator=(const Chunk& another_chunk) {
 
 void Chunk::updateSprites() {
     auto* resourceManager{ Engine::getResourceManager() };
+    auto* blockDatabase{ Engine::getDatabaseManager()->getDatabase<BlockDatabase>() };
     for (int y = 0; y < CHUNK_HEIGHT; y++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
             blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::BLOCKS));
             blocks_[y][x]->sprite.setPosition(startingPosition_ * BLOCK_SIZE + x * BLOCK_SIZE, -y * BLOCK_SIZE);
             blocks_[y][x]->sprite.setScale(BLOCK_SIZE / 64.0f, BLOCK_SIZE / 64.0f);
             if (blocks_[y][x]->type != BlockType::AIR) {
-                blocks_[y][x]->sprite.setTextureRect(BlockDatabase::getData(blocks_[y][x]->type).textureRect);
+                blocks_[y][x]->sprite.setTextureRect(blockDatabase->getData(blocks_[y][x]->type).textureRect);
             }
         }
     }
@@ -53,6 +53,7 @@ void Chunk::updateSprites() {
 
 void Chunk::generate(FastNoiseLite& noise) {
     auto* resourceManager{ Engine::getResourceManager() };
+    auto* blockDatabase{ Engine::getDatabaseManager()->getDatabase<BlockDatabase>() };
     for (int x = 0; x < CHUNK_WIDTH; x++) {
         float noiseValue = noise.GetNoise((float)(x+startingPosition_), 0.0f);
         int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 20);
@@ -74,7 +75,7 @@ void Chunk::generate(FastNoiseLite& noise) {
                     blocks_[y][x]->type = BlockType::DIRT_PIXEL;
                 }
                 blocks_[y][x]->visible = true;
-                blocks_[y][x]->sprite.setTextureRect(BlockDatabase::getData(blocks_[y][x]->type).textureRect);
+                blocks_[y][x]->sprite.setTextureRect(blockDatabase->getData(blocks_[y][x]->type).textureRect);
             }
         }
     }

@@ -33,7 +33,6 @@ public:
     void updateHotBar(const Player& player);
     void updateInventory(const Player& player);
     void updateAttachedItem(const Player& player, bool swapped = false);
-
     void highlightHotBarCell(const Player& player);
 
 private:
