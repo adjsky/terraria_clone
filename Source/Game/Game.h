@@ -15,7 +15,7 @@
 
 class Game {
 public:
-    explicit Game(const sf::ContextSettings& context = sf::ContextSettings{});
+    Game();
     void start();
     void close();
 
@@ -23,8 +23,6 @@ public:
     GameSession* createGameSession();
     void deleteGameSession();
 
-    Interface& getInterface();
-    sf::RenderWindow& getWindow();
     sf::View& getCamera();
 
     void drawHitBoxes(bool condition);
@@ -34,11 +32,8 @@ public:
 private:
     void handleEvents();
     void render();
-    void resizeWindow();
 
     float fixedDelta_;
-    sf::RenderWindow window_;
-    Interface gui_;
     std::unique_ptr<GameSession> currentGameSession_;
     GameLogic gameLogic_;
     sf::View camera_;

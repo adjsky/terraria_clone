@@ -6,19 +6,14 @@
 #include "../Core/Engine.h"
 #include "../Util/Serialization/GameSerialization.h"
 
-Game::Game(const sf::ContextSettings& context) :
+Game::Game() :
         fixedDelta_{ 1 / 60.0f },
-        window_{ sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone", sf::Style::Default, context },
-        gui_{ window_ },
         currentGameSession_{ nullptr },
-        gameLogic_{ },
+        gameLogic_{ *this },
         camera_{ sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
         drawHitBoxes_{ false },
         paused_{ false }
 {
-    resizeWindow();
-    window_.setFramerateLimit(144);
-
 //    gui_.consoleEntered.connect([this](const std::string& data){
 //        consoleHandler_.process(data);
 //    });
@@ -28,7 +23,7 @@ void Game::start() {
     sf::Clock timer;
     float accumulator{ 0.0f };
 
-    while (window_.isOpen()) {
+    while (Engine::getWindow()->isOpen()) {
         handleEvents();
 
         float frameTime{ timer.restart().asSeconds() };
@@ -46,15 +41,11 @@ void Game::start() {
 
 void Game::handleEvents() {
     sf::Event e{};
-    while (window_.pollEvent(e)) {
+    while (Engine::getWindow()->pollEvent(e)) {
         if (e.type == sf::Event::Closed) {
             close();
         }
-        if (e.type == sf::Event::Resized) {
-            // change game view ratio
-            resizeWindow();
-        }
-        gui_.handleEvent(e);
+        Engine::getInterface()->handleEvent(e);
     }
     Engine::getInputHandler()->updateStates();
 }
@@ -62,7 +53,7 @@ void Game::handleEvents() {
 void Game::close() {
     if (currentGameSession_)
         GameSerialization::saveGame(*currentGameSession_);
-    window_.close();
+    Engine::getWindow()->close();
 }
 
 GameSession* Game::getGameSession() {
@@ -71,19 +62,13 @@ GameSession* Game::getGameSession() {
 
 GameSession* Game::createGameSession() {
     currentGameSession_ = std::make_unique<GameSession>();
+    paused_ = false;
+    drawHitBoxes_ = false;
     return currentGameSession_.get();
 }
 
 void Game::deleteGameSession() {
     currentGameSession_ = nullptr;
-}
-
-Interface& Game::getInterface() {
-    return gui_;
-}
-
-sf::RenderWindow& Game::getWindow() {
-    return window_;
 }
 
 sf::View& Game::getCamera() {
@@ -103,25 +88,21 @@ bool Game::isPaused() const {
 }
 
 void Game::render() {
-    window_.clear(sf::Color::White);
+    auto* window{ Engine::getWindow() };
+    window->clear(sf::Color::White);
 
     if (currentGameSession_) {
-        window_.setView(camera_);
-        currentGameSession_->getWorld().draw(window_);
-        window_.draw( currentGameSession_->getPlayer());
+        window->setView(camera_);
+        currentGameSession_->getWorld().draw(*window);
+        window->draw( currentGameSession_->getPlayer());
         if (drawHitBoxes_) {
-            window_.draw( currentGameSession_->getPlayer().getHitBox());
+            window->draw( currentGameSession_->getPlayer().getHitBox());
         }
-        window_.setView(window_.getDefaultView());
+        window->setView(window->getDefaultView());
     }
 
-    window_.setView(window_.getDefaultView());
-    gui_.draw();
+    window->setView(window->getDefaultView());
+    Engine::getInterface()->draw();
 
-    window_.display();
-}
-
-void Game::resizeWindow() {
-//    float ratio{ static_cast<float>(window_.getSize().x) / static_cast<float>(window_.getSize().y) };
-//    view_.setSize(std::floor(VIEW_WIDTH * ratio), VIEW_HEIGHT);
+    window->display();
 }

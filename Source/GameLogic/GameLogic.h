@@ -5,12 +5,14 @@
 #ifndef TERRARIA_CLONE_GAMELOGIC_H
 #define TERRARIA_CLONE_GAMELOGIC_H
 
-#include "../Game/GameSession.h"
 #include "../Events/Events.h"
+
+// forward declare game class and link it in cpp file
+class Game;
 
 class GameLogic {
 public:
-    GameLogic();
+    GameLogic(Game& gameInstance);
 
     void update(float deltaTime);
     void fixedUpdate(float fixedDelta);
@@ -23,9 +25,13 @@ public:
     void createNewWorld(const GameEvent::NewWorldButtonClicked& event);
     void openMainMenu(const GameEvent::MainMenuButtonClicked& event);
 
+    void destroyBlock();
+
 private:
+    Game& gameInstance_;
     bool drawHitBoxes_;
     bool noclip_;
+    float breakTimer_;
 };
 
 #endif //TERRARIA_CLONE_GAMELOGIC_H
