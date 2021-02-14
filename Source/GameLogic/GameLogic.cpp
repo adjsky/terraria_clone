@@ -61,15 +61,15 @@ void GameLogic::update(float deltaTime) {
             window->setView(camera);
             sf::Vector2f globalCoords{ window->mapPixelToCoords(sf::Mouse::getPosition(*window)) };
             sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
-            if (math::distanceBetween(mapGlobalCoordsToGame(gameSession->getPlayer().getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
-                canPlaceBlock(gameSession->getPlayer(), pos, gameSession->getWorld()))
+            if (math::distanceBetween(mapGlobalCoordsToGame(player.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
+                canPlaceBlock(player, pos, gameSession->getWorld()))
             {
-                const Inventory::Cell& cell { gameSession->getPlayer().getHotBar().getCell(gameSession->getPlayer().getHotBarIndex(), 0) };
+                const Inventory::Cell& cell { player.getHotBar().getCell(player.getHotBarIndex(), 0) };
                 if (cell.itemType == ItemTypes::BLOCK && cell.amount != 0) {
                     bool placed{ gameSession->getWorld().placeBlock(pos.x, pos.y,
                                                                     static_cast<BlockType>(cell.id)) };
                     if (placed) {
-                        gameSession->getPlayer().getHotBar().removeItem(gameSession->getPlayer().getHotBarIndex(), 0, 1);
+                        player.getHotBar().removeItem(player.getHotBarIndex(), 0, 1);
                         gui->updateHotBar(gameSession->getPlayer());
                     }
                 }
@@ -191,7 +191,7 @@ void GameLogic::fixedUpdate(float fixedDelta) {
 }
 
 void GameLogic::hotBarCellPress(const GameEvent::HotBarCellPressed& event) {
-    GameSession* gameSession{ gameInstance_.getGameSession() };
+    auto* gameSession{ gameInstance_.getGameSession() };
     auto* gui{ Engine::getInterface() };
     if ( gui->inventoryIsOpen()) {
         Inventory::Cell cell{gameSession->getPlayer().getHotBar().getCell(event.x, 0) };
@@ -220,12 +220,13 @@ void GameLogic::hotBarCellPress(const GameEvent::HotBarCellPressed& event) {
 }
 
 void GameLogic::inventoryCellPress(const GameEvent::InventoryCellPressed& event) {
-    GameSession* gameSession{ gameInstance_.getGameSession() };
+    auto* gameSession{ gameInstance_.getGameSession() };
+    auto& player{ gameSession->getPlayer() };
     auto* gui{ Engine::getInterface() };
     if (gui->inventoryIsOpen()) {
         Inventory::Cell cell{gameSession->getPlayer().getBackpack().getCell(event.x, event.y) };
         if (gameSession->getPlayer().hasAttachedItem) {
-            bool swapped{gameSession->getPlayer().getBackpack().setItem(gameSession->getPlayer().attachedItem, event.x, event.y) };
+            bool swapped{ player.getBackpack().setItem(gameSession->getPlayer().attachedItem, event.x, event.y) };
             if (swapped) {
                 gameSession->getPlayer().attachedItem = cell;
                 gui->updateAttachedItem(gameSession->getPlayer(), true);
@@ -283,23 +284,23 @@ void GameLogic::destroyBlock() {
     auto* gameSession{ gameInstance_.getGameSession() };
     auto* window{ Engine::getWindow() };
     auto& camera{ gameInstance_.getCamera() };
-    auto& player{ gameInstance_.getGameSession()->getPlayer() };
+    auto& player{ gameSession->getPlayer() };
     auto* gui{ Engine::getInterface() };
     window->setView(camera);
     sf::Vector2f globalCoords{ window->mapPixelToCoords(sf::Mouse::getPosition(*window)) };
     sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
-    if (math::distanceBetween(mapGlobalCoordsToGame(gameSession->getPlayer().getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
+    if (math::distanceBetween(mapGlobalCoordsToGame(player.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
         const Block* block { gameSession->getWorld().destroyBlock(pos.x, pos.y) };
         if (block) {
             Inventory::Cell cell{};
             cell.id = static_cast<int>(block->id);
             cell.itemType = ItemTypes::BLOCK;
             cell.amount = 1;
-            if (gameSession->getPlayer().getHotBar().addItem(cell)) {
+            if (player.getHotBar().addItem(cell)) {
                 gui->updateHotBar(gameSession->getPlayer());
             }
             else {
-                gameSession->getPlayer().getBackpack().addItem(cell);
+                player.getBackpack().addItem(cell);
                 gui->updateInventory(gameSession->getPlayer());
             }
         }
