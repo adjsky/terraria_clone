@@ -62,7 +62,7 @@ void GameLogic::update(float deltaTime) {
             sf::Vector2f globalCoords{ window->mapPixelToCoords(sf::Mouse::getPosition(*window)) };
             sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
             if (math::distanceBetween(mapGlobalCoordsToGame(player.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
-                canPlaceBlock(player, pos, gameSession->getWorld()))
+                Physics::canPlaceBlock(player, pos, gameSession->getWorld()))
             {
                 const Inventory::Cell& cell { player.getHotBar().getCell(player.getHotBarIndex(), 0) };
                 if (cell.itemType == ItemTypes::BLOCK && cell.amount != 0) {
