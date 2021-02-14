@@ -10,12 +10,12 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <TGUI/Font.hpp>
 
-#include "../../World/Block/Block.h"
+#include "../../Entities/Items/ItemTypes.h"
 
 class ResourceManager {
 public:
     enum Textures {
-        BLOCKS,
+        ITEMS,
         PLAYER,
         HOTBAR,
         HEALTH,
@@ -37,6 +37,7 @@ public:
     ResourceManager();
 
     const sf::Texture& getTexture(Textures texture);
+    sf::IntRect getTextureRect(ItemTypes type, int id);
     const tgui::Font& getFont(Fonts font);
 
     // can't initialize tgui fonts before Interface class is constructed so i need to call it manually after creating this class
@@ -44,6 +45,7 @@ public:
 
 private:
     std::array<std::unique_ptr<sf::Texture>, TEXTURES_COUNT> textures_;
+    std::array<std::vector<sf::IntRect>, static_cast<std::size_t>(ItemTypes::TYPES_COUNT)> textureRects_;
     std::array<std::unique_ptr<tgui::Font>, FONTS_COUNT> fonts_;
 };
 

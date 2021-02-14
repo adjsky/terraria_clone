@@ -60,13 +60,13 @@ const Block* World::destroyBlock(int x, int y) {
     return nullptr;
 }
 
-bool World::placeBlock(int x, int y, BlockType::Type type) {
+bool World::placeBlock(int x, int y, BlockType id) {
     Block* block = getBlock(x, y);
     if (block) {
         if (!block->visible) {
             block->visible = true;
-            block->type = type;
-            block->sprite.setTextureRect(Engine::getDatabaseManager()->getDatabase<BlockDatabase>()->getData(block->type).textureRect);
+            block->id = id;
+            block->sprite.setTextureRect(Engine::getResourceManager()->getTextureRect(ItemTypes::BLOCK, static_cast<int>(block->id)));
             return true;
         }
     }

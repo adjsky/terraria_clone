@@ -6,19 +6,19 @@
 #define TERRARIA_CLONE_DATABASEMANAGER_H
 
 #include "Databases/BlockDatabase.h"
+#include "Databases/SwordDatabase.h"
 
 class DatabaseManager {
 public:
     DatabaseManager();
 
-    template<class T>
-    T* getDatabase();
+    BlockDatabase* getBlockDatabase();
+    SwordDatabase* getSwordDatabase();
 
 private:
     std::unique_ptr<BlockDatabase> blockDatabase_;
+    std::unique_ptr<SwordDatabase> swordDatabase_;
 };
-
-#include "DatabaseManager.inl"
 
 
 #endif //TERRARIA_CLONE_DATABASEMANAGER_H

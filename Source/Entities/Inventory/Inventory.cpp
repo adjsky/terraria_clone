@@ -47,7 +47,7 @@ bool Inventory::addItem(const Cell& cell) {
             }
         }
     }
-    if (lastEmptyCell == size_ && cells_[lastEmptyCell.y][lastEmptyCell.x].id != BlockType::AIR) return false;
+    if (lastEmptyCell == size_ && cells_[lastEmptyCell.y][lastEmptyCell.x].id != static_cast<int>(BlockType::AIR)) return false;
     cells_[lastEmptyCell.y][lastEmptyCell.x].amount = cell.amount;
     cells_[lastEmptyCell.y][lastEmptyCell.x].id = cell.id;
     cells_[lastEmptyCell.y][lastEmptyCell.x].itemType = cell.itemType;
@@ -74,12 +74,12 @@ void Inventory::removeItem(int x, int y, int amount) {
         cells_[y][x].amount -= amount;
         if (cells_[y][x].amount <= 0) {
             cells_[y][x].amount = 0;
-            cells_[y][x].id = BlockType::AIR;
+            cells_[y][x].id = static_cast<int>(BlockType::AIR);
         }
     }
     else {
         cells_[y][x].amount = 0;
-        cells_[y][x].id = BlockType::AIR;
+        cells_[y][x].id = static_cast<int>(BlockType::AIR);
     }
 }
 

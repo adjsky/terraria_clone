@@ -14,7 +14,7 @@
 #include "Chunk/Chunk.h"
 #include "../Util/utility.h"
 #include "../Util/FastNoiseLite.h"
-#include "../Entities/Items/Databases/BlockDatabase.h"
+#include "../Entities/Items/ItemTypes.h"
 
 class World {
 public:
@@ -23,7 +23,7 @@ public:
     void updateSprites();
     void draw(sf::RenderWindow& window);
     const Block* destroyBlock(int x, int y);
-    bool placeBlock(int x, int y, BlockType::Type type);
+    bool placeBlock(int x, int y, BlockType id);
     Block* getBlock(int x, int y);
     const Block* getBlock(int x, int y) const;
 

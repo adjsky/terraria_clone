@@ -8,18 +8,18 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <boost/serialization/serialization.hpp>
 
-#include "BlockTypes.h"
+#include "../ItemTypes.h"
 
 struct Block {
     sf::Sprite sprite;
-    BlockType::Type type;
+    BlockType id;
     bool visible;
 
     // serialization
     friend boost::serialization::access;
     template<class Archive>
     inline void serialize(Archive & ar, const unsigned int version) {
-        ar & type;
+        ar & id;
         ar & visible;
     }
 };

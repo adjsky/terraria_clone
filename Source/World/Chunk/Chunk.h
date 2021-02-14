@@ -12,7 +12,7 @@
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 
-#include "../Block/Block.h"
+#include "../../Entities/Items/Block/Block.h"
 #include "../../Util/constants.h"
 #include "../../Util/FastNoiseLite.h"
 

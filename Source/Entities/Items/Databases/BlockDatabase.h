@@ -9,18 +9,17 @@
 #include <memory>
 #include <SFML/Graphics/Rect.hpp>
 
-#include "../../../World/Block/BlockTypes.h"
+#include "../ItemTypes.h"
 
 struct BlockData {
-    sf::IntRect textureRect;
 };
 
 class BlockDatabase {
 public:
     BlockDatabase();
-    const BlockData& getData(BlockType::Type type);
+    const BlockData* getData(BlockType type);
 private:
-    std::array<std::unique_ptr<BlockData>, BlockType::TYPE_COUNT> blocksData_;
+    std::array<std::unique_ptr<BlockData>, static_cast<std::size_t>(BlockType::TYPES_COUNT)> blocksData_;
 };
 
 

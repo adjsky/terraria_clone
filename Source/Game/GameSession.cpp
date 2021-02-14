@@ -42,11 +42,17 @@ void GameSession::updatePlayer() {
 
     player_.setAnimation(standAnimation);
 
-    Interface& gui{ Engine::getGameInstance()->getInterface() };
-    gui.updateHealth(player_);
-    gui.updateHotBar(player_);
-    gui.updateInventory(player_);
-    gui.highlightHotBarCell(player_);
+    Interface* gui{ Engine::getInterface() };
+    gui->updateHealth(player_);
+    gui->updateHotBar(player_);
+    gui->updateInventory(player_);
+    gui->highlightHotBarCell(player_);
+
+    Inventory::Cell cell{};
+    cell.itemType = ItemTypes::SWORD;
+    cell.id = static_cast<int>(SwordType::IRON);
+    cell.amount = 1;
+    player_.getHotBar().addItem(cell);
 }
 
 void GameSession::setWorld(World& world) {

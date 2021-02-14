@@ -10,8 +10,7 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include "../../World/Block/BlockTypes.h"
-#include "ItemTypes.h"
+#include "../Items/ItemTypes.h"
 
 class Inventory {
 public:
@@ -26,6 +25,7 @@ public:
         inline void serialize(Archive & ar, const unsigned int version) {
             ar & amount;
             ar & id;
+            ar & itemType;
         }
     };
 public:
