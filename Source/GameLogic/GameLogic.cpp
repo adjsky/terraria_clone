@@ -119,12 +119,10 @@ void GameLogic::fixedUpdate(float fixedDelta) {
         if (inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED ||
             inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED)
         {
-            bool moved = false;
             if (player.isOnGround && !noclip_) {
                 player.verticalSpeed = -GAME_SPEED * 2.5f;
                 player.isOnGround = false;
                 player.setAnimation(player.getAnimation(Player::JUMP));
-                moved = true;
             }
         }
         if (inputHandler->getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||

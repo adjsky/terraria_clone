@@ -2,9 +2,6 @@
 // Created by adjsky on 1/12/21.
 //
 
-#include <iostream>
-#include <functional>
-
 #include "Inventory.h"
 
 Inventory::Inventory() :

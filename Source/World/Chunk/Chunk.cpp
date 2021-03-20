@@ -52,7 +52,6 @@ void Chunk::updateSprites() {
 
 void Chunk::generate(FastNoiseLite& noise) {
     auto* resourceManager{ Engine::getResourceManager() };
-    auto* blockDatabase{ Engine::getDatabaseManager()->getBlockDatabase() };
     for (int x = 0; x < CHUNK_WIDTH; x++) {
         float noiseValue = noise.GetNoise((float)(x+startingPosition_), 0.0f);
         int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 20);

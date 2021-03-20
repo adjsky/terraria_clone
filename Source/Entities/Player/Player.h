@@ -66,7 +66,7 @@ public:
         ar & health_;
         ar & hotBarIndex_;
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER();
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 public:
     bool isOnGround;
     float verticalSpeed;
