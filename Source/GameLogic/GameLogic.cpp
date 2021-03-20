@@ -114,7 +114,7 @@ void GameLogic::fixedUpdate(float fixedDelta) {
             }
         }
 
-        bool moved;
+        bool moved{ false };
 
         if (inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED ||
             inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED)
