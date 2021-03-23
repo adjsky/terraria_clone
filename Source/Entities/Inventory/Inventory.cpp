@@ -29,7 +29,7 @@ Inventory::Cell& Inventory::getCell(int x, int y) {
 }
 
 bool Inventory::addItem(const Cell& cell) {
-    sf::Vector2i lastEmptyCell = size_;
+    sf::Vector2i lastEmptyCell{ size_ };
     for (int y = 0; y < size_.y; y++) {
         for (int x = 0; x < size_.x; x++) {
             if (cells_[y][x].amount == 0) {

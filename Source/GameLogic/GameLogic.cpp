@@ -64,7 +64,7 @@ void GameLogic::update(float deltaTime) {
             if (math::distanceBetween(mapGlobalCoordsToGame(player.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
                 Physics::canPlaceBlock(player, pos, gameSession->getWorld()))
             {
-                const Inventory::Cell& cell { player.getHotBar().getCell(player.getHotBarIndex(), 0) };
+                const Inventory::Cell& cell{ player.getHotBar().getCell(player.getHotBarIndex(), 0) };
                 if (cell.itemType == ItemTypes::BLOCK && cell.amount != 0) {
                     bool placed{ gameSession->getWorld().placeBlock(pos.x, pos.y,
                                                                     static_cast<BlockType>(cell.id)) };

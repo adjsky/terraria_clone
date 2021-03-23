@@ -35,7 +35,7 @@ void AnimatedSprite::update(float delta) {
 }
 
 void AnimatedSprite::changeDirection(AnimatedSprite::MoveDirections direction) {
-    float scaleX = getScale().x;
+    float scaleX{ getScale().x };
     if (direction == MoveDirections::LEFT) {
         if (scaleX > 0) {
             scale(-1, 1);
@@ -49,8 +49,8 @@ void AnimatedSprite::changeDirection(AnimatedSprite::MoveDirections direction) {
 }
 
 sf::FloatRect AnimatedSprite::getLocalBounds() const {
-    auto width = static_cast<float>(std::abs(animation_->getFrame().width));
-    auto height = static_cast<float>(std::abs(animation_->getFrame().height));
+    auto width{ static_cast<float>(std::abs(animation_->getFrame().width)) };
+    auto height{ static_cast<float>(std::abs(animation_->getFrame().height)) };
 
     return sf::FloatRect{ 0.0f, 0.0f, width, height };
 }
@@ -60,7 +60,7 @@ sf::FloatRect AnimatedSprite::getGlobalBounds() const {
 }
 
 void AnimatedSprite::updatePositions() {
-    sf::FloatRect bounds = getLocalBounds();
+    sf::FloatRect bounds{ getLocalBounds() };
 
     vertices_[0].position = sf::Vector2f{ 0.0f, 0.0f };
     vertices_[1].position = sf::Vector2f{ 0.0f, bounds.height };
@@ -69,10 +69,10 @@ void AnimatedSprite::updatePositions() {
 }
 
 void AnimatedSprite::updateTextureCoords() {
-    auto left   = static_cast<float>(animation_->getFrame().left);
-    float right  = left + animation_->getFrame().width;
-    auto top    = static_cast<float>(animation_->getFrame().top);
-    float bottom = top + animation_->getFrame().height;
+    auto left{ static_cast<float>(animation_->getFrame().left) };
+    float right{ left + animation_->getFrame().width };
+    auto top{ static_cast<float>(animation_->getFrame().top) };
+    float bottom{ top + animation_->getFrame().height };
 
     vertices_[0].texCoords = sf::Vector2f{ left, top };
     vertices_[1].texCoords = sf::Vector2f{ left, bottom };

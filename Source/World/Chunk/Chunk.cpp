@@ -53,8 +53,8 @@ void Chunk::updateSprites() {
 void Chunk::generate(FastNoiseLite& noise) {
     auto* resourceManager{ Engine::getResourceManager() };
     for (int x = 0; x < CHUNK_WIDTH; x++) {
-        float noiseValue = noise.GetNoise((float)(x+startingPosition_), 0.0f);
-        int blockHeight = WORLD_HEIGHT_GENERATION + (int)(noiseValue * 20);
+        float noiseValue{ noise.GetNoise((float)(x+startingPosition_), 0.0f) };
+        int blockHeight{ WORLD_HEIGHT_GENERATION + static_cast<int>((noiseValue * 20)) };
         for (int y = 0; y < CHUNK_HEIGHT; y++) {
             blocks_[y][x] = std::make_unique<Block>();
             blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::ITEMS));
@@ -84,8 +84,8 @@ void Chunk::setPosition(int x) {
 }
 
 void Chunk::draw(sf::RenderWindow& window) const {
-    const sf::View& view = window.getView();
-    sf::FloatRect viewBox { view.getCenter() - view.getSize() / 2.0f, view.getSize() };
+    const sf::View& view{ window.getView() };
+    sf::FloatRect viewBox{ view.getCenter() - view.getSize() / 2.0f, view.getSize() };
     for (const auto& arr : blocks_) {
         for (const auto& block : arr) {
             if (block->visible) {
