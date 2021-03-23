@@ -266,15 +266,17 @@ void Interface::constructMainMenu() {
     playButton->setOrigin(0.5f, 0.5f);
     playButton->onClick([this](){
         bool hasSavedGame{ GameSerialization::isGameSaved() };
-        if (hasSavedGame) {
-            tgui::Group::Ptr mainMenu{ gui_.get<tgui::Group>("mainMenu") };
-            tgui::Group::Ptr playMenu{ gui_.get<tgui::Group>("playMenu") };
-            mainMenu->setVisible(false);
-            playMenu->setVisible(true);
-        }
-        else {
+        tgui::Group::Ptr mainMenu{ gui_.get<tgui::Group>("mainMenu") };
+        tgui::Group::Ptr playMenu{ gui_.get<tgui::Group>("playMenu") };
+        if (!hasSavedGame) {
+            showGameInterface(true);
             Engine::getEventSystem()->trigger<GameEvent::NewWorldButtonClicked>();
         }
+        else {
+            playMenu->setVisible(true);
+        }
+        mainMenu->setVisible(false);
+
     });
     mainMenu->add(playButton, "playButton");
 
