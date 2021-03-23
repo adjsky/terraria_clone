@@ -23,7 +23,7 @@ void GameSession::updatePlayer() {
     player_.setTimeStep(0.2f);
     player_.constructHitBox();
 
-    Animation &moveAnimation = player_.getAnimation(Player::MOVE);
+    Animation& moveAnimation = player_.getAnimation(Player::MOVE);
     moveAnimation.setSpriteSheet(Engine::getResourceManager()->getTexture(ResourceManager::PLAYER));
     moveAnimation.addFrame(sf::IntRect{ 65, 0, PLAYER_WIDTH, PLAYER_HEIGHT });
 
