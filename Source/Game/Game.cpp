@@ -7,12 +7,12 @@
 #include "../Util/Serialization/GameSerialization.h"
 
 Game::Game() :
-    fixedDelta_{1 / 60.0f},
-    currentGameSession_{nullptr},
-    gameLogic_{*this},
-    camera_{sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)},
-    drawHitBoxes_{false},
-    paused_{false}
+    fixedDelta_{ 1 / 60.0f },
+    currentGameSession_{ nullptr },
+    gameLogic_{ *this },
+    camera_{ sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
+    drawHitBoxes_{ false },
+    paused_{ false }
 {
 //    gui_.consoleEntered.connect([this](const std::string& data){
 //        consoleHandler_.process(data);
@@ -22,13 +22,13 @@ Game::Game() :
 void Game::start()
 {
     sf::Clock timer;
-    float accumulator{0.0f};
+    float accumulator{ 0.0f };
 
     while (Engine::getWindow()->isOpen()) {
         handleEvents();
 
-        float frameTime{timer.restart().asSeconds()};
-        if (currentGameSession_) gameLogic_.update(frameTime);
+        float frameTime{ timer.restart().asSeconds() };
+        if (currentGameSession_) { gameLogic_.update(frameTime); }
         accumulator += frameTime;
         while (accumulator >= fixedDelta_) {
             if (currentGameSession_) {
@@ -54,8 +54,9 @@ void Game::handleEvents()
 
 void Game::close()
 {
-    if (currentGameSession_)
+    if (currentGameSession_) {
         GameSerialization::saveGame(*currentGameSession_);
+    }
     Engine::getWindow()->close();
 }
 
@@ -99,7 +100,7 @@ bool Game::isPaused() const
 
 void Game::render()
 {
-    auto* window{Engine::getWindow()};
+    auto* window{ Engine::getWindow() };
     window->clear(sf::Color::White);
 
     if (currentGameSession_) {

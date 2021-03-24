@@ -39,9 +39,9 @@ void World::updateSprites()
 
 void World::draw(sf::RenderWindow& window)
 {
-    const sf::View& view{window.getView()};
-    float viewStart{(view.getCenter().x - view.getSize().x / 2.0f) / BLOCK_SIZE};
-    float viewEnd{(view.getCenter().x + view.getSize().x / 2.0f) / BLOCK_SIZE};
+    const sf::View& view{ window.getView() };
+    float viewStart{ (view.getCenter().x - view.getSize().x / 2.0f) / BLOCK_SIZE };
+    float viewEnd{ (view.getCenter().x + view.getSize().x / 2.0f) / BLOCK_SIZE };
     //std::cout << viewStart << ' ' << viewEnd << '\n';
     for (const auto& pair : chunks_) {
         if ((pair.first <= viewEnd && pair.first >= viewStart) ||
@@ -53,7 +53,7 @@ void World::draw(sf::RenderWindow& window)
 
 const Block* World::destroyBlock(int x, int y)
 {
-    Block* block{getBlock(x, y)};
+    Block* block{ getBlock(x, y) };
     if (block) {
         if (block->visible) {
             block->visible = false;
@@ -65,7 +65,7 @@ const Block* World::destroyBlock(int x, int y)
 
 bool World::placeBlock(int x, int y, BlockType id)
 {
-    Block* block{getBlock(x, y)};
+    Block* block{ getBlock(x, y) };
     if (block) {
         if (!block->visible) {
             block->visible = true;
@@ -85,10 +85,10 @@ Block* World::getBlock(int x, int y)
 const Block* World::getBlock(int x, int y) const
 {
     if (x >= 0 && y >= 0 && y < CHUNK_HEIGHT) {
-        int chunkPosition{x / CHUNK_WIDTH};
-        int blockPositionInChunkX{x % CHUNK_WIDTH};
-        int blockPositionInChunkY{y % CHUNK_HEIGHT};
-        auto chunk{chunks_.find(chunkPosition * CHUNK_WIDTH)};
+        int chunkPosition{ x / CHUNK_WIDTH };
+        int blockPositionInChunkX{ x % CHUNK_WIDTH };
+        int blockPositionInChunkY{ y % CHUNK_HEIGHT };
+        auto chunk{ chunks_.find(chunkPosition * CHUNK_WIDTH) };
         if (chunk != chunks_.end()) {
             return chunks_.at(chunkPosition * CHUNK_WIDTH).getBlock(blockPositionInChunkX, blockPositionInChunkY);
         }

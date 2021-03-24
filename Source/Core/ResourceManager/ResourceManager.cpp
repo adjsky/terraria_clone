@@ -42,8 +42,8 @@ ResourceManager::ResourceManager() :
     }
 
     // fill block rects
-    std::size_t iBlock{static_cast<std::size_t>(ItemTypes::BLOCK)};
-    std::size_t nBlockTypes{static_cast<std::size_t>(BlockType::TYPES_COUNT)};
+    std::size_t iBlock{ static_cast<std::size_t>(ItemTypes::BLOCK) };
+    std::size_t nBlockTypes{ static_cast<std::size_t>(BlockType::TYPES_COUNT) };
     textureRects_[iBlock].resize(nBlockTypes);
     for (std::size_t i = 0; i < nBlockTypes; i++) {
         textureRects_[iBlock][i].width = 64;
@@ -51,8 +51,8 @@ ResourceManager::ResourceManager() :
         textureRects_[iBlock][i].left = (64 + 1) * i;
     }
 
-    std::size_t iSword{static_cast<std::size_t>(ItemTypes::SWORD)};
-    std::size_t nSwordTypes{static_cast<std::size_t>(SwordType::TYPES_COUNT)};
+    std::size_t iSword{ static_cast<std::size_t>(ItemTypes::SWORD) };
+    std::size_t nSwordTypes{ static_cast<std::size_t>(SwordType::TYPES_COUNT) };
     textureRects_[iSword].resize(nSwordTypes);
     for (std::size_t i = 0; i < nSwordTypes; i++) {
         textureRects_[iSword][i].top = 65;

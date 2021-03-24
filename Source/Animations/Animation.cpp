@@ -5,7 +5,7 @@
 #include "Animation.h"
 
 Animation::Animation() :
-    spriteSheet_{nullptr},
+    spriteSheet_{ nullptr },
     textureRectangles_{},
     currentFrame_{}
 {
@@ -13,7 +13,7 @@ Animation::Animation() :
 }
 
 Animation::Animation(const sf::Texture& texture) :
-    spriteSheet_{&texture},
+    spriteSheet_{ &texture },
     textureRectangles_{},
     currentFrame_{}
 {

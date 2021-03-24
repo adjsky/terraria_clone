@@ -9,13 +9,13 @@
 namespace math
 {
 Ray::Ray(const sf::Vector2f& from, const sf::Vector2f& direction) :
-    from_{from},
-    direction_{direction}
+    from_{ from },
+    direction_{ direction }
 {
     if (getVectorLength(direction_) != 1) {
         direction_ = normalize(direction_);
     }
-    to_ = sf::Vector2f{direction_.x + from_.x, direction_.y + from.y};
+    to_ = sf::Vector2f{ direction_.x + from_.x, direction_.y + from.y };
 }
 
 float Ray::getLength()

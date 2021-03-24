@@ -9,7 +9,7 @@
 
 sf::Vector2i mapGlobalCoordsToGame(float x, float y)
 {
-    sf::Vector2i gameCoords{static_cast<int>(std::floor(x / BLOCK_SIZE)), -1 * static_cast<int>(std::floor(y / BLOCK_SIZE))};
+    sf::Vector2i gameCoords{ static_cast<int>(std::floor(x / BLOCK_SIZE)), -1 * static_cast<int>(std::floor(y / BLOCK_SIZE)) };
     return gameCoords;
 }
 

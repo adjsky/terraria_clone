@@ -13,16 +13,16 @@ void GameSerialization::saveGame(const GameSession& gameSession)
     SerializedData serializedData;
     serializedData.player = gameSession.getPlayer();
     serializedData.world = gameSession.getWorld();
-    std::ofstream ofstr{"Game.data"};
-    boost::archive::text_oarchive oa{ofstr};
+    std::ofstream ofstr{ "Game.data" };
+    boost::archive::text_oarchive oa{ ofstr };
     oa << serializedData;
 }
 
 GameSerialization::SerializedData GameSerialization::getGameData()
 {
     SerializedData data;
-    std::ifstream ifstr{"Game.data"};
-    boost::archive::text_iarchive ia{ifstr};
+    std::ifstream ifstr{ "Game.data" };
+    boost::archive::text_iarchive ia{ ifstr };
     ia >> data;
     data.world.updateSprites();
     return data;
@@ -30,6 +30,6 @@ GameSerialization::SerializedData GameSerialization::getGameData()
 
 bool GameSerialization::isGameSaved()
 {
-    std::ifstream ifstream{"Game.data"};
+    std::ifstream ifstream{ "Game.data" };
     return ifstream.is_open();
 }

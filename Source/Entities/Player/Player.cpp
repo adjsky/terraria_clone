@@ -10,14 +10,14 @@ Player::Player() :
     isOnGround{},
     verticalSpeed{},
     horizontalSpeed{},
-    hasAttachedItem{false},
+    hasAttachedItem{ false },
     attachedItem{},
     hitBox_{},
     animations_{},
-    hotBar_{sf::Vector2i{PLAYER_HOTBAR_SIZE, 1}},
-    backpack_{sf::Vector2i{PLAYER_BACKPACK_SIZE.x, PLAYER_BACKPACK_SIZE.y}},
-    hotBarIndex_{0},
-    health_{100}
+    hotBar_{ sf::Vector2i{ PLAYER_HOTBAR_SIZE, 1 }},
+    backpack_{ sf::Vector2i{ PLAYER_BACKPACK_SIZE.x, PLAYER_BACKPACK_SIZE.y }},
+    hotBarIndex_{ 0 },
+    health_{ 100 }
 {
 }
 
@@ -125,7 +125,7 @@ float Player::getDistanceToGround(const World& world) const
     int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
     sf::Vector2i playerCoords = mapGlobalCoordsToGame(getPosition().x, hitbox.top + hitbox.height);
     for (int x = startX; x < endX + 1; x++) {
-        const Block* block{nullptr};
+        const Block* block{ nullptr };
         for (int y = 0; y < playerCoords.y; y++) {
             block = world.getBlock(x, playerCoords.y - y);
             if (block) {

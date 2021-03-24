@@ -31,7 +31,7 @@ constexpr int PLAYER_WIDTH = 45;
 
 constexpr int PLAYER_HEIGHT = 90;
 
-const sf::Vector2i PLAYER_BACKPACK_SIZE{9, 10};
+const sf::Vector2i PLAYER_BACKPACK_SIZE{ 9, 10 };
 
 constexpr int PLAYER_HOTBAR_SIZE = 10;
 

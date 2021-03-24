@@ -45,8 +45,8 @@ public:
     inline void save(Archive& ar, const unsigned int version) const
     {
         // can't get rid of a bug of saving and loading a local vector so i have to use floats instead
-        float x{getPosition().x};
-        float y{getPosition().y};
+        float x{ getPosition().x };
+        float y{ getPosition().y };
         ar & x;
         ar & y;
         ar & isOnGround;

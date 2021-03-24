@@ -24,7 +24,7 @@ inline T distanceBetween(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 
 inline sf::Vector2f normalize(sf::Vector2f vector)
 {
-    float length{getVectorLength(vector)};
+    float length{ getVectorLength(vector) };
     vector.x /= length;
     vector.y /= length;
     return vector;

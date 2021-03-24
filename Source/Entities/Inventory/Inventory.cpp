@@ -11,7 +11,7 @@ Inventory::Inventory() :
 }
 
 Inventory::Inventory(const sf::Vector2i& size) :
-    size_{size},
+    size_{ size },
     cells_{}
 {
     cells_.resize(size.y);
@@ -32,7 +32,7 @@ Inventory::Cell& Inventory::getCell(int x, int y)
 
 bool Inventory::addItem(const Cell& cell)
 {
-    sf::Vector2i lastEmptyCell{size_};
+    sf::Vector2i lastEmptyCell{ size_ };
     for (int y = 0; y < size_.y; y++) {
         for (int x = 0; x < size_.x; x++) {
             if (cells_[y][x].amount == 0) {
@@ -47,7 +47,7 @@ bool Inventory::addItem(const Cell& cell)
             }
         }
     }
-    if (lastEmptyCell == size_ && cells_[lastEmptyCell.y][lastEmptyCell.x].id != static_cast<int>(BlockType::AIR)) return false;
+    if (lastEmptyCell == size_ && cells_[lastEmptyCell.y][lastEmptyCell.x].id != static_cast<int>(BlockType::AIR)) { return false; }
     cells_[lastEmptyCell.y][lastEmptyCell.x].amount = cell.amount;
     cells_[lastEmptyCell.y][lastEmptyCell.x].id = cell.id;
     cells_[lastEmptyCell.y][lastEmptyCell.x].itemType = cell.itemType;
@@ -60,7 +60,7 @@ bool Inventory::setItem(const Inventory::Cell& cell, int x, int y)
         cells_[y][x].amount += cell.amount;
     }
     else {
-        bool swapped{false};
+        bool swapped{ false };
         if (cells_[y][x].amount > 0) {
             swapped = true;
         }
