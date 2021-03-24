@@ -6,16 +6,16 @@
 
 Animation::Animation() :
     spriteSheet_{ nullptr },
-    textureRectangles_{},
-    currentFrame_{}
+    textureRectangles_{ },
+    currentFrame_{ }
 {
 
 }
 
 Animation::Animation(const sf::Texture& texture) :
     spriteSheet_{ &texture },
-    textureRectangles_{},
-    currentFrame_{}
+    textureRectangles_{ },
+    currentFrame_{ }
 {
 
 }

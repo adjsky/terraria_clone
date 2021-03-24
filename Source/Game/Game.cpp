@@ -42,7 +42,7 @@ void Game::start()
 
 void Game::handleEvents()
 {
-    sf::Event e{};
+    sf::Event e{ };
     while (Engine::getWindow()->pollEvent(e)) {
         if (e.type == sf::Event::Closed) {
             close();

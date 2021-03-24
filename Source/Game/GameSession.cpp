@@ -6,8 +6,8 @@
 #include "../Core/Engine.h"
 
 GameSession::GameSession() :
-    player_{},
-    world_{}
+    player_{ },
+    world_{ }
 {
     updatePlayer();
 }
@@ -44,7 +44,7 @@ void GameSession::updatePlayer()
 
     player_.setAnimation(standAnimation);
 
-    Inventory::Cell cell{};
+    Inventory::Cell cell{ };
     cell.itemType = ItemTypes::SWORD;
     cell.id = static_cast<int>(SwordType::IRON);
     cell.amount = 1;

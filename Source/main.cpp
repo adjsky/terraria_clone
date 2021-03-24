@@ -4,7 +4,7 @@
 int main()
 {
     Engine::init();
-    Game game{};
+    Game game{ };
     game.start();
     return 0;
 }

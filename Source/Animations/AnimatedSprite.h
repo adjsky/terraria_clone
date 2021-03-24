@@ -9,7 +9,7 @@
 
 #include "Animation.h"
 
-class AnimatedSprite: public sf::Drawable, public sf::Transformable
+class AnimatedSprite : public sf::Drawable, public sf::Transformable
 {
 public:
     explicit AnimatedSprite(float timeStep = 0);

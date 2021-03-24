@@ -5,7 +5,7 @@
 #include "SwordDatabase.h"
 
 SwordDatabase::SwordDatabase()
-    : swordsData_{}
+    : swordsData_{ }
 {
     std::generate(swordsData_.begin(), swordsData_.end(), []()
     { return std::make_unique<SwordData>(); });

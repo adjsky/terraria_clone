@@ -160,7 +160,7 @@ void Interface::updateHotBar(const Player& player)
             picture->setOrigin(0.5f, 0.5f);
             picture->setPosition({ "parent.parent.hotBar.cells.cell" + std::to_string(x) + ".position + parent.parent.hotBar.cells.cell"
                                        + std::to_string(x) + ".size / 2" });
-            std::stringstream sizeString{};
+            std::stringstream sizeString{ };
             sizeString << "parent.parent.hotBar.cells.cell" + std::to_string(x) + ".size";
             if (cell.itemType == ItemTypes::BLOCK) {
                 sizeString << "* 0.5";
@@ -200,7 +200,7 @@ void Interface::updateInventory(const Player& player)
         for (int y = 0; y < playerBackpack.getSize().y; y++) {
             const auto& cell{ playerBackpack.getCell(x, y) };
             if (cell.amount) {
-                std::stringstream cellName{};
+                std::stringstream cellName{ };
                 tgui::Picture::Ptr picture{ tgui::Picture::create() };
                 sf::IntRect blockRect{ resourceManager->getTextureRect(cell.itemType, cell.id) };
                 tgui::Texture texture{ resourceManager->getTexture(ResourceManager::ITEMS),
@@ -212,7 +212,7 @@ void Interface::updateInventory(const Player& player)
                                            + ".position + parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y)
                                            + ".size / 2" });
 
-                std::stringstream sizeString{};
+                std::stringstream sizeString{ };
                 sizeString << "parent.parent.inventory.cells.cell" + std::to_string(x) + std::to_string(y) + ".size";
                 if (cell.itemType == ItemTypes::BLOCK) {
                     sizeString << "* 0.5";

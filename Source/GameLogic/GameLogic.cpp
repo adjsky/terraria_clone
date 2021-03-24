@@ -13,7 +13,7 @@ GameLogic::GameLogic(Game& gameInstance) :
     gameInstance_{ gameInstance },
     drawHitBoxes_{ false },
     noclip_{ false },
-    breakTimer_{}
+    breakTimer_{ }
 {
     Engine::getEventSystem()->sink<GameEvent::HotBarCellPressed>().connect<&GameLogic::hotBarCellPress>(this);
     Engine::getEventSystem()->sink<GameEvent::InventoryCellPressed>().connect<&GameLogic::inventoryCellPress>(this);
@@ -294,7 +294,7 @@ void GameLogic::destroyBlock()
     if (math::distanceBetween(mapGlobalCoordsToGame(player.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
         const Block* block{ gameSession->getWorld().destroyBlock(pos.x, pos.y) };
         if (block) {
-            Inventory::Cell cell{};
+            Inventory::Cell cell{ };
             cell.id = static_cast<int>(block->id);
             cell.itemType = ItemTypes::BLOCK;
             cell.amount = 1;

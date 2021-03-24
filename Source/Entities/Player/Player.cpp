@@ -6,14 +6,14 @@
 #include "../../Util/Serialization/GameSerialization.h"
 
 Player::Player() :
-    AnimatedSprite{},
-    isOnGround{},
-    verticalSpeed{},
-    horizontalSpeed{},
+    AnimatedSprite{ },
+    isOnGround{ },
+    verticalSpeed{ },
+    horizontalSpeed{ },
     hasAttachedItem{ false },
-    attachedItem{},
-    hitBox_{},
-    animations_{},
+    attachedItem{ },
+    hitBox_{ },
+    animations_{ },
     hotBar_{ sf::Vector2i{ PLAYER_HOTBAR_SIZE, 1 }},
     backpack_{ sf::Vector2i{ PLAYER_BACKPACK_SIZE.x, PLAYER_BACKPACK_SIZE.y }},
     hotBarIndex_{ 0 },

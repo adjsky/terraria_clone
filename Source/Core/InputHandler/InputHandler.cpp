@@ -6,8 +6,8 @@
 
 
 InputHandler::InputHandler() :
-    keyboardKeys_{},
-    mouseButtons_{}
+    keyboardKeys_{ },
+    mouseButtons_{ }
 {
 
 }

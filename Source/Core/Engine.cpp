@@ -4,17 +4,17 @@
 
 #include "Engine.h"
 
-std::unique_ptr<InputHandler> Engine::inputHandler_{};
+std::unique_ptr<InputHandler> Engine::inputHandler_{ };
 
-std::unique_ptr<ResourceManager> Engine::resourceManager_{};
+std::unique_ptr<ResourceManager> Engine::resourceManager_{ };
 
-std::unique_ptr<entt::dispatcher> Engine::eventSystem_{};
+std::unique_ptr<entt::dispatcher> Engine::eventSystem_{ };
 
-std::unique_ptr<DatabaseManager> Engine::databaseManager_{};
+std::unique_ptr<DatabaseManager> Engine::databaseManager_{ };
 
-std::unique_ptr<sf::RenderWindow> Engine::window_{};
+std::unique_ptr<sf::RenderWindow> Engine::window_{ };
 
-std::unique_ptr<Interface> Engine::interface_{};
+std::unique_ptr<Interface> Engine::interface_{ };
 
 void Engine::init()
 {
@@ -23,7 +23,7 @@ void Engine::init()
     eventSystem_ = std::make_unique<entt::dispatcher>();
     databaseManager_ = std::make_unique<DatabaseManager>();
 
-    sf::ContextSettings context{};
+    sf::ContextSettings context{ };
     window_ = std::make_unique<sf::RenderWindow>(sf::VideoMode(WIDTH, HEIGHT), "Terraria Clone", sf::Style::Default, context);
     window_->setFramerateLimit(144);
 

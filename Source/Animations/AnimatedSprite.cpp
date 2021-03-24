@@ -5,10 +5,10 @@
 #include "AnimatedSprite.h"
 
 AnimatedSprite::AnimatedSprite(float timeStep) :
-    vertices_{},
+    vertices_{ },
     animation_{ nullptr },
     timeStep_{ timeStep },
-    timePassed_{}
+    timePassed_{ }
 {
 }
 

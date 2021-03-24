@@ -8,8 +8,8 @@
 
 
 ResourceManager::ResourceManager() :
-    textures_{},
-    fonts_{}
+    textures_{ },
+    fonts_{ }
 {
     std::generate(textures_.begin(), textures_.end(), []()
     { return std::make_unique<sf::Texture>(); });

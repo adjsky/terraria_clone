@@ -5,8 +5,8 @@
 #include "DatabaseManager.h"
 
 DatabaseManager::DatabaseManager() :
-    blockDatabase_{},
-    swordDatabase_{}
+    blockDatabase_{ },
+    swordDatabase_{ }
 {
     blockDatabase_ = std::make_unique<BlockDatabase>();
     swordDatabase_ = std::make_unique<SwordDatabase>();

@@ -9,7 +9,7 @@
 
 
 BlockDatabase::BlockDatabase() :
-    blocksData_{}
+    blocksData_{ }
 {
     std::generate(blocksData_.begin(), blocksData_.end(), []()
     { return std::make_unique<BlockData>(); });

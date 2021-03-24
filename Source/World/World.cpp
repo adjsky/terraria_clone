@@ -9,7 +9,7 @@
 #include "../Core/Engine.h"
 
 World::World() :
-    chunks_{}
+    chunks_{ }
 {
 }
 

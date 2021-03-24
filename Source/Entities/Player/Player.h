@@ -12,7 +12,7 @@
 #include "../Inventory/Inventory.h"
 #include "../../World/World.h"
 
-class Player: public AnimatedSprite
+class Player : public AnimatedSprite
 {
 public:
     enum AnimationTypes

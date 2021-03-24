@@ -5,14 +5,14 @@
 #include "Inventory.h"
 
 Inventory::Inventory() :
-    size_{},
-    cells_{}
+    size_{ },
+    cells_{ }
 {
 }
 
 Inventory::Inventory(const sf::Vector2i& size) :
     size_{ size },
-    cells_{}
+    cells_{ }
 {
     cells_.resize(size.y);
     for (int y = 0; y < size.y; y++) {
