@@ -8,19 +8,21 @@
 #include <SFML/System/Vector2.hpp>
 #include "Math.h"
 
-namespace math {
-    class Ray {
-    public:
-        Ray(const sf::Vector2f& from, const sf::Vector2f& direction);
-        float getLength();
-        void lengthen(float factor);
-        const sf::Vector2f& getPosition();
+namespace math
+{
+class Ray
+{
+public:
+    Ray(const sf::Vector2f& from, const sf::Vector2f& direction);
+    float getLength();
+    void lengthen(float factor);
+    const sf::Vector2f& getPosition();
 
-    private:
-        sf::Vector2f from_;
-        sf::Vector2f direction_;
-        sf::Vector2f to_;
-    };
+private:
+    sf::Vector2f from_;
+    sf::Vector2f direction_;
+    sf::Vector2f to_;
+};
 
 }
 

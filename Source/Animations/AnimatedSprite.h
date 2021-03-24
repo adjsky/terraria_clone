@@ -9,7 +9,8 @@
 
 #include "Animation.h"
 
-class AnimatedSprite : public sf::Drawable, public sf::Transformable {
+class AnimatedSprite: public sf::Drawable, public sf::Transformable
+{
 public:
     explicit AnimatedSprite(float timeStep = 0);
 
@@ -17,7 +18,8 @@ public:
     sf::FloatRect getGlobalBounds() const;
 
 public:
-    enum class MoveDirections {
+    enum class MoveDirections
+    {
         RIGHT,
         LEFT
     };

@@ -10,10 +10,12 @@
 #include <SFML/Graphics/Rect.hpp>
 #include "../ItemTypes.h"
 
-struct SwordData {
+struct SwordData
+{
 };
 
-class SwordDatabase {
+class SwordDatabase
+{
 public:
     SwordDatabase();
     SwordData* getData(SwordType type);

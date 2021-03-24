@@ -5,14 +5,14 @@
 #include "Inventory.h"
 
 Inventory::Inventory() :
-    size_{ },
-    cells_{ }
+    size_{},
+    cells_{}
 {
 }
 
 Inventory::Inventory(const sf::Vector2i& size) :
-    size_{ size },
-    cells_{ }
+    size_{size},
+    cells_{}
 {
     cells_.resize(size.y);
     for (int y = 0; y < size.y; y++) {
@@ -20,16 +20,19 @@ Inventory::Inventory(const sf::Vector2i& size) :
     }
 }
 
-const Inventory::Cell& Inventory::getCell(int x, int y) const {
+const Inventory::Cell& Inventory::getCell(int x, int y) const
+{
     return cells_[y][x];
 }
 
-Inventory::Cell& Inventory::getCell(int x, int y) {
+Inventory::Cell& Inventory::getCell(int x, int y)
+{
     return cells_[y][x];
 }
 
-bool Inventory::addItem(const Cell& cell) {
-    sf::Vector2i lastEmptyCell{ size_ };
+bool Inventory::addItem(const Cell& cell)
+{
+    sf::Vector2i lastEmptyCell{size_};
     for (int y = 0; y < size_.y; y++) {
         for (int x = 0; x < size_.x; x++) {
             if (cells_[y][x].amount == 0) {
@@ -51,12 +54,13 @@ bool Inventory::addItem(const Cell& cell) {
     return true;
 }
 
-bool Inventory::setItem(const Inventory::Cell &cell, int x, int y) {
+bool Inventory::setItem(const Inventory::Cell& cell, int x, int y)
+{
     if (cell.itemType == cells_[y][x].itemType && cell.id == cells_[y][x].id) {
         cells_[y][x].amount += cell.amount;
     }
     else {
-        bool swapped{ false };
+        bool swapped{false};
         if (cells_[y][x].amount > 0) {
             swapped = true;
         }
@@ -66,7 +70,8 @@ bool Inventory::setItem(const Inventory::Cell &cell, int x, int y) {
     return false;
 }
 
-void Inventory::removeItem(int x, int y, int amount) {
+void Inventory::removeItem(int x, int y, int amount)
+{
     if (amount != -1) {
         cells_[y][x].amount -= amount;
         if (cells_[y][x].amount <= 0) {
@@ -80,7 +85,8 @@ void Inventory::removeItem(int x, int y, int amount) {
     }
 }
 
-void Inventory::setSize(const sf::Vector2i& size) {
+void Inventory::setSize(const sf::Vector2i& size)
+{
     size_ = size;
     cells_.resize(size.y);
     for (int y = 0; y < size.y; y++) {
@@ -88,6 +94,7 @@ void Inventory::setSize(const sf::Vector2i& size) {
     }
 }
 
-const sf::Vector2i &Inventory::getSize() const {
+const sf::Vector2i& Inventory::getSize() const
+{
     return size_;
 }

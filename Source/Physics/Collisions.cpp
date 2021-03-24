@@ -4,17 +4,19 @@
 
 #include "Collisions.h"
 
-bool Physics::canPlaceBlock(const Player& player, const sf::Vector2i& pos, const World& world) {
-    sf::FloatRect playerHitBox { player.getHitBox().getGlobalBounds() };
-    sf::Vector2f startPos { mapGlobalCoordsToGame(playerHitBox.left, playerHitBox.top + playerHitBox.height) };
-    sf::Vector2f endPos { mapGlobalCoordsToGame(playerHitBox.left + playerHitBox.width, playerHitBox.top) };
-    const auto* block{ world.getBlock(pos.x, pos.y) };
+bool Physics::canPlaceBlock(const Player& player, const sf::Vector2i& pos, const World& world)
+{
+    sf::FloatRect playerHitBox{player.getHitBox().getGlobalBounds()};
+    sf::Vector2f startPos{mapGlobalCoordsToGame(playerHitBox.left, playerHitBox.top + playerHitBox.height)};
+    sf::Vector2f endPos{mapGlobalCoordsToGame(playerHitBox.left + playerHitBox.width, playerHitBox.top)};
+    const auto* block{world.getBlock(pos.x, pos.y)};
     if (block) {
         if (block->visible) return false;
     }
     if (pos.x >= startPos.x && pos.x <= endPos.x && pos.y >= startPos.y && pos.y <= endPos.y) {
         return false;
-    } else {
+    }
+    else {
         const auto* leftBlock{world.getBlock(pos.x - 1, pos.y)};
         if (leftBlock) {
             if (leftBlock->visible) return true;

@@ -6,12 +6,12 @@
 #include "../../Core/Engine.h"
 
 Chunk::Chunk(int startingPosition) :
-    startingPosition_{ startingPosition }
+    startingPosition_{startingPosition}
 {
 }
 
 Chunk::Chunk(const Chunk& another_chunk) :
-    startingPosition_{ another_chunk.startingPosition_ }
+    startingPosition_{another_chunk.startingPosition_}
 {
     for (int y = 0; y < CHUNK_HEIGHT; y++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
@@ -23,7 +23,8 @@ Chunk::Chunk(const Chunk& another_chunk) :
     }
 }
 
-Chunk& Chunk::operator=(const Chunk& another_chunk) {
+Chunk& Chunk::operator=(const Chunk& another_chunk)
+{
     startingPosition_ = another_chunk.startingPosition_;
     for (int y = 0; y < CHUNK_HEIGHT; y++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
@@ -36,8 +37,9 @@ Chunk& Chunk::operator=(const Chunk& another_chunk) {
     return *this;
 }
 
-void Chunk::updateSprites() {
-    auto* resourceManager{ Engine::getResourceManager() };
+void Chunk::updateSprites()
+{
+    auto* resourceManager{Engine::getResourceManager()};
     for (int y = 0; y < CHUNK_HEIGHT; y++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
             blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::ITEMS));
@@ -50,11 +52,12 @@ void Chunk::updateSprites() {
     }
 }
 
-void Chunk::generate(FastNoiseLite& noise) {
-    auto* resourceManager{ Engine::getResourceManager() };
+void Chunk::generate(FastNoiseLite& noise)
+{
+    auto* resourceManager{Engine::getResourceManager()};
     for (int x = 0; x < CHUNK_WIDTH; x++) {
-        float noiseValue{ noise.GetNoise((float)(x+startingPosition_), 0.0f) };
-        int blockHeight{ WORLD_HEIGHT_GENERATION + static_cast<int>((noiseValue * 20)) };
+        float noiseValue{noise.GetNoise((float)(x + startingPosition_), 0.0f)};
+        int blockHeight{WORLD_HEIGHT_GENERATION + static_cast<int>((noiseValue * 20))};
         for (int y = 0; y < CHUNK_HEIGHT; y++) {
             blocks_[y][x] = std::make_unique<Block>();
             blocks_[y][x]->sprite.setTexture(resourceManager->getTexture(ResourceManager::ITEMS));
@@ -65,8 +68,7 @@ void Chunk::generate(FastNoiseLite& noise) {
                 blocks_[y][x]->visible = false;
             }
             else {
-                if (y == blockHeight)
-                {
+                if (y == blockHeight) {
                     blocks_[y][x]->id = BlockType::GRASS;
                 }
                 else {
@@ -79,17 +81,19 @@ void Chunk::generate(FastNoiseLite& noise) {
     }
 }
 
-void Chunk::setPosition(int x) {
+void Chunk::setPosition(int x)
+{
     startingPosition_ = x;
 }
 
-void Chunk::draw(sf::RenderWindow& window) const {
-    const sf::View& view{ window.getView() };
-    sf::FloatRect viewBox{ view.getCenter() - view.getSize() / 2.0f, view.getSize() };
+void Chunk::draw(sf::RenderWindow& window) const
+{
+    const sf::View& view{window.getView()};
+    sf::FloatRect viewBox{view.getCenter() - view.getSize() / 2.0f, view.getSize()};
     for (const auto& arr : blocks_) {
         for (const auto& block : arr) {
             if (block->visible) {
-                if (viewBox.intersects(block->sprite.getGlobalBounds())){
+                if (viewBox.intersects(block->sprite.getGlobalBounds())) {
                     window.draw(block->sprite);
                 }
             }
@@ -97,6 +101,7 @@ void Chunk::draw(sf::RenderWindow& window) const {
     }
 }
 
-Block* Chunk::getBlock(int x, int y) const {
+Block* Chunk::getBlock(int x, int y) const
+{
     return blocks_[y][x].get();
 }

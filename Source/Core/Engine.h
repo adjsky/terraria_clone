@@ -14,7 +14,8 @@
 #include "../Entities/Items/DatabaseManager.h"
 #include "../Util/entt.hpp"
 
-class Engine {
+class Engine
+{
 public:
     static void init();
 

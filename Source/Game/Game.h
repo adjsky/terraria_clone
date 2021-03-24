@@ -13,7 +13,8 @@
 #include "../Interface/Interface.h"
 #include "../GameLogic/GameLogic.h"
 
-class Game {
+class Game
+{
 public:
     Game();
     void start();

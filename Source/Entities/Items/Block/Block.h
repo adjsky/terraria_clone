@@ -10,7 +10,8 @@
 
 #include "../ItemTypes.h"
 
-struct Block {
+struct Block
+{
     sf::Sprite sprite;
     BlockType id;
     bool visible;
@@ -18,7 +19,8 @@ struct Block {
     // serialization
     friend boost::serialization::access;
     template<class Archive>
-    inline void serialize(Archive & ar, const unsigned int version) {
+    inline void serialize(Archive& ar, const unsigned int version)
+    {
         ar & id;
         ar & visible;
     }

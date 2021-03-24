@@ -9,7 +9,8 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <vector>
 
-class Animation {
+class Animation
+{
 public:
     Animation();
     explicit Animation(const sf::Texture& texture);

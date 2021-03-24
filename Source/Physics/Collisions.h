@@ -10,8 +10,9 @@
 #ifndef TERRARIA_CLONE_COLLISIONS_H
 #define TERRARIA_CLONE_COLLISIONS_H
 
-namespace Physics {
-    bool canPlaceBlock(const Player& player, const sf::Vector2i& pos, const World& world);
+namespace Physics
+{
+bool canPlaceBlock(const Player& player, const sf::Vector2i& pos, const World& world);
 }
 
 #endif //TERRARIA_CLONE_COLLISIONS_H

@@ -12,9 +12,11 @@
 
 #include "../../Entities/Items/ItemTypes.h"
 
-class ResourceManager {
+class ResourceManager
+{
 public:
-    enum Textures {
+    enum Textures
+    {
         ITEMS,
         PLAYER,
         HOTBAR,
@@ -27,7 +29,8 @@ public:
         TEXTURES_COUNT
     };
 
-    enum Fonts {
+    enum Fonts
+    {
         ROBOTO,
         YUSEI,
         POTTA_ONE,

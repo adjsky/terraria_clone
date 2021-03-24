@@ -12,14 +12,17 @@
 // @TODO
 // Объедить клавиатуру и мышь
 
-struct KeyFrames {
+struct KeyFrames
+{
     bool lastFrame;
     bool currentFrame;
 };
 
-class InputHandler {
+class InputHandler
+{
 public:
-    enum States {
+    enum States
+    {
         JUST_PRESSED,
         JUST_RELEASED,
         STILL_PRESSED,

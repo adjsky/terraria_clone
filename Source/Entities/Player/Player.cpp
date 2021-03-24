@@ -6,22 +6,23 @@
 #include "../../Util/Serialization/GameSerialization.h"
 
 Player::Player() :
-        AnimatedSprite{},
-        isOnGround{ },
-        verticalSpeed{ },
-        horizontalSpeed{ },
-        hasAttachedItem{ false },
-        attachedItem{ },
-        hitBox_{ },
-        animations_{ },
-        hotBar_{ sf::Vector2i{ PLAYER_HOTBAR_SIZE, 1 } },
-        backpack_{ sf::Vector2i{ PLAYER_BACKPACK_SIZE.x, PLAYER_BACKPACK_SIZE.y } },
-        hotBarIndex_{ 0 },
-        health_{ 100 }
+    AnimatedSprite{},
+    isOnGround{},
+    verticalSpeed{},
+    horizontalSpeed{},
+    hasAttachedItem{false},
+    attachedItem{},
+    hitBox_{},
+    animations_{},
+    hotBar_{sf::Vector2i{PLAYER_HOTBAR_SIZE, 1}},
+    backpack_{sf::Vector2i{PLAYER_BACKPACK_SIZE.x, PLAYER_BACKPACK_SIZE.y}},
+    hotBarIndex_{0},
+    health_{100}
 {
 }
 
-void Player::moveWithCollide(const World& world) {
+void Player::moveWithCollide(const World& world)
+{
     if (horizontalSpeed != 0) {
         sf::FloatRect hitbox = getHitBox().getGlobalBounds();
         // move hitbox horizontally
@@ -40,7 +41,7 @@ void Player::moveWithCollide(const World& world) {
                 if (block) {
                     if (block->visible) {
                         if (hitbox.intersects(block->sprite.getGlobalBounds())) {
-                            diff = block->sprite.getGlobalBounds().left - (getHitBox().getGlobalBounds().left + getHitBox().getGlobalBounds().width) ;
+                            diff = block->sprite.getGlobalBounds().left - (getHitBox().getGlobalBounds().left + getHitBox().getGlobalBounds().width);
                             break;
                         }
                     }
@@ -109,25 +110,27 @@ void Player::moveWithCollide(const World& world) {
         if (diff < verticalSpeed) {
             move(0, diff - 0.01f); // subtract 0.01 to prevent stuck in a block
             verticalSpeed = 0;
-        } else {
+        }
+        else {
             move(0, verticalSpeed);
         }
     }
 }
 
-float Player::getDistanceToGround(const World& world) const {
+float Player::getDistanceToGround(const World& world) const
+{
     sf::FloatRect hitbox = getHitBox().getGlobalBounds();
     float minHeight = std::numeric_limits<float>::max();
     int startX = mapGlobalCoordsToGame(hitbox.left, 0).x;
     int endX = mapGlobalCoordsToGame(hitbox.left + hitbox.width, 0).x;
     sf::Vector2i playerCoords = mapGlobalCoordsToGame(getPosition().x, hitbox.top + hitbox.height);
     for (int x = startX; x < endX + 1; x++) {
-        const Block* block{ nullptr };
+        const Block* block{nullptr};
         for (int y = 0; y < playerCoords.y; y++) {
             block = world.getBlock(x, playerCoords.y - y);
             if (block) {
                 if (block->visible) {
-                    float height =  -((hitbox.top + hitbox.height) - block->sprite.getPosition().y);
+                    float height = -((hitbox.top + hitbox.height) - block->sprite.getPosition().y);
                     if (height < minHeight) {
                         minHeight = height;
                     }
@@ -139,7 +142,8 @@ float Player::getDistanceToGround(const World& world) const {
     return minHeight;
 }
 
-void Player::constructHitBox() {
+void Player::constructHitBox()
+{
     hitBox_.setOutlineThickness(1.0f);
     hitBox_.setOutlineColor(sf::Color::Red);
     hitBox_.setFillColor(sf::Color::Transparent);
@@ -147,43 +151,53 @@ void Player::constructHitBox() {
     hitBox_.setOrigin(hitBox_.getSize().x / 2.0f, hitBox_.getSize().y / 2.0f);
 }
 
-const sf::RectangleShape &Player::getHitBox() const{
+const sf::RectangleShape& Player::getHitBox() const
+{
     return hitBox_;
 }
 
-void Player::move(float x, float y) {
+void Player::move(float x, float y)
+{
     AnimatedSprite::move(x, y);
     hitBox_.move(x, y);
 }
 
-Animation& Player::getAnimation(Player::AnimationTypes type) {
+Animation& Player::getAnimation(Player::AnimationTypes type)
+{
     return animations_[type];
 }
 
-Inventory& Player::getHotBar() {
+Inventory& Player::getHotBar()
+{
     return hotBar_;
 }
 
-Inventory& Player::getBackpack() {
+Inventory& Player::getBackpack()
+{
     return backpack_;
 }
 
-const Inventory& Player::getHotBar() const {
+const Inventory& Player::getHotBar() const
+{
     return hotBar_;
 }
 
-const Inventory& Player::getBackpack() const {
+const Inventory& Player::getBackpack() const
+{
     return backpack_;
 }
 
-int Player::getHotBarIndex() const {
+int Player::getHotBarIndex() const
+{
     return hotBarIndex_;
 }
 
-void Player::setHotBarIndex(int i) {
+void Player::setHotBarIndex(int i)
+{
     hotBarIndex_ = i;
 }
 
-int Player::getHealth() const {
+int Player::getHealth() const
+{
     return health_;
 }

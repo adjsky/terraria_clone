@@ -12,9 +12,11 @@
 
 #include "../Items/ItemTypes.h"
 
-class Inventory {
+class Inventory
+{
 public:
-    struct Cell {
+    struct Cell
+    {
         std::size_t amount = 0;
         ItemTypes itemType;
         int id;
@@ -22,7 +24,8 @@ public:
         // serialization
         friend boost::serialization::access;
         template<class Archive>
-        inline void serialize(Archive & ar, const unsigned int version) {
+        inline void serialize(Archive& ar, const unsigned int version)
+        {
             ar & amount;
             ar & id;
             ar & itemType;
@@ -42,7 +45,8 @@ public:
     // serialization
     friend boost::serialization::access;
     template<class Archive>
-    inline void serialize(Archive & ar, const unsigned int version) {
+    inline void serialize(Archive& ar, const unsigned int version)
+    {
         ar & size_;
         ar & cells_;
     }

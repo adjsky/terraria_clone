@@ -1,7 +1,8 @@
 #include "Core/Engine.h"
 #include "Game/Game.h"
 
-int main() {
+int main()
+{
     Engine::init();
     Game game{};
     game.start();

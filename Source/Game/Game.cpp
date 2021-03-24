@@ -7,26 +7,27 @@
 #include "../Util/Serialization/GameSerialization.h"
 
 Game::Game() :
-        fixedDelta_{ 1 / 60.0f },
-        currentGameSession_{ nullptr },
-        gameLogic_{ *this },
-        camera_{ sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT) },
-        drawHitBoxes_{ false },
-        paused_{ false }
+    fixedDelta_{1 / 60.0f},
+    currentGameSession_{nullptr},
+    gameLogic_{*this},
+    camera_{sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)},
+    drawHitBoxes_{false},
+    paused_{false}
 {
 //    gui_.consoleEntered.connect([this](const std::string& data){
 //        consoleHandler_.process(data);
 //    });
 }
 
-void Game::start() {
+void Game::start()
+{
     sf::Clock timer;
-    float accumulator{ 0.0f };
+    float accumulator{0.0f};
 
     while (Engine::getWindow()->isOpen()) {
         handleEvents();
 
-        float frameTime{ timer.restart().asSeconds() };
+        float frameTime{timer.restart().asSeconds()};
         if (currentGameSession_) gameLogic_.update(frameTime);
         accumulator += frameTime;
         while (accumulator >= fixedDelta_) {
@@ -39,7 +40,8 @@ void Game::start() {
     }
 }
 
-void Game::handleEvents() {
+void Game::handleEvents()
+{
     sf::Event e{};
     while (Engine::getWindow()->pollEvent(e)) {
         if (e.type == sf::Event::Closed) {
@@ -50,53 +52,62 @@ void Game::handleEvents() {
     Engine::getInputHandler()->updateStates();
 }
 
-void Game::close() {
+void Game::close()
+{
     if (currentGameSession_)
         GameSerialization::saveGame(*currentGameSession_);
     Engine::getWindow()->close();
 }
 
-GameSession* Game::getGameSession() {
+GameSession* Game::getGameSession()
+{
     return currentGameSession_.get();
 }
 
-GameSession* Game::createGameSession() {
+GameSession* Game::createGameSession()
+{
     currentGameSession_ = std::make_unique<GameSession>();
     paused_ = false;
     drawHitBoxes_ = false;
     return currentGameSession_.get();
 }
 
-void Game::deleteGameSession() {
+void Game::deleteGameSession()
+{
     currentGameSession_ = nullptr;
 }
 
-sf::View& Game::getCamera() {
+sf::View& Game::getCamera()
+{
     return camera_;
 }
 
-void Game::drawHitBoxes(bool condition) {
+void Game::drawHitBoxes(bool condition)
+{
     drawHitBoxes_ = condition;
 }
 
-void Game::pause(bool condition) {
+void Game::pause(bool condition)
+{
     paused_ = condition;
 }
 
-bool Game::isPaused() const {
+bool Game::isPaused() const
+{
     return paused_;
 }
 
-void Game::render() {
-    auto* window{ Engine::getWindow() };
+void Game::render()
+{
+    auto* window{Engine::getWindow()};
     window->clear(sf::Color::White);
 
     if (currentGameSession_) {
         window->setView(camera_);
         currentGameSession_->getWorld().draw(*window);
-        window->draw( currentGameSession_->getPlayer());
+        window->draw(currentGameSession_->getPlayer());
         if (drawHitBoxes_) {
-            window->draw( currentGameSession_->getPlayer().getHitBox());
+            window->draw(currentGameSession_->getPlayer().getHitBox());
         }
         window->setView(window->getDefaultView());
     }

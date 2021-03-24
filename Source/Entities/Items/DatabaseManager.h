@@ -8,7 +8,8 @@
 #include "Databases/BlockDatabase.h"
 #include "Databases/SwordDatabase.h"
 
-class DatabaseManager {
+class DatabaseManager
+{
 public:
     DatabaseManager();
 

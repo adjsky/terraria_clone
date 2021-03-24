@@ -10,9 +10,9 @@
 #include "../Game/Game.h"
 
 GameLogic::GameLogic(Game& gameInstance) :
-    gameInstance_{ gameInstance },
-    drawHitBoxes_{ false },
-    noclip_{ false },
+    gameInstance_{gameInstance},
+    drawHitBoxes_{false},
+    noclip_{false},
     breakTimer_{}
 {
     Engine::getEventSystem()->sink<GameEvent::HotBarCellPressed>().connect<&GameLogic::hotBarCellPress>(this);
@@ -24,13 +24,14 @@ GameLogic::GameLogic(Game& gameInstance) :
     Engine::getEventSystem()->sink<GameEvent::MainMenuButtonClicked>().connect<&GameLogic::openMainMenu>(this);
 }
 
-void GameLogic::update(float deltaTime) {
-    auto* inputHandler{ Engine::getInputHandler() };
-    auto* gameSession{ gameInstance_.getGameSession() };
-    auto* window{ Engine::getWindow() };
-    auto* gui{ Engine::getInterface() };
-    auto& camera{ gameInstance_.getCamera() };
-    auto& player{ gameInstance_.getGameSession()->getPlayer() };
+void GameLogic::update(float deltaTime)
+{
+    auto* inputHandler{Engine::getInputHandler()};
+    auto* gameSession{gameInstance_.getGameSession()};
+    auto* window{Engine::getWindow()};
+    auto* gui{Engine::getInterface()};
+    auto& camera{gameInstance_.getCamera()};
+    auto& player{gameInstance_.getGameSession()->getPlayer()};
     if (player.hasAttachedItem) {
         gui->updateAttachedItem(player);
     }
@@ -48,7 +49,7 @@ void GameLogic::update(float deltaTime) {
     }
     if (!gameInstance_.isPaused()) {
         if (inputHandler->getMouseButtonState(sf::Mouse::Left) == InputHandler::JUST_PRESSED) {
-           destroyBlock();
+            destroyBlock();
         }
         if (inputHandler->getMouseButtonState(sf::Mouse::Left) == InputHandler::STILL_PRESSED) {
             breakTimer_ += deltaTime;
@@ -59,15 +60,14 @@ void GameLogic::update(float deltaTime) {
         }
         if (inputHandler->getMouseButtonState(sf::Mouse::Right) == InputHandler::JUST_PRESSED) {
             window->setView(camera);
-            sf::Vector2f globalCoords{ window->mapPixelToCoords(sf::Mouse::getPosition(*window)) };
-            sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
+            sf::Vector2f globalCoords{window->mapPixelToCoords(sf::Mouse::getPosition(*window))};
+            sf::Vector2i pos{mapGlobalCoordsToGame(globalCoords)};
             if (math::distanceBetween(mapGlobalCoordsToGame(player.getPosition()), pos) <= BREAK_PLACE_DISTANCE &&
-                Physics::canPlaceBlock(player, pos, gameSession->getWorld()))
-            {
-                const Inventory::Cell& cell{ player.getHotBar().getCell(player.getHotBarIndex(), 0) };
+                Physics::canPlaceBlock(player, pos, gameSession->getWorld())) {
+                const Inventory::Cell& cell{player.getHotBar().getCell(player.getHotBarIndex(), 0)};
                 if (cell.itemType == ItemTypes::BLOCK && cell.amount != 0) {
-                    bool placed{ gameSession->getWorld().placeBlock(pos.x, pos.y,
-                                                                    static_cast<BlockType>(cell.id)) };
+                    bool placed{gameSession->getWorld().placeBlock(pos.x, pos.y,
+                                                                   static_cast<BlockType>(cell.id))};
                     if (placed) {
                         player.getHotBar().removeItem(player.getHotBarIndex(), 0, 1);
                         gui->updateHotBar(gameSession->getPlayer());
@@ -96,10 +96,11 @@ void GameLogic::update(float deltaTime) {
     }
 }
 
-void GameLogic::fixedUpdate(float fixedDelta) {
-    auto* inputHandler{ Engine::getInputHandler() };
-    auto& world{ gameInstance_.getGameSession()->getWorld() };
-    auto& player{ gameInstance_.getGameSession()->getPlayer() };
+void GameLogic::fixedUpdate(float fixedDelta)
+{
+    auto* inputHandler{Engine::getInputHandler()};
+    auto& world{gameInstance_.getGameSession()->getWorld()};
+    auto& player{gameInstance_.getGameSession()->getPlayer()};
     if (!gameInstance_.isPaused()) {
         // update physics
         if (!noclip_) {
@@ -114,11 +115,10 @@ void GameLogic::fixedUpdate(float fixedDelta) {
             }
         }
 
-        bool moved{ false };
+        bool moved{false};
 
         if (inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::JUST_PRESSED ||
-            inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED)
-        {
+            inputHandler->getKeyboardKeyState(sf::Keyboard::Space) == InputHandler::STILL_PRESSED) {
             if (player.isOnGround && !noclip_) {
                 player.verticalSpeed = -GAME_SPEED * 2.5f;
                 player.isOnGround = false;
@@ -126,8 +126,7 @@ void GameLogic::fixedUpdate(float fixedDelta) {
             }
         }
         if (inputHandler->getKeyboardKeyState(sf::Keyboard::A) == InputHandler::JUST_PRESSED ||
-            inputHandler->getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED)
-        {
+            inputHandler->getKeyboardKeyState(sf::Keyboard::A) == InputHandler::STILL_PRESSED) {
             if (noclip_) {
                 player.move(-GAME_SPEED * 3.0f, 0.0f);
             }
@@ -141,8 +140,7 @@ void GameLogic::fixedUpdate(float fixedDelta) {
             player.changeDirection(Player::MoveDirections::LEFT);
         }
         if (inputHandler->getKeyboardKeyState(sf::Keyboard::D) == InputHandler::JUST_PRESSED ||
-            inputHandler->getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED)
-        {
+            inputHandler->getKeyboardKeyState(sf::Keyboard::D) == InputHandler::STILL_PRESSED) {
             if (noclip_) {
                 player.move(GAME_SPEED * 3.0f, 0.0f);
             }
@@ -156,15 +154,13 @@ void GameLogic::fixedUpdate(float fixedDelta) {
             player.changeDirection(Player::MoveDirections::RIGHT);
         }
         if (inputHandler->getKeyboardKeyState(sf::Keyboard::W) == InputHandler::JUST_PRESSED ||
-            inputHandler->getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED)
-        {
+            inputHandler->getKeyboardKeyState(sf::Keyboard::W) == InputHandler::STILL_PRESSED) {
             if (noclip_) {
                 player.move(0.0f, -GAME_SPEED * 2.0f);
             }
         }
         if (inputHandler->getKeyboardKeyState(sf::Keyboard::S) == InputHandler::JUST_PRESSED ||
-            inputHandler->getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED)
-        {
+            inputHandler->getKeyboardKeyState(sf::Keyboard::S) == InputHandler::STILL_PRESSED) {
             if (noclip_) {
                 player.move(0.0f, GAME_SPEED * 2.0f);
             }
@@ -188,13 +184,14 @@ void GameLogic::fixedUpdate(float fixedDelta) {
     }
 }
 
-void GameLogic::hotBarCellPress(const GameEvent::HotBarCellPressed& event) {
-    auto* gameSession{ gameInstance_.getGameSession() };
-    auto* gui{ Engine::getInterface() };
-    if ( gui->inventoryIsOpen()) {
-        Inventory::Cell cell{gameSession->getPlayer().getHotBar().getCell(event.x, 0) };
+void GameLogic::hotBarCellPress(const GameEvent::HotBarCellPressed& event)
+{
+    auto* gameSession{gameInstance_.getGameSession()};
+    auto* gui{Engine::getInterface()};
+    if (gui->inventoryIsOpen()) {
+        Inventory::Cell cell{gameSession->getPlayer().getHotBar().getCell(event.x, 0)};
         if (gameSession->getPlayer().hasAttachedItem) {
-            bool swapped { gameSession->getPlayer().getHotBar().setItem(gameSession->getPlayer().attachedItem, event.x, 0) };
+            bool swapped{gameSession->getPlayer().getHotBar().setItem(gameSession->getPlayer().attachedItem, event.x, 0)};
             if (swapped) {
                 gameSession->getPlayer().attachedItem = cell;
                 gui->updateAttachedItem(gameSession->getPlayer(), true);
@@ -217,14 +214,15 @@ void GameLogic::hotBarCellPress(const GameEvent::HotBarCellPressed& event) {
     }
 }
 
-void GameLogic::inventoryCellPress(const GameEvent::InventoryCellPressed& event) {
-    auto* gameSession{ gameInstance_.getGameSession() };
-    auto& player{ gameSession->getPlayer() };
-    auto* gui{ Engine::getInterface() };
+void GameLogic::inventoryCellPress(const GameEvent::InventoryCellPressed& event)
+{
+    auto* gameSession{gameInstance_.getGameSession()};
+    auto& player{gameSession->getPlayer()};
+    auto* gui{Engine::getInterface()};
     if (gui->inventoryIsOpen()) {
-        Inventory::Cell cell{gameSession->getPlayer().getBackpack().getCell(event.x, event.y) };
+        Inventory::Cell cell{gameSession->getPlayer().getBackpack().getCell(event.x, event.y)};
         if (gameSession->getPlayer().hasAttachedItem) {
-            bool swapped{ player.getBackpack().setItem(gameSession->getPlayer().attachedItem, event.x, event.y) };
+            bool swapped{player.getBackpack().setItem(gameSession->getPlayer().attachedItem, event.x, event.y)};
             if (swapped) {
                 gameSession->getPlayer().attachedItem = cell;
                 gui->updateAttachedItem(gameSession->getPlayer(), true);
@@ -247,30 +245,35 @@ void GameLogic::inventoryCellPress(const GameEvent::InventoryCellPressed& event)
     }
 }
 
-void GameLogic::closeGame(const GameEvent::ExitButtonClicked& event) {
+void GameLogic::closeGame(const GameEvent::ExitButtonClicked& event)
+{
     gameInstance_.close();
 }
 
-void GameLogic::closeMenu(const GameEvent::ContinueGameButtonClicked& event) {
+void GameLogic::closeMenu(const GameEvent::ContinueGameButtonClicked& event)
+{
     Engine::getInterface()->showGameMenu(false);
     gameInstance_.pause(false);
 }
 
-void GameLogic::continueGame(const GameEvent::ContinueMenuButtonClicked& event) {
-    GameSession* gameSession{ gameInstance_.createGameSession() };
-    GameSerialization::SerializedData gameData{ GameSerialization::getGameData() };
+void GameLogic::continueGame(const GameEvent::ContinueMenuButtonClicked& event)
+{
+    GameSession* gameSession{gameInstance_.createGameSession()};
+    GameSerialization::SerializedData gameData{GameSerialization::getGameData()};
     gameSession->setWorld(gameData.world);
     gameSession->setPlayer(gameData.player);
 }
 
-void GameLogic::createNewWorld(const GameEvent::NewWorldButtonClicked& event) {
-    GameSession* gameSession{ gameInstance_.createGameSession() };
+void GameLogic::createNewWorld(const GameEvent::NewWorldButtonClicked& event)
+{
+    GameSession* gameSession{gameInstance_.createGameSession()};
     gameSession->getWorld().generate();
     gameSession->getPlayer().move(0.0f, -65.0f * BLOCK_SIZE);
 }
 
-void GameLogic::openMainMenu(const GameEvent::MainMenuButtonClicked& event) {
-    GameSession* gameSession{ gameInstance_.getGameSession() };
+void GameLogic::openMainMenu(const GameEvent::MainMenuButtonClicked& event)
+{
+    GameSession* gameSession{gameInstance_.getGameSession()};
     GameSerialization::saveGame(*gameSession);
     gameInstance_.deleteGameSession();
     Engine::getInterface()->showMainMenu(true);
@@ -278,17 +281,18 @@ void GameLogic::openMainMenu(const GameEvent::MainMenuButtonClicked& event) {
     Engine::getInterface()->showGameMenu(false);
 }
 
-void GameLogic::destroyBlock() {
-    auto* gameSession{ gameInstance_.getGameSession() };
-    auto* window{ Engine::getWindow() };
-    auto& camera{ gameInstance_.getCamera() };
-    auto& player{ gameSession->getPlayer() };
-    auto* gui{ Engine::getInterface() };
+void GameLogic::destroyBlock()
+{
+    auto* gameSession{gameInstance_.getGameSession()};
+    auto* window{Engine::getWindow()};
+    auto& camera{gameInstance_.getCamera()};
+    auto& player{gameSession->getPlayer()};
+    auto* gui{Engine::getInterface()};
     window->setView(camera);
-    sf::Vector2f globalCoords{ window->mapPixelToCoords(sf::Mouse::getPosition(*window)) };
-    sf::Vector2i pos{ mapGlobalCoordsToGame(globalCoords) };
+    sf::Vector2f globalCoords{window->mapPixelToCoords(sf::Mouse::getPosition(*window))};
+    sf::Vector2i pos{mapGlobalCoordsToGame(globalCoords)};
     if (math::distanceBetween(mapGlobalCoordsToGame(player.getPosition()), pos) <= BREAK_PLACE_DISTANCE) {
-        const Block* block { gameSession->getWorld().destroyBlock(pos.x, pos.y) };
+        const Block* block{gameSession->getWorld().destroyBlock(pos.x, pos.y)};
         if (block) {
             Inventory::Cell cell{};
             cell.id = static_cast<int>(block->id);

@@ -10,7 +10,8 @@
 // forward declare game class and link it in cpp file
 class Game;
 
-class GameLogic {
+class GameLogic
+{
 public:
     GameLogic(Game& gameInstance);
 

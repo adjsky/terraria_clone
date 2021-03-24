@@ -5,7 +5,8 @@
 #ifndef TERRARIA_CLONE_ITEMTYPES_H
 #define TERRARIA_CLONE_ITEMTYPES_H
 
-enum class ItemTypes {
+enum class ItemTypes
+{
     BLOCK = 0,
     SWORD,
     PICKAXE,
@@ -13,14 +14,16 @@ enum class ItemTypes {
     TYPES_COUNT
 };
 
-enum class BlockType {
+enum class BlockType
+{
     AIR = -1,
     DIRT_PIXEL = 0,
     GRASS,
     TYPES_COUNT
 };
 
-enum class SwordType {
+enum class SwordType
+{
     IRON = 0,
     TYPES_COUNT
 };

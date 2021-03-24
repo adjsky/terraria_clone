@@ -12,9 +12,11 @@
 #include "../Inventory/Inventory.h"
 #include "../../World/World.h"
 
-class Player : public AnimatedSprite {
+class Player: public AnimatedSprite
+{
 public:
-    enum AnimationTypes {
+    enum AnimationTypes
+    {
         MOVE,
         STAND,
         JUMP,
@@ -40,10 +42,11 @@ public:
     // serialization
     friend boost::serialization::access;
     template<class Archive>
-    inline void save(Archive& ar, const unsigned int version) const {
+    inline void save(Archive& ar, const unsigned int version) const
+    {
         // can't get rid of a bug of saving and loading a local vector so i have to use floats instead
-        float x{ getPosition().x };
-        float y{ getPosition().y };
+        float x{getPosition().x};
+        float y{getPosition().y};
         ar & x;
         ar & y;
         ar & isOnGround;
@@ -53,7 +56,8 @@ public:
         ar & hotBarIndex_;
     }
     template<class Archive>
-    inline void load(Archive& ar, const unsigned int version) {
+    inline void load(Archive& ar, const unsigned int version)
+    {
         // can't get rid of a bug of saving and loading a local vector so i have to use floats instead
         float x;
         float y;

@@ -10,7 +10,8 @@
 #include "../Interface/Interface.h"
 #include "../World/World.h"
 
-class GameSession {
+class GameSession
+{
 public:
     GameSession();
 
@@ -31,7 +32,8 @@ private:
     // serialization
     friend boost::serialization::access;
     template<class Archive>
-    inline void serialize(Archive & ar, const unsigned int version) {
+    inline void serialize(Archive& ar, const unsigned int version)
+    {
         ar & world_;
         ar & player_;
     }

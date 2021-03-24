@@ -12,10 +12,12 @@ DatabaseManager::DatabaseManager() :
     swordDatabase_ = std::make_unique<SwordDatabase>();
 }
 
-BlockDatabase* DatabaseManager::getBlockDatabase() {
+BlockDatabase* DatabaseManager::getBlockDatabase()
+{
     return blockDatabase_.get();
 }
 
-SwordDatabase* DatabaseManager::getSwordDatabase() {
+SwordDatabase* DatabaseManager::getSwordDatabase()
+{
     return swordDatabase_.get();
 }

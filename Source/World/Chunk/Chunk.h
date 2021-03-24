@@ -16,7 +16,8 @@
 #include "../../Util/constants.h"
 #include "../../Util/FastNoiseLite.h"
 
-class Chunk {
+class Chunk
+{
 public:
     explicit Chunk(int startingPosition = 0);
     Chunk(const Chunk& another_chunk);
@@ -30,7 +31,8 @@ public:
     // serialization
     friend boost::serialization::access;
     template<class Archive>
-    inline void serialize(Archive & ar, const unsigned int version) {
+    inline void serialize(Archive& ar, const unsigned int version)
+    {
         ar & startingPosition_;
         ar & blocks_;
     }

@@ -10,7 +10,8 @@
 #include "../Entities/Player/Player.h"
 #include "../Util/entt.hpp"
 
-class Interface {
+class Interface
+{
 public:
     explicit Interface(sf::RenderWindow& window);
     void handleEvent(sf::Event& e);

@@ -16,7 +16,8 @@
 #include "../Util/FastNoiseLite.h"
 #include "../Entities/Items/ItemTypes.h"
 
-class World {
+class World
+{
 public:
     World();
     void generate();
@@ -30,7 +31,8 @@ public:
     // serialization
     friend boost::serialization::access;
     template<class Archive>
-    inline void serialize(Archive & ar, const unsigned int version) {
+    inline void serialize(Archive& ar, const unsigned int version)
+    {
         ar & chunks_;
     }
 private:

@@ -8,34 +8,43 @@
 #include <string>
 #include <SFML/System.hpp>
 
-namespace GameEvent {
-    struct HotBarCellPressed {
-        int x;
-    };
+namespace GameEvent
+{
+struct HotBarCellPressed
+{
+    int x;
+};
 
-    struct InventoryCellPressed {
-        int x;
-        int y;
-    };
+struct InventoryCellPressed
+{
+    int x;
+    int y;
+};
 
-    struct ConsoleEntered {
-        std::string data;
-    };
+struct ConsoleEntered
+{
+    std::string data;
+};
 
-    struct ExitButtonClicked {
-    };
+struct ExitButtonClicked
+{
+};
 
-    struct ContinueGameButtonClicked {
-    };
+struct ContinueGameButtonClicked
+{
+};
 
-    struct NewWorldButtonClicked {
-    };
+struct NewWorldButtonClicked
+{
+};
 
-    struct ContinueMenuButtonClicked {
-    };
+struct ContinueMenuButtonClicked
+{
+};
 
-    struct MainMenuButtonClicked {
-    };
+struct MainMenuButtonClicked
+{
+};
 }
 
 #endif //TERRARIA_CLONE_EVENTS_H

@@ -11,10 +11,12 @@
 
 #include "../ItemTypes.h"
 
-struct BlockData {
+struct BlockData
+{
 };
 
-class BlockDatabase {
+class BlockDatabase
+{
 public:
     BlockDatabase();
     const BlockData* getData(BlockType type);

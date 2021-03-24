@@ -6,18 +6,20 @@
 
 
 InputHandler::InputHandler() :
-    keyboardKeys_{ },
-    mouseButtons_{ }
+    keyboardKeys_{},
+    mouseButtons_{}
 {
 
 }
 
-void InputHandler::updateMouseButton(sf::Mouse::Button button) {
+void InputHandler::updateMouseButton(sf::Mouse::Button button)
+{
     mouseButtons_[button].lastFrame = mouseButtons_[button].currentFrame;
     mouseButtons_[button].currentFrame = sf::Mouse::isButtonPressed(button);
 }
 
-InputHandler::States InputHandler::getMouseButtonState(sf::Mouse::Button button) {
+InputHandler::States InputHandler::getMouseButtonState(sf::Mouse::Button button)
+{
     if (mouseButtons_[button].lastFrame) {
         if (mouseButtons_[button].currentFrame) {
             return States::STILL_PRESSED;
@@ -36,12 +38,14 @@ InputHandler::States InputHandler::getMouseButtonState(sf::Mouse::Button button)
     }
 }
 
-void InputHandler::updateKeyboardKey(sf::Keyboard::Key key) {
+void InputHandler::updateKeyboardKey(sf::Keyboard::Key key)
+{
     keyboardKeys_[key].lastFrame = keyboardKeys_[key].currentFrame;
     keyboardKeys_[key].currentFrame = sf::Keyboard::isKeyPressed(key);
 }
 
-InputHandler::States InputHandler::getKeyboardKeyState(sf::Keyboard::Key key) {
+InputHandler::States InputHandler::getKeyboardKeyState(sf::Keyboard::Key key)
+{
     if (keyboardKeys_[key].lastFrame) {
         if (keyboardKeys_[key].currentFrame) {
             return States::STILL_PRESSED;
@@ -60,7 +64,8 @@ InputHandler::States InputHandler::getKeyboardKeyState(sf::Keyboard::Key key) {
     }
 }
 
-void InputHandler::updateStates() {
+void InputHandler::updateStates()
+{
     for (int k = sf::Keyboard::A; k < sf::Keyboard::KeyCount; k++) {
         updateKeyboardKey(static_cast<sf::Keyboard::Key>(k));
     }
