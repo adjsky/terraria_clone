@@ -529,4 +529,3 @@ void Interface::constructMenu()
     menu->setVisible(false);
     gui_.add(menu, "menu");
 }
-
